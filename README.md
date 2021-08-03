@@ -1,5 +1,14 @@
 # MultiChainDotNet
 
+## Features
+
+* The build directory contains docker-compose script used to launch a 4-node multichain network on the development machine running WSL(Ubuntu).
+* The Core library contains the wrapper of MultiChain RPC API and included relevant strongly typed class for request and response.
+* The Fluent library is a fluent framework for constructing multichain raw transactions and signing transactions externally.
+* The Managers library is a high-level abstraction of the underlying classes designed for dependency injection.
+* The Console app is a command-line tool used for issuing calls via the MultiChainDotNet interface.
+* The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
+
 ## Setup the blockchain network
 
 ### 1. Install Docker for Windows Desktop with WSL2
@@ -27,9 +36,9 @@ If nodes doesn't start up, press CTRL-C, enter `docker-compose down` and try aga
 Each node should be connected to 3 other nodes.
 
 ```bash
-sh$ docker exec -it multichain-node1 multichain-cli senc2 getpeerinfo
-sh$ docker exec -it multichain-node2 multichain-cli senc2 getpeerinfo
-sh$ docker exec -it multichain-node3 multichain-cli senc2 getpeerinfo
+sh$ docker exec -it multichain-node1 multichain-cli sennet getpeerinfo
+sh$ docker exec -it multichain-node2 multichain-cli sennet getpeerinfo
+sh$ docker exec -it multichain-node3 multichain-cli sennet getpeerinfo
 ```
 
 ## Compile and Test
