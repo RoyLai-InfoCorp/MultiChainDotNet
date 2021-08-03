@@ -6,7 +6,6 @@
 * The Core library contains the wrapper of MultiChain RPC API and included relevant strongly typed class for request and response.
 * The Fluent library is a fluent framework for constructing multichain raw transactions and signing transactions externally.
 * The Managers library is a high-level abstraction of the underlying classes designed for dependency injection.
-* The Console app is a command-line tool used for issuing calls via the MultiChainDotNet interface.
 * The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
 
 ## Setup the blockchain network
