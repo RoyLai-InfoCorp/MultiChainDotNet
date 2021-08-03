@@ -1,0 +1,25 @@
+FROM multichain-base:2.1.2 AS base
+EXPOSE 12020
+EXPOSE 12021
+#ARG seed_ip
+ENV seed_ip $seed_ip
+#ARG ptekey
+ENV ptekey $ptekey
+#ARG rpcpassword
+ENV rpcpassword $rpcpassword
+
+WORKDIR /
+SHELL ["/bin/bash","-c"]
+RUN echo '#!/bin/bash' >> init.sh
+RUN echo 'multichaind -initprivkey=${ptekey} sennet@${seed_ip}:12020 -daemon' >> init.sh
+RUN echo 'sleep 1' >> init.sh
+RUN echo 'pkill multichaind' >> init.sh
+RUN echo 'sleep 1' >> init.sh
+RUN echo 'cd /root/.multichain/sennet' >> init.sh
+RUN echo 'replace="rpcpassword=${rpcpassword}"' >> init.sh
+RUN echo 'sed -i "s/rpcpassword.*$/${replace}/" multichain.conf' >> init.sh
+RUN echo 'echo 'rpcallowip=0.0.0.0/0' >> multichain.conf' >> init.sh
+RUN echo 'multichaind sennet -reindex -rescan -lockinlinemetadata=0' >> init.sh
+RUN chmod +x init.sh
+
+ENTRYPOINT [ "bash","/init.sh" ]

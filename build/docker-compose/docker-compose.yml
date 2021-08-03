@@ -1,0 +1,62 @@
+version: '3.4'
+
+services:
+
+  multichain.seednode.service:
+    image: multichain-seed:2.1.2
+    build:
+      context: .
+      dockerfile: Dockerfile.0
+    container_name: multichain-seednode
+    ports:
+    - '12020:12020'
+    - '12021:12021'
+
+  multichain.node1.service:
+    image: multichain-node:2.1.2
+    build:
+      context: .
+      dockerfile: Dockerfile.1
+    container_name: multichain-node1
+    ports:
+    - '12022:12020'
+    - '12023:12021'
+    environment:
+    - seed_ip=multichain-seednode
+    - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
+    - ptekey=VAHJarN329oHzL5fJjEJMSWoMLXdtfBXyu62D74JaKXtt77Ypc9PNaFz
+    depends_on:
+      - multichain.seednode.service
+
+  multichain.node2.service:
+    image: multichain-node:2.1.2
+    build:
+      context: .
+      dockerfile: Dockerfile.1
+    container_name: multichain-node2
+    ports:
+    - '12024:12020'
+    - '12025:12021'
+    environment:
+    - seed_ip=multichain-seednode
+    - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
+    - ptekey=V8Ktev3iY49EuEeUyaSaiQ1QU3gmW3M5HV8HNdx7srkR3PSty4KbpXZ4
+    depends_on:
+      - multichain.seednode.service
+
+  multichain.node3.service:
+    image: multichain-node:2.1.2
+    build:
+      context: .
+      dockerfile: Dockerfile.1
+    container_name: multichain-node3
+    ports:
+    - '12026:12020'
+    - '12027:12021'
+    environment:
+    - seed_ip=multichain-seednode
+    - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
+    - ptekey=V8btCNTAyxH1R9NGHF6PSWR8CTzadPHxpKTp75enouS2GHEyqxAZHVrU
+    depends_on:
+      - multichain.seednode.service
+    

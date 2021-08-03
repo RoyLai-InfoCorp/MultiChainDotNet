@@ -1,0 +1,15 @@
+﻿{
+	"MultiChainNode": {
+		"Protocol": "http",
+		"NodeName": "relayer1",
+		"NodeWallet": "12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL",
+		"Pubkey": "03cbb355bd0f558b892113dff5f45c847ef948219673f784970beb5fc532effe80",
+		"Wif": "VAHJarN329oHzL5fJjEJMSWoMLXdtfBXyu62D74JaKXtt77Ypc9PNaFz",
+		"Ptekey": "6713cfdcf16afcc9709a5069a27ac9805c1fc36951e310abc2a9049e66c45d2e",
+		"NetworkAddress": "localhost",
+		"NetworkPort": 12021,
+		"ChainName": "sennet",
+		"RpcUserName": "multichainrpc",
+		"RpcPassword": "C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq"
+	}
+}

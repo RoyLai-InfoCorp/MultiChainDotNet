@@ -1,0 +1,22 @@
+<Project>
+ <PropertyGroup>
+    <Authors>Roy Lai</Authors>
+    <Company>InfoCorp Technologies Pte Ltd</Company>
+    <PackageTags>InfoCorp;MultiChain</PackageTags>
+    <PackageDescription> See README.md for more details</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/RoyLai-InfoCorp/MultiChainDotNet</RepositoryUrl>
+    <Copyright>Copyright (C) 2020 InfoCorp Technologies Pte. Ltd. (roy.lai@infocorp.io) - All Rights Reserved</Copyright>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+ </PropertyGroup>
+ <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.220">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+ </ItemGroup>
+</Project>

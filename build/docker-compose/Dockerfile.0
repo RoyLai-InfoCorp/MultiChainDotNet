@@ -1,0 +1,12 @@
+FROM multichain-base:2.1.2 AS base
+EXPOSE 12020
+EXPOSE 12021
+
+SHELL ["/bin/bash","-c"]
+RUN multichain-util create sennet
+COPY multichain.sennet /root/.multichain/sennet/multichain.conf
+COPY params.sennet /root/.multichain/sennet/params.dat
+COPY init.sh /
+RUN /init.sh
+
+ENTRYPOINT ["multichaind","sennet"]
