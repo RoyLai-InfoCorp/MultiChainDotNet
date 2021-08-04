@@ -36,8 +36,8 @@ namespace MultiChainDotNet.Managers
 			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
 
-			_assetCmd = _cmdFactory.CreateMultiChainAssetCommand();
-			_txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			_assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}

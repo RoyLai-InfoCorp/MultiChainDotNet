@@ -16,7 +16,7 @@ namespace MultiChainDotNet.Managers
 
 		public MultiChainAddressManager(IMultiChainCommandFactory commandFactory)
 		{
-			_addressCmd = commandFactory.CreateMultiChainAddressCommand();
+			_addressCmd = commandFactory.CreateCommand<MultiChainAddressCommand>();
 		}
 
 		public async Task<MultiChainResult<VoidType>> ImportAddressAsync(string address)

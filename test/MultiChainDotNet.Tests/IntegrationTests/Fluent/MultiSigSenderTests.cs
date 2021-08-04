@@ -47,17 +47,17 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// PREPARE
 
 			// Create multisig address
-			var addrCmd = _cmdFactory.CreateMultiChainAddressCommand();
+			var addrCmd = _cmdFactory.CreateCommand<MultiChainAddressCommand>();
 			var multisig = await addrCmd.CreateMultiSigAsync(n, addresses);
 			await addrCmd.ImportAddressAsync(multisig.Result.Address);
 			Console.WriteLine(multisig.Result.ToJson());
 
 			// Grant multisig permission to send and receive
-			var permCmd = _cmdFactory.CreateMultiChainPermissionCommand();
+			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
 			await permCmd.GrantPermissionAsync(multisig.Result.Address, "send,receive");
 
 			// Issue asset into multisig
-			var assetCmd = _cmdFactory.CreateMultiChainAssetCommand();
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			var result = await assetCmd.SendAssetAsync(multisig.Result.Address, "openasset", 10);
 			if (result.IsError)
 				throw result.Exception;
@@ -78,8 +78,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
-			var assetCmd = _cmdFactory.CreateMultiChainAssetCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
 
 			// ACT
@@ -108,7 +108,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
 			var requestor = new TransactionRequestor();

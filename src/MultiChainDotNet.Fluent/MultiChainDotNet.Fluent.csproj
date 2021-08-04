@@ -1,10 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<Version>2.21.2.00</Version>
+		<PackageId>MultiChainDotNet.Fluent</PackageId>
+		<Title>MultiChain DotNet Library</Title>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IsPackable>true</IsPackable>
+	</PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj" />
   </ItemGroup>
 

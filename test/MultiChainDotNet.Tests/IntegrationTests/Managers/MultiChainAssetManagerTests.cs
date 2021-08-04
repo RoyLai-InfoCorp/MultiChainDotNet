@@ -44,26 +44,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			_txnManager = _container.GetRequiredService<IMultiChainTransactionManager>();
 		}
 
-
-		[Test, Order(10), Ignore("Sending fees using implicitly signing is unpredictable")]
-		public async Task Should_be_able_to_sign_implicitly()
-		{
-			//Prepare
-			_stateDb.ClearState<TestState>();
-			var senderBalBefore = _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet).Result.Result.Raw;
-			var receiverBalBefore = _assetManager.GetAssetBalanceByAddressAsync(_testUser1.NodeWallet).Result.Result.Raw;
-
-			// ACT
-			var result = await _assetManager.PayAsync(_testUser1.NodeWallet, 1000);
-
-			// ASSERT
-			var senderBalAfter= _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet).Result.Result.Raw;
-			var receiverBalAfter = _assetManager.GetAssetBalanceByAddressAsync(_testUser1.NodeWallet).Result.Result.Raw;
-
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(receiverBalAfter, Is.EqualTo(receiverBalBefore + 1000 * 1000000),"Receiver balances doesn't match");
-		}
-
 		const UInt64 SEND_TXN_FEE_AT_LEAST = 300;
 		const UInt64 SEND_TXN_FEE_AT_MOST = 400;
 

@@ -50,8 +50,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			_stateDb.ClearState<TestState>();
 
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
-			var assetCmd = _cmdFactory.CreateMultiChainAssetCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			var result1 = await assetCmd.GetAddressBalancesAsync(_testUser1.NodeWallet);
 			var balancesBefore = result1.Result.FirstOrDefault(x => String.IsNullOrEmpty(x.Name)).Raw;
 			_logger.LogInformation("Balance before:"+balancesBefore.ToString());
@@ -85,7 +85,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public void Should_issue_asset()
 		{
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
@@ -117,7 +117,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		public async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
@@ -136,7 +136,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		public async Task<string> GetDeclarationAsync(string txid)
 		{
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
@@ -158,7 +158,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_annotate_asset()
 		{
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
@@ -197,7 +197,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_asset_with_declaration()
 		{
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
@@ -240,7 +240,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand(); 
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>(); 
 			var assetName = state.AssetName;
 
 			// ACT
@@ -270,7 +270,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			//Prepare
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var assetName = state.AssetName;
 
 			// ACT
@@ -299,7 +299,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public void Can_CreateStream()
 		{
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			var streamName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
@@ -331,8 +331,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
-			var streamCmd = _cmdFactory.CreateMultiChainStreamCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			var streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
 			await streamCmd.SubscribeAsync(state.StreamName);
 
 			// ACT
@@ -361,7 +361,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
 			var requestor = new TransactionRequestor();
@@ -386,7 +386,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public void Can_GrantPermission()
 		{
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
 			var requestor = new TransactionRequestor();
@@ -411,7 +411,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Can_RevokePermission()
 		{
 			// PREPARE
-			var txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
 			var requestor = new TransactionRequestor();

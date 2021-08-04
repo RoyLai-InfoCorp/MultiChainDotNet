@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CFF4CD03-F4A1-4B46-9116-2F23372BBABB}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -19,6 +20,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker-compose", "docker-compose", "{83C27AFD-FE8E-4798-9084-14FC0B85FD53}"
+	ProjectSection(SolutionItems) = preProject
+		build\docker-compose\docker-compose.yml = build\docker-compose\docker-compose.yml
+		build\docker-compose\Dockerfile.0 = build\docker-compose\Dockerfile.0
+		build\docker-compose\Dockerfile.1 = build\docker-compose\Dockerfile.1
+		build\docker-compose\init.sh = build\docker-compose\init.sh
+		build\docker-compose\multichain.sennet = build\docker-compose\multichain.sennet
+		build\docker-compose\params.sennet = build\docker-compose\params.sennet
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +62,7 @@ Global
 		{D5C93C17-EC73-4238-B463-29558DA111C6} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{A90A1D83-CAEC-4D30-9A19-74BCADE51EAA} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{3E61CFB2-A687-4B89-8FC9-B13E94FD5E79} = {BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}
+		{83C27AFD-FE8E-4798-9084-14FC0B85FD53} = {CFF4CD03-F4A1-4B46-9116-2F23372BBABB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EFC47B3-88A4-4AA8-944E-200D97EC87C1}

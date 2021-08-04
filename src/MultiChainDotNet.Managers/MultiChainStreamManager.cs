@@ -37,8 +37,8 @@ namespace MultiChainDotNet.Managers
 			_mcConfig = mcConfig;
 			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
 
-			_streamCmd = _cmdFactory.CreateMultiChainStreamCommand();
-			_txnCmd = _cmdFactory.CreateMultiChainTransactionCommand();
+			_streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
+			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 

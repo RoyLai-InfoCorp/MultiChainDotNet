@@ -36,12 +36,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureLogging(ILoggingBuilder logging)
 		{
 			base.ConfigureLogging(logging);
-			//logging.AddFilter((provider, category, logLevel) =>
-			//{
-			//	if (logLevel < Microsoft.Extensions.Logging.LogLevel.Information && category.Contains("MultiChainDotNet.Core.MultiChainTransaction.MultiChainTransactionCommand"))
-			//		return false;
-			//	return true;
-			//});
+			logging.AddFilter((provider, category, logLevel) =>
+			{
+				if (logLevel < Microsoft.Extensions.Logging.LogLevel.Warning && category.Contains("MultiChainDotNet.Core.MultiChainTransaction.MultiChainTransactionCommand"))
+					return false;
+				return true;
+			});
 		}
 
 		[SetUp]
@@ -232,10 +232,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(withrawchange.ExceptionMessage, Contains.Substring("Unconfirmed issue transaction in input"));
 		}
 
-		[Test, Order(10)]
+		[Test]
 		public async Task Should_pay_using_createrawtransaction()
 		{
-			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
 			var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);
 			var raw = await _txnCmd.CreateRawTransactionAsync(
 				lockUnspent.Result.TxId,
@@ -260,7 +259,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
 
-		[Test, Order(20)]
+		[Test, Order(10)]
 		public async Task Should_issue_asset_to_self_using_createrawtransaction()
 		{
 			_stateDb.ClearState<TestState>();
@@ -298,7 +297,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_stateDb.SaveState(state);
 		}
 
-		[Test, Order(30)]
+		[Test, Order(20)]
 		public async Task Should_send_asset_with_inlinemetadata_using_createrawtransaction()
 		{
 			var state = _stateDb.GetState<TestState>();
@@ -336,6 +335,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var state = _stateDb.GetState<TestState>();
 			var assetName = state.AssetName;
 
+			await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 1000);
 			var lockFees = await _txnCmd.PrepareLockUnspentFromAsync(_testUser1.NodeWallet, "", 1000);
 			var unspents = await _txnCmd.ListUnspentAsync(_testUser1.NodeWallet);
 			var unspent = unspents.Result.FirstOrDefault(x => x.Assets.Any(y => y.Name == assetName));

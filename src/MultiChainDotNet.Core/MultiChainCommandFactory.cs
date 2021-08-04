@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainBlockchain;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core.MultiChainTransaction;
@@ -29,35 +31,11 @@ namespace MultiChainDotNet.Core
 			_mcConfig = mcConfig;
 		}
 
-		public MultiChainAddressCommand CreateMultiChainAddressCommand()
+		public T CreateCommand<T>() where T:MultiChainCommandBase
 		{
-			var logger = _container.GetRequiredService<ILogger<MultiChainAddressCommand>>();
-			return new MultiChainAddressCommand(logger, _mcConfig, _httpClient);
-		}
+			var logger = _container.GetRequiredService<ILogger<T>>();
 
-		public MultiChainTransactionCommand CreateMultiChainTransactionCommand()
-		{
-			var logger = _container.GetRequiredService<ILogger<MultiChainTransactionCommand>>();
-			return new MultiChainTransactionCommand(logger, _mcConfig, _httpClient);
+			return (T)Activator.CreateInstance(typeof(T), logger, _mcConfig, _httpClient);
 		}
-
-		public MultiChainAssetCommand CreateMultiChainAssetCommand()
-		{
-			var logger = _container.GetRequiredService<ILogger<MultiChainAssetCommand>>();
-			return new MultiChainAssetCommand(logger, _mcConfig, _httpClient);
-		}
-
-		public MultiChainStreamCommand CreateMultiChainStreamCommand()
-		{
-			var logger = _container.GetRequiredService<ILogger<MultiChainStreamCommand>>();
-			return new MultiChainStreamCommand(logger, _mcConfig, _httpClient);
-		}
-
-		public MultiChainPermissionCommand CreateMultiChainPermissionCommand()
-		{
-			var logger = _container.GetRequiredService<ILogger<MultiChainPermissionCommand>>();
-			return new MultiChainPermissionCommand(logger, _mcConfig, _httpClient);
-		}
-
 	}
 }

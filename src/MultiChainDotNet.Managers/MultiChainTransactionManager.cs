@@ -24,7 +24,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid)
 		{
-			var txnCmd = _commandFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				return new MultiChainResult<string>(txnResult.Exception);
@@ -43,7 +43,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> GetDeclarationAsync(string txid)
 		{
-			var txnCmd = _commandFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				return new MultiChainResult<string>(txnResult.Exception);
@@ -65,7 +65,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address)
 		{
-			var txnCmd = _commandFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			return await txnCmd.ListAddressTransactions(address);
 		}
 
@@ -122,7 +122,7 @@ namespace MultiChainDotNet.Managers
 
 		private async Task<Dictionary<string, double>> ListUnspentBalances(string address)
 		{
-			var txnCmd = _commandFactory.CreateMultiChainTransactionCommand();
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>(); 
 			Dictionary<string, double> unspentBal = new Dictionary<string, double>();
 			var unspents = await txnCmd.ListUnspentAsync(address);
 			unspentBal[""] = 0;
