@@ -76,8 +76,8 @@ namespace MultiChainDotNet.Core.Base
 			try
 			{
 				string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-				_logger.LogDebug($"multichain command: {ToCommand(method,args)}");
-				_logger.LogTrace($"multichain request: {JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented)}");
+				_logger.LogDebug($"multichain command {method}: {ToCommand(method,args)}");
+				_logger.LogTrace($"multichain request {method}: {JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented)}");
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
 				content = await response.Content.ReadAsStringAsync();
 				var result = MultiChainResultParser.ParseMultiChainResult<T>(content);
@@ -90,7 +90,7 @@ namespace MultiChainDotNet.Core.Base
 			{
 				var exceptionMessage = $"exception: {ex.ToString()}";
 				if (content is { })
-					exceptionMessage = $"response: {JValue.Parse(content).ToString(Formatting.Indented)} exception: {ex.ToString()}";
+					exceptionMessage = $"multichain response {method}: {JValue.Parse(content).ToString(Formatting.Indented)} exception: {ex.ToString()}";
 				_logger.LogWarning(exceptionMessage);
 				return new MultiChainResult<T>(ex);
 			}

@@ -38,10 +38,9 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		{
 			var permissionString = entityName is { } ? $"{entityName}.{permission.ToLower()}" : permission.ToLower();
 			var result = await JsonRpcRequestAsync<List<PermissionsResult>>("listpermissions", permissionString, address, false);
+			if (result.IsError)
+				return new MultiChainResult<bool>(result.Exception);
 			var granted = result.Result.Count > 0;
-
-			//var permissions = await ListPermissionsAsync(address, permissionString);
-			//var granted = permissions.Result.Count > 0 && permissions.Result[0].Pending is null;
 			return new MultiChainResult<bool>(granted);
 		}
 
@@ -49,19 +48,6 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		{
 			if (entityName is { })
 				permissions = CreateEntityPermissionType(permissions, entityName);
-
-			//if (entityName is { })
-			//{
-			//	var sb = new StringBuilder();
-			//	var perms = permissions.Split(",");
-			//	sb.Append($"{entityName}.{perms[0]}");
-			//	for (int i = 1; i < perms.Length; i++)
-			//	{
-			//		sb.Append($",{entityName}.{perms[i]}");
-			//	}
-			//	permissions = sb.ToString();
-			//}
-
 			return await JsonRpcRequestAsync<string>("grant", address, permissions);
 		}
 
@@ -81,17 +67,6 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		{
 			if (entityName is { })
 				permissions = CreateEntityPermissionType(permissions, entityName);
-			//{
-			//	var sb = new StringBuilder();
-			//	var perms = permissions.Split(",");
-			//	sb.Append($"{entityName}.{perms[0]}");
-			//	for (int i = 1; i < perms.Length; i++)
-			//	{
-			//		sb.Append($",{entityName}.{perms[i]}");
-			//	}
-			//	permissions = sb.ToString();
-			//}
-
 			return await JsonRpcRequestAsync<string>("grantfrom", from, to, permissions);
 		}
 
@@ -100,19 +75,6 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		{
 			if (entityName is { })
 				permissions = CreateEntityPermissionType(permissions, entityName);
-
-			//if (entityName is { })
-			//{
-			//	var sb = new StringBuilder();
-			//	var perms = permissions.Split(",");
-			//	sb.Append($"{entityName}.{perms[0]}");
-			//	for (int i = 1; i < perms.Length; i++)
-			//	{
-			//		sb.Append($",{entityName}.{perms[i]}");
-			//	}
-			//	permissions = sb.ToString();
-			//}
-
 			return await JsonRpcRequestAsync<string>("revoke", address, permissions);
 		}
 
@@ -120,19 +82,6 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		{
 			if (entityName is { })
 				permissions = CreateEntityPermissionType(permissions, entityName);
-
-			//if (entityName is { })
-			//{
-			//	var sb = new StringBuilder();
-			//	var perms = permissions.Split(",");
-			//	sb.Append($"{entityName}.{perms[0]}");
-			//	for (int i = 1; i < perms.Length; i++)
-			//	{
-			//		sb.Append($",{entityName}.{perms[i]}");
-			//	}
-			//	permissions = sb.ToString();
-			//}
-
 			return await JsonRpcRequestAsync<string>("revokefrom", from, to, permissions);
 		}
 
