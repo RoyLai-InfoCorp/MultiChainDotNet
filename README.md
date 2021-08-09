@@ -7,6 +7,7 @@
 * The Fluent library is a fluent framework for constructing multichain raw transactions and signing transactions externally.
 * The Managers library is a high-level abstraction of the underlying classes designed for dependency injection.
 * The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
+* Uses sql-style command for stream query.
 
 ## Setup the blockchain network
 
