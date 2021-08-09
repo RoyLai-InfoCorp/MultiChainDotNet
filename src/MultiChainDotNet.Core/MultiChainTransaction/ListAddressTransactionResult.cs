@@ -125,8 +125,11 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		[JsonProperty("data")]
 		public List<object> Data { get; set; }
 
+		/// <summary>
+		/// Note: multichain may return -1 for confirmation so it cannot be uint.
+		/// </summary>
 		[JsonProperty("confirmations")]
-		public UInt64 Confirmations { get; set; }
+		public Int64 Confirmations { get; set; }
 
 		[JsonProperty("blockhash")]
 		public string Blockhash { get; set; }
