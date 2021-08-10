@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Digests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,23 @@ namespace MultiChainDotNet.Core.Utils
 {
 	public static class StringExtensions
 	{
+		public static byte[] SHA256(byte[] data, int offset = 0, int count = 0)
+		{
+			var sha256 = new Sha256Digest();
+			if (count == 0)
+				count = data.Length;
+			sha256.BlockUpdate(data, offset, count);
+			var buffer = new byte[sha256.GetDigestSize()];
+			sha256.DoFinal(buffer, 0);
+			return buffer;
+		}
+
+		public static string SHA256(this string data)
+		{
+			var bytes = data.Hex2Bytes();
+			var hashed = SHA256(bytes);
+			return hashed.Bytes2Hex();
+		}
 
 		public static Guid ToGuid(this string target)
 		{
