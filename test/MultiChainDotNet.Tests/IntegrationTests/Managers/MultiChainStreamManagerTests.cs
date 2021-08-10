@@ -67,9 +67,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			var result2 = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
 			Assert.That(result2.IsError, Is.True);
-			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_TRANSACTION_REJECTED));
-			//Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
-			Assert.That(result2.ExceptionMessage, Contains.Substring("New entity script rejected - entity with this name already exists."), result2.ExceptionMessage);
+			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
 		}
 
 	}
