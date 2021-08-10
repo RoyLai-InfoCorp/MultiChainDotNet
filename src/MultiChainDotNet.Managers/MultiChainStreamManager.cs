@@ -76,6 +76,14 @@ namespace MultiChainDotNet.Managers
 			}
 			catch (Exception ex)
 			{
+				// Error code remapped
+				if (ex.Message.Contains("New entity script rejected - entity with this name already exists."))
+				{
+					Exception me = new MultiChainException(MultiChainErrorCode.RPC_DUPLICATE_NAME);
+					_logger.LogWarning(me.ToString());
+					return Task.FromResult(new MultiChainResult<string>(me));
+				}
+
 				_logger.LogWarning(ex.ToString());
 				return Task.FromResult(new MultiChainResult<string>(ex));
 			}
