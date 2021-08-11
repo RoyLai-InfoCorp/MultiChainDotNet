@@ -26,7 +26,11 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<CreateMultiSigResult>> CreateMultiSigAsync(int nRequired, string[] pubkeys)
 		{
-			return await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+			var result = await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+			if (result.IsError)
+				return result;
+			await ImportAddressAsync(result.Result.Address);
+			return result;
 		}
 
 		public async Task<MultiChainResult<bool>> IsExistAsync(string address)

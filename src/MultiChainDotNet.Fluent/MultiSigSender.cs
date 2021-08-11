@@ -216,5 +216,10 @@ namespace MultiChainDotNet.Fluent
 			return hashes;
 		}
 
+		public string CreateMultiSigTransactionHashes(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
+		{
+			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(),hashType));
+		}
+
 	}
 }

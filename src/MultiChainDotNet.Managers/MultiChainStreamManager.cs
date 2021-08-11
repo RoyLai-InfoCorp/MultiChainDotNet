@@ -191,19 +191,17 @@ namespace MultiChainDotNet.Managers
 			_logger.LogInformation($"Executing GetStreamAsync");
 
 			var result = await _streamCmd.ListStreamsAsync(streamName, true);
-			if (result.IsError)
-				return new MultiChainResult<StreamsResult>(result.Exception);
 
-			try
+			if (result.IsError && ((MultiChainException)result.Exception).Code == MultiChainErrorCode.RPC_ENTITY_NOT_FOUND)
+				return new MultiChainResult<StreamsResult>();
+
+			if (result.IsError)
 			{
-				var stream = result.Result.FirstOrDefault(x => x.Name == streamName);
-				return new MultiChainResult<StreamsResult>(stream);
+				_logger.LogWarning(result.Exception.ToString());
+				return new MultiChainResult<StreamsResult>(result.Exception);
 			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<StreamsResult>(ex);
-			}
+
+			return new MultiChainResult<StreamsResult>(result.Result[0]);
 		}
 
 		public async Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(bool verbose = false)

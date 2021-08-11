@@ -133,5 +133,47 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			Console.WriteLine(txid);
 		}
 
+		[Test, Order(56)]
+		public async Task Can_MultiSign2of3_SendAsset_with_partial_sign()
+		{
+			await Prepare_MultiSigAddress(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
+			var state = _stateDb.GetState<TestState>();
+
+			// PREPARE
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+
+			// ACT
+			var requestor = new TransactionRequestor();
+			requestor
+				.From(state.MultiSigAddress)
+				//.From(multisig.Address)
+				.To(_testUser1.NodeWallet)
+				.SendAsset(state.AssetName, 1)
+				//.SendAsset("asset1", 1)
+				;
+			var raw = requestor.Request(txnCmd);
+			var txnMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), txnCmd);
+			var txHash = txnMgr
+				.CreateMultiSigTransactionHashes(raw, state.RedeemScript);
+
+			var txnMgrSigner1 = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), txnCmd);
+			txnMgrSigner1
+				.AddSigner(new DefaultSigner(_relayer1.Ptekey));
+				//.MultiSignPartial(txHash, state.RedeemScript);
+
+
+			txnMgr
+				.AddSigner(new DefaultSigner(_relayer1.Ptekey))
+				.AddSigner(new DefaultSigner(_relayer2.Ptekey))
+				//.MultiSign(raw, multisig.RedeemScript)
+				.MultiSign(raw, state.RedeemScript)
+				.Send()
+				;
+
+			// ASSERT
+			//Console.WriteLine(txid);
+		}
+
+
 	}
 }

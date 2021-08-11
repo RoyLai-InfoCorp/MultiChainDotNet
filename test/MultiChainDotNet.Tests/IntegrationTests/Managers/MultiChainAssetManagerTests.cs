@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
@@ -35,6 +37,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			base.ConfigureServices(services);
 			services.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>();
 			services.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>();
+			services.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>();
 		}
 
 		[SetUp]
@@ -224,7 +227,54 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 		}
 
+		[Test]
+		public async Task Should_not_be_able_to_create_transaction_when_multisig_address_has_no_fund()
+		{
+			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
+			var multisigResult = await addressMgr.CreateMultiSigAsync(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
+			var multisig = multisigResult.Result.Address;
+			var redeemScript = multisigResult.Result.RedeemScript;
+			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
+			if (balanceResult.Result.Raw < 1000)
+			{
+				var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+				var issueResult = await _assetManager.IssueAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
 
+				// ACT
+				var signatureResult = _assetManager.CreateSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+				Assert.That(((MultiChainException)signatureResult.Exception).Code, Is.EqualTo(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS));
+			}
+		}
+
+
+		[Test]
+		public async Task Should_be_able_to_multisign_send_asset_transaction()
+		{
+			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
+			var multisigResult = await addressMgr.CreateMultiSigAsync(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
+
+			var multisig = multisigResult.Result.Address;
+			var redeemScript = multisigResult.Result.RedeemScript;
+			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			await _assetManager.IssueAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
+			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
+			if (balanceResult.Result.Raw < 1000)
+			{
+				await _assetManager.PayAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, 5000);
+			}
+
+			// ACT
+			var signatureResult = _assetManager.CreateSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+			Assert.That(signatureResult.IsError, Is.False, signatureResult.ExceptionMessage);
+			var signatureSlip = signatureResult.Result;
+
+			var relayer1Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
+			var relayer2Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
+			var result = _assetManager.SendMultiSigAssetAsync(new List<string[]> { relayer1Sig.Result, relayer2Sig.Result }, signatureSlip, redeemScript);
+
+			// ASSERT
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+		}
 
 	}
 }
