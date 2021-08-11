@@ -135,7 +135,6 @@ namespace MultiChainDotNet.Core
 			return services;
 		}
 
-
 		static IServiceCollection AddMultiChainCommandFactory(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
 			services
@@ -155,8 +154,9 @@ namespace MultiChainDotNet.Core
 		}
 
 
-		public static IServiceCollection AddMultiChain(this IServiceCollection services, MultiChainConfiguration mcConfig)
+		public static IServiceCollection AddMultiChain(this IServiceCollection services)
 		{
+			var mcConfig = services.BuildServiceProvider().GetRequiredService<MultiChainConfiguration>();
 			services.AddMultiChainAddress(mcConfig);
 			services.AddMultiChainTransaction(mcConfig);
 			services.AddMultiChainAsset(mcConfig);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
@@ -57,6 +58,17 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(found.Result.Name, Is.EqualTo(streamName));
 		}
 
+		[Test, Order(50)]
+		public async Task Should_throw_rpc_transaction_rejected_error_when_stream_already_exists()
+		{
+			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
+			var result = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+
+			var result2 = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			Assert.That(result2.IsError, Is.True);
+			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
+		}
 
 	}
 }
