@@ -72,6 +72,8 @@ namespace MultiChainDotNet.Managers
 					.Sign(raw)
 					.Send()
 					;
+
+				_streamCmd.SubscribeAsync(streamName).GetAwaiter().GetResult();
 				return Task.FromResult(new MultiChainResult<string>(txid));
 			}
 			catch (Exception ex)
