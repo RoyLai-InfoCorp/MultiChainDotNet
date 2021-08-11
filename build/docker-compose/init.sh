@@ -52,8 +52,6 @@ multichain-cli sennet issue 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB '{ "name": "c
 
 # teststream
 multichain-cli sennet create stream "openstream" true
-multichain-cli sennet create stream "EthRelayPoint" false
-multichain-cli sennet create stream "SennetRelayPoint" false
 
 # Send the relayers startup fund
 multichain-cli sennet sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL 1000000000
