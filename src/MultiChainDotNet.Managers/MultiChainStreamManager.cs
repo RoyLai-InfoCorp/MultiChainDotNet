@@ -36,11 +36,25 @@ namespace MultiChainDotNet.Managers
 			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
 			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
-
 			_streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
 			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
+
+		public MultiChainStreamManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_loggerFactory = loggerFactory;
+			_cmdFactory = commandFactory;
+			_mcConfig = mcConfig;
+			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
+			_streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
+			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_defaultSigner = signer;
+		}
+
 
 		public async Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool anyoneCanWrite = false)
 		{

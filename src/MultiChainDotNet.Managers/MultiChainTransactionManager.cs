@@ -2,6 +2,7 @@
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Fluent.Signers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,10 +17,20 @@ namespace MultiChainDotNet.Managers
 	{
 		private readonly ILogger _logger;
 		private readonly IMultiChainCommandFactory _commandFactory;
-		public MultiChainTransactionManager(ILogger<MultiChainTransactionManager> logger, IMultiChainCommandFactory commandFactory)
+		public MultiChainTransactionManager(ILogger<MultiChainTransactionManager> logger, 
+			IMultiChainCommandFactory commandFactory)
 		{
 			_commandFactory = commandFactory;
 			_logger = logger;
+		}
+
+		public MultiChainTransactionManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_commandFactory = commandFactory;
+			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
 		}
 
 		public async Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid)
@@ -59,9 +70,6 @@ namespace MultiChainDotNet.Managers
 			}
 			return new MultiChainResult<string>();
 		}
-
-
-
 
 		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address)
 		{

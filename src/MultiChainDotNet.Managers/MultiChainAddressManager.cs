@@ -2,6 +2,7 @@
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
+using MultiChainDotNet.Fluent.Signers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,14 @@ namespace MultiChainDotNet.Managers
 	public class MultiChainAddressManager : IMultiChainAddressManager
 	{
 		MultiChainAddressCommand _addressCmd;
+
+		public MultiChainAddressManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_addressCmd = commandFactory.CreateCommand<MultiChainAddressCommand>();
+		}
 
 		public MultiChainAddressManager(IMultiChainCommandFactory commandFactory)
 		{

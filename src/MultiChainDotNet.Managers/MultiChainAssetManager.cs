@@ -23,7 +23,7 @@ namespace MultiChainDotNet.Managers
 		private readonly ILogger _logger;
 		private IMultiChainCommandFactory _cmdFactory;
 		private MultiChainConfiguration _mcConfig;
-		private HttpClient _httpClient;
+		//private HttpClient _httpClient;
 		protected SignerBase _defaultSigner;
 		MultiChainAssetCommand _assetCmd;
 		MultiChainTransactionCommand _txnCmd;
@@ -41,6 +41,22 @@ namespace MultiChainDotNet.Managers
 			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
+
+		public MultiChainAssetManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_loggerFactory = loggerFactory;
+			_cmdFactory = commandFactory;
+			_mcConfig = mcConfig;
+
+			_assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
+			_defaultSigner = signer;
+		}
+
 
 		public async Task<MultiChainResult<string>> PayAsync(string toAddress, UInt64 amt, object data = null)
 		{

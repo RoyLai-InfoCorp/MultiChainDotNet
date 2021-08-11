@@ -29,6 +29,17 @@ namespace MultiChainDotNet.Managers
 			_mcConfig = mcConfig;
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
+		public MultiChainBlockchainManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_logger = loggerFactory.CreateLogger<MultiChainBlockchainManager>();
+			_commandFactory = commandFactory;
+			_bcCommand = _commandFactory.CreateCommand<MultiChainBlockchainCommand>();
+			_mcConfig = mcConfig;
+			_defaultSigner = signer;
+		}
 
 		public async Task<MultiChainResult<GetBlockResult>> GetCurrentBlock()
 		{

@@ -31,11 +31,26 @@ namespace MultiChainDotNet.Managers
 			_loggerFactory = loggerFactory;
 			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
-			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
+			_logger = loggerFactory.CreateLogger<MultiChainPermissionsManager>();
 			_permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
 			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
+
+		public MultiChainPermissionsManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig,
+			SignerBase signer)
+		{
+			_loggerFactory = loggerFactory;
+			_cmdFactory = commandFactory;
+			_mcConfig = mcConfig;
+			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
+			_permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
+			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_defaultSigner = signer;
+		}
+
 
 
 		public async Task<MultiChainResult<string>> GrantPermissionAsync(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
