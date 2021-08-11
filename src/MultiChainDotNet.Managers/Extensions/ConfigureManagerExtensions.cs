@@ -16,6 +16,7 @@ namespace MultiChainDotNet.Managers.Extensions
 				.AddTransient<IMultiChainPermissionsManager, MultiChainPermissionsManager>()
 				.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>()
 				.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>()
+				.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>()
 				.AddTransient<IMultiChainBlockchainManager, MultiChainBlockchainManager>();
 		}
 	}
