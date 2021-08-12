@@ -37,9 +37,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			_streamCmd = _container.GetRequiredService<MultiChainStreamCommand>();
+			//await Task.Delay(2000);
 		}
 
 
@@ -144,7 +145,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(70)]
-		public async Task Can_ListStreamItems()
+		public async Task Should_list_all_streamitems()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -154,7 +155,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(80)]
-		public async Task Can_PublishTextStreamItem()
+		public async Task Should_publish_text_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -171,7 +172,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(90)]
-		public async Task Can_PublishJsonStreamItem()
+		public async Task Should_publish_Json_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
 

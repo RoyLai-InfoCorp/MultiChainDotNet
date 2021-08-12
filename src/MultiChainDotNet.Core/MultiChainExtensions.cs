@@ -138,7 +138,7 @@ namespace MultiChainDotNet.Core
 		static IServiceCollection AddMultiChainCommandFactory(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
 			services
-				.AddScoped<IMultiChainCommandFactory, MultiChainCommandFactory>()
+				.AddSingleton<IMultiChainCommandFactory, MultiChainCommandFactory>()
 				.AddHttpClient<IMultiChainCommandFactory, MultiChainCommandFactory>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 					.AddPolicyHandler(GetRetryPolicy())

@@ -50,7 +50,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
@@ -71,6 +71,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			//	Action = FilterResult.Ignore
 			//});
 			//LogManager.ReconfigExistingLoggers();
+
+			await Task.Delay(2000);
+
 		}
 
 		[Test, Order(10)]

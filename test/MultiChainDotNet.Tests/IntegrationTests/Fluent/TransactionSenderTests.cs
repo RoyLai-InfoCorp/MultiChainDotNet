@@ -34,18 +34,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		IMultiChainCommandFactory _cmdFactory;
-		ILoggerFactory _loggerFactory;
 		ILogger _logger;
 
-		public TransactionSenderTests()
+		[SetUp]
+		public async Task SetUp()
 		{
 			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
-			_loggerFactory = _container.GetRequiredService<ILoggerFactory>();
 			_logger = _loggerFactory.CreateLogger<TransactionSenderTests>();
 		}
 
+
 		[Test, Order(10)]
-		public async Task Can_CreateSendAmount()
+		public async Task Should_send_payment()
 		{
 			_stateDb.ClearState<TestState>();
 
@@ -235,7 +235,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 
 		[Test, Order(30)]
-		public async Task Can_IssueMoreAsset()
+		public async Task Should_issue_more_asset()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -265,7 +265,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test, Order(40)]
-		public async Task Can_SendAsset()
+		public async Task Should_send_asset()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -296,7 +296,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		//----- STREAMS
 
 		[Test, Order(70)]
-		public void Can_CreateStream()
+		public void Should_create_stream()
 		{
 			// PREPARE
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
@@ -326,7 +326,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test,Order(80)]
-		public async Task Can_PublishStreamItem()
+		public async Task Should_publish_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -356,7 +356,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test, Order(90)]
-		public void Can_GrantStreamPermission()
+		public void Should_grant_stream_permission()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -383,7 +383,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test, Order(100)]
-		public void Can_GrantPermission()
+		public void Should_grant_global_permission()
 		{
 			// PREPARE
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
@@ -408,7 +408,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test, Order(110)]
-		public async Task Can_RevokePermission()
+		public async Task Should_revoke_global_permission()
 		{
 			// PREPARE
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();

@@ -27,8 +27,8 @@ namespace MultiChainDotNet.Managers
 
 		public T CreateInstance<T>(SignerBase signer)
 		{
-			var logger = _container.GetRequiredService<ILogger<T>>();
-			return (T)Activator.CreateInstance(typeof(T), logger, _cmdFactory, _mcConfig, signer);
+			var loggerFactory = _container.GetRequiredService<ILoggerFactory>();
+			return (T)Activator.CreateInstance(typeof(T), loggerFactory, _cmdFactory, _mcConfig, signer);
 		}
 
 	}

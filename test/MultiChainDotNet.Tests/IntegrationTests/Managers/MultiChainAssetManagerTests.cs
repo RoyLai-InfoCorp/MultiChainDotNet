@@ -51,7 +51,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		const UInt64 SEND_TXN_FEE_AT_MOST = 400;
 
 		[Test, Order(20)]
-		public async Task should_be_able_to_pay_with_metadata()
+		public async Task Should_be_able_to_pay_with_metadata()
 		{
 			//Prepare
 			var senderBalBefore = (await _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet)).Result.Raw;
@@ -83,8 +83,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 		const UInt64 SENDASSET_TXN_FEE_AT_LEAST = 500;
 		const UInt64 SENDASSET_TXN_FEE_AT_MOST = 600;
-		[Test, Order(20)]
-		public async Task should_be_able_to_sendasset_with_metadata()
+		[Test, Order(30)]
+		public async Task Should_be_able_to_sendasset_with_metadata()
 		{
 			//Prepare
 			var assetName = "openasset";
@@ -122,7 +122,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			
 		}
 
-		[Test, Order(30)]
+		[Test, Order(40)]
 		public async Task Should_be_able_to_issue_asset_with_metadata()
 		{
 			//Prepare
@@ -145,7 +145,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(metadata.Result, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 		}
 
-		[Test, Order(30)]
+		[Test, Order(50)]
 		public async Task Should_be_able_to_issue_more_asset_with_metadata()
 		{
 			//Prepare
@@ -208,7 +208,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 		}
 
-		[Test]
+		[Test, Order(60)]
 		public async Task Should_send_annotated_asset()
 		{
 			//Prepare
@@ -247,7 +247,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		}
 
 
-		[Test]
+		[Test, Order(70)]
 		public async Task Should_be_able_to_multisign_send_asset_transaction()
 		{
 			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();

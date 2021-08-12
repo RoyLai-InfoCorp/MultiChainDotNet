@@ -38,12 +38,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
+
+			//await Task.Delay(2000);
 		}
 
 		public async Task<string> GetMetaDataAsync(string txid)
@@ -141,7 +143,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test]
-		public async Task should_be_able_to_send_with_separate_metadata()
+		public async Task should_be_able_to_send_with_non_inline_metadata()
 		{
 			var balBefore = await GetRawBalance(_testUser1.NodeWallet);
 
@@ -180,7 +182,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_be_able_to_issue_more_asset()
 		{
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
-			await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName, 10, 0.001, true);
+			var issueResult = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 10, 0.001, true);
 			
 			// ACT
 			var result = await _assetCmd.IssueMoreAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, assetName, 10);

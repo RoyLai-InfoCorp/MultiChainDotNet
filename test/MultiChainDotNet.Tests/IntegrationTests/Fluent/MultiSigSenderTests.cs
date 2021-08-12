@@ -34,13 +34,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		IMultiChainCommandFactory _cmdFactory;
-		ILoggerFactory _loggerFactory;
 
-		public MultiSigSenderTests()
+		[SetUp]
+		public async Task SetUp()
 		{
 			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
-			_loggerFactory = _container.GetRequiredService<ILoggerFactory>();
+			//_logger = _loggerFactory.CreateLogger<TransactionSenderTests>();
 		}
+
 
 		public async Task Prepare_MultiSigAddress(int n, string[] addresses)
 		{
@@ -71,8 +72,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			_stateDb.SaveState(new TestState { MultiSigAddress = multisig.Result.Address, RedeemScript = multisig.Result.RedeemScript, AssetName = "openasset" });
 		}
 
-		[Test, Order(52)]
-		public async Task Can_MultiSign1of2_SendAsset()
+		[Test, Order(10)]
+		public async Task Should_send_asset_with_1_of_2_multisignature()
 		{
 			await Prepare_MultiSigAddress(1, new string[] { _relayer1.Pubkey, _relayer2.Pubkey });
 			var state = _stateDb.GetState<TestState>();
@@ -101,8 +102,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			Assert.IsNotNull(txid);
 		}
 
-		[Test, Order(56)]
-		public async Task Can_MultiSign2of3_SendAsset()
+		[Test, Order(20)]
+		public async Task Should_send_asset_with_2_of_3_multisignature()
 		{
 			await Prepare_MultiSigAddress(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var state = _stateDb.GetState<TestState>();
@@ -133,8 +134,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			Console.WriteLine(txid);
 		}
 
-		[Test, Order(56)]
-		public async Task Can_MultiSign2of3_SendAsset_with_partial_sign()
+		[Test, Order(30)]
+		public async Task Should_send_asset_with_2_of_3_multisigature_in_stages()
 		{
 			await Prepare_MultiSigAddress(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var state = _stateDb.GetState<TestState>();

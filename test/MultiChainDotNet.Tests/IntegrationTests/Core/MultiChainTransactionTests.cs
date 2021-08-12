@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
@@ -45,15 +46,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
+			await Task.Delay(2000);
 		}
 
-		[Test]
-		public async Task should_be_able_to_list_address_transaction_for_payment()
+		[Test, Order(10)]
+		public async Task should_list_address_transaction_for_payment()
 		{
 			var sendResult = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 100);
 
@@ -79,8 +81,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 		}
 
-		[Test]
-		public async Task should_be_able_to_list_address_transaction_for_assets()
+		[Test, Order(20)]
+		public async Task should_list_address_transaction_for_assets()
 		{
 			var sendResult = await _assetCmd.SendAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, "openasset", 1);
 
@@ -110,7 +112,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 		}
 
-		[Test]
+		[Test, Order(30)]
 		public async Task Should_return_list_of_unspent_utxo()
 		{
 			var result = await _txnCmd.ListUnspentAsync();
@@ -118,7 +120,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_logger.LogInformation(result.Result.ToJson());
 		}
 
-		[Test]
+		[Test, Order(40)]
 		public async Task Should_issue_asset_with_createrawsendfrom()
 		{
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
@@ -149,7 +151,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
 
-		[Test]
+		[Test, Order(50)]
 		public async Task Should_throw_insufficient_priority_when_using_unspent_with_sufficient_balance()
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
@@ -171,7 +173,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.ExceptionMessage, Contains.Substring("insufficient priority"));
 		}
 
-		[Test]
+		[Test, Order(60)]
 		public async Task Should_throw_insane_fees_when_pay_without_change()
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
@@ -197,7 +199,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		/// AppendRawChangeAsync doesn't work with Issue Asset
 		/// </summary>
 		/// <returns></returns>
-		[Test]
+		[Test, Order(70)]
 		public async Task Should_throw_unconfirmed_issue_transaction_in_input_using_appendrawchange()
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
@@ -232,7 +234,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(withrawchange.ExceptionMessage, Contains.Substring("Unconfirmed issue transaction in input"));
 		}
 
-		[Test]
+		[Test, Order(80)]
 		public async Task Should_pay_using_createrawtransaction()
 		{
 			var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);
@@ -259,7 +261,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
 
-		[Test, Order(10)]
+		[Test, Order(90)]
 		public async Task Should_issue_asset_to_self_using_createrawtransaction()
 		{
 			_stateDb.ClearState<TestState>();
@@ -297,7 +299,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_stateDb.SaveState(state);
 		}
 
-		[Test, Order(20)]
+		[Test, Order(100)]
 		public async Task Should_send_asset_with_inlinemetadata_using_createrawtransaction()
 		{
 			var state = _stateDb.GetState<TestState>();
@@ -329,8 +331,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 		}
 
-		[Test, Order(40)]
-		public async Task Can_send_asset_with_txout_containing_metadata_using_createrawtransaction()
+		[Test, Order(110)]
+		public async Task Should_send_asset_with_txout_containing_metadata_using_createrawtransaction()
 		{
 			var state = _stateDb.GetState<TestState>();
 			var assetName = state.AssetName;
@@ -358,7 +360,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
 			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-
 		}
 
 	}
