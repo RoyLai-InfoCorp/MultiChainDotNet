@@ -6,6 +6,8 @@ using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
 using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -232,13 +234,48 @@ namespace MultiChainDotNet.Managers
 			return await _streamCmd.ListStreamsAsync(streamName, verbose);
 		}
 
-		public static (string StreamName, string SearchType, string Where, string Order) ParseSelectStreamItems(string selectCmd)
+		/// <summary>
+		/// 
+		/// The query syntax will return the latest items in descending order by default.
+		/// 
+		/// Syntax:
+		/// 
+		/// FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [(DESC|ASC)] ] [PAGE page SIZE size]
+		/// 
+		/// Example:
+		/// 
+		/// 1. Get last item from <streamName>
+		///    > FROM <streamName>
+		/// 
+		/// 2. Get first item from <streamName>
+		///    > FROM <streamName> ASC
+		/// 
+		/// 3. Get last 5 items from <streamName> in descending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 10,9,8,7,6
+		///    > FROM <streamName> PAGE 0 SIZE 5
+		///    
+		/// 4. Get first 5 items from <streamName> in ascending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 1,2,3,4,5
+		///    > FROM <streamName> ASC PAGE 0 SIZE 5
+		///    
+		/// 5. Get item by txid
+		///    > FROM <streamName> WHERE txid='...'
+		/// 
+		/// 6. Get item by key
+		///    > FROM <streamName> WHERE key='...'
+		///    
+		/// 7. Get item by publisher wallet address
+		///    > FROM <streamName> WHERE publisher='...'
+		/// 
+		/// </summary>
+		/// <param name="selectCmd"></param>
+		/// <param name="verbose"></param>
+		/// <returns></returns>
+		public static (string StreamName, string SearchType, string Where, string Order, int page, int size) ParseSelectStreamItems(string selectCmd)
 		{
-			var pattern = @"^FROM\s(?'stream'[^\s]+)(\sWHERE\s(?'type'txid|publisher|key)='(?'where'.+)')?(\sORDER\s(?'order'DESC|ASC))?";
+			var pattern = @"^FROM\s(?'stream'[^\s]+)(\sWHERE\s(?'type'txid|publisher|key)='(?'where'.+)')?(\s(?'order'DESC|ASC))?(\sPAGE\s(?'page'\d+)\sSIZE\s(?'size'\d+))?";
 
 			var match = Regex.Match(selectCmd, pattern);
 			if (!match.Success)
-				return (null, null, null, null);
+				return (null, null, null, null, 0, 0);
 
 			string stream = null;
 			if (match.Groups["stream"].Success)
@@ -256,14 +293,22 @@ namespace MultiChainDotNet.Managers
 			if (match.Groups["order"].Success)
 				order = match.Groups["order"].Value;
 
-			return (stream, searchType, where, order);
+			int page = 0;
+			int size = 0;
+			if (match.Groups["page"].Success && match.Groups["size"].Success)
+			{
+				page = int.Parse(match.Groups["page"].Value);
+				size = int.Parse(match.Groups["size"].Value);
+			}
+
+			return (stream, searchType, where, order, page, size);
 		}
 
 		public async Task<MultiChainResult<StreamItemsResult>> GetStreamItemAsync(string selectCmd)
 		{
 			_logger.LogInformation($"Executing GetStreamItemAsync");
 
-			var result = await SelectStreamItemsAsync(selectCmd, true, 1, -1);
+			var result = await ListStreamItemsAsync(selectCmd, true);
 			if (result.IsError)
 				return new MultiChainResult<StreamItemsResult>(result.Exception);
 
@@ -273,21 +318,32 @@ namespace MultiChainDotNet.Managers
 			return new MultiChainResult<StreamItemsResult>(result.Result[0]);
 		}
 
-		/// <summary>
-		/// FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [ORDER (desc|asc)] ]
-		/// </summary>
-		/// <param name="selectCmd"></param>
-		/// <param name="verbose"></param>
-		/// <returns></returns>
-		public async Task<MultiChainResult<IList<StreamItemsResult>>> SelectStreamItemsAsync(string selectCmd, bool verbose, int count, int startFrom)
+		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose)
 		{
 			_logger.LogInformation($"Executing SelectStreamItemsAsync");
 
-			var (streamName, searchType, where, order) = ParseSelectStreamItems(selectCmd);
+			var (streamName, searchType, where, order, page, size) = ParseSelectStreamItems(selectCmd);
 			IList<StreamItemsResult> list = null;
 
 			if (streamName is null)
 				throw new Exception("Invalid FOR clause");
+
+			order = order ?? "DESC";
+			int count = 1;
+			int startFrom = -1;
+
+			if (page == 0 && size == 0)
+			{
+				if (order == "ASC")
+					startFrom = 0;
+			}
+			else
+			{
+				count = size;
+				startFrom = -((page+1) * size);
+				if (order=="ASC")
+					startFrom = page * size;
+			}
 
 			if (searchType is { })
 			{
@@ -322,11 +378,33 @@ namespace MultiChainDotNet.Managers
 					return new MultiChainResult<IList<StreamItemsResult>>(listResult.Exception);
 				list = listResult.Result;
 			}
-			if (order == null || order.ToUpper() != "ASC")
+		
+			if (order == "DESC")
 				return new MultiChainResult<IList<StreamItemsResult>>(list.Reverse().ToArray());
 
 			return new MultiChainResult<IList<StreamItemsResult>>(list);
 
+		}
+
+		public async Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd, bool verbose)
+		{
+			var list = new List<T>();
+			var streamItems = await ListStreamItemsAsync(selectCmd, verbose);
+			foreach (var streamItem in streamItems.Result)
+			{
+				try
+				{
+					var data = JToken.FromObject(streamItem.Data);
+					var item = data.SelectToken("json");
+					var json = item.ToObject<T>();
+					list.Add(json);
+				}
+				catch (Exception ex)
+				{
+					return new MultiChainResult<List<T>>(new Exception($"Failed to convert {JsonConvert.SerializeObject(streamItem.Data)} into {typeof(T).Name}. {ex.ToString()}"));
+				}
+			}
+			return new MultiChainResult<List<T>>(list);
 		}
 
 	}

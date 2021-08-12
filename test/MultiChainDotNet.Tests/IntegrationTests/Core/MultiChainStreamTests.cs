@@ -11,6 +11,7 @@ using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.Utils;
+using Newtonsoft.Json;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
@@ -187,7 +188,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var item = await _streamCmd.GetStreamItemByTxidAsync(state.StreamName, result.Result);
 			Assert.That(JObject.FromObject(item.Result.Data).SelectToken("json.Greetings").ToString(), Is.EqualTo("Hello World"));
 		}
-
 
 	}
 }
