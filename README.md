@@ -9,7 +9,7 @@
 * The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
 * Uses sql-style command for stream query.
 
-## Setup the blockchain network
+## Getting Started
 
 ### 1. Install Docker for Windows Desktop with WSL2
 
@@ -31,7 +31,7 @@ sh$ docker-compose up
 The output should show `Node ready.` for all 4 nodes.
 If nodes doesn't start up, press CTRL-C, enter `docker-compose down` and try again.
 
-## 4. Test the connection
+### 4. Test the connection
 
 Each node should be connected to 3 other nodes.
 
@@ -41,7 +41,7 @@ sh$ docker exec -it multichain-node2 multichain-cli sennet getpeerinfo
 sh$ docker exec -it multichain-node3 multichain-cli sennet getpeerinfo
 ```
 
-## Compile and Test
+### 5. Compile and Test
 
 1. Install dotnet sdk
 
@@ -71,4 +71,51 @@ sh$ docker exec -it multichain-node3 multichain-cli sennet getpeerinfo
    sh$ dotnet test
    ```
 
+## Using Stream Query
 
+The stream query syntax is used to make life easier when query stream items from multichain. The syntax will return the latest items in descending order by default.
+
+**Code**:
+
+```C#
+IMultiChainStreamManager sm=container.GetRequiredService<IMultiChainStreamManager>();
+var result = await sm.CreateStreamAsync(fromAddress, "testStream");
+var query =await sm.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} WHERE key='foo' PAGE 0 SIZE 2", false);
+Console.WriteLine(query.Result);
+```
+
+**Syntax:**
+
+```
+FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [(DESC|ASC)] ] [PAGE page SIZE size]
+```
+
+**Example:**
+
+1. Get last item from <streamName>
+
+   ```FROM <streamName>```
+
+2. Get first item from <streamName>
+
+   ```FROM <streamName> ASC```
+
+3. Get last 5 items from <streamName> in descending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 10,9,8,7,6
+
+   ```FROM <streamName> PAGE 0 SIZE 5```
+
+4. Get first 5 items from <streamName> in ascending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 1,2,3,4,5
+
+   ```FROM <streamName> ASC PAGE 0 SIZE 5```
+
+5. Get item by txid
+
+   ```FROM <streamName> WHERE txid='...'```
+
+6. Get item by key
+
+   ```FROM <streamName> WHERE key='...'```
+
+7. Get item by publisher wallet address
+
+   ```FROM <streamName> WHERE publisher='...'```
