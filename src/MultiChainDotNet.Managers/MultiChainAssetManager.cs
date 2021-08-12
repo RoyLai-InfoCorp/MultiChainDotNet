@@ -432,7 +432,7 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public MultiChainResult<string> CreateSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty)
+		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty)
 		{
 			_logger.LogInformation($"Executing CreateSignatureSlipAsync");
 
@@ -454,6 +454,35 @@ namespace MultiChainDotNet.Managers
 			}
 
 		}
+
+		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null)
+		{
+			_logger.LogInformation($"Executing CreateSignatureSlipAsync");
+
+			try
+			{
+				var requestor = new TransactionRequestor();
+				requestor
+					.From(fromAddress)
+					.To(toAddress)
+					.IssueMoreAsset(assetName, qty)
+					;
+				if (data is { })
+					requestor
+						.With()
+						.DeclareJson(data)
+						;
+				var raw = requestor.Request(_txnCmd);
+				return new MultiChainResult<string>(raw);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.ToString());
+				return new MultiChainResult<string>(ex);
+			}
+
+		}
+
 
 		public MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript)
 		{

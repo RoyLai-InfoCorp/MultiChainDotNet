@@ -19,11 +19,11 @@ namespace MultiChainDotNet.Managers
 		private readonly MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
 
-		public MultiChainBlockchainManager(ILogger<MultiChainBlockchainManager> logger
+		public MultiChainBlockchainManager(ILoggerFactory loggerFactory
 			, IMultiChainCommandFactory commandFactory
 			, MultiChainConfiguration mcConfig)
 		{
-			_logger = logger;
+			_logger = loggerFactory.CreateLogger<MultiChainBlockchainManager>();
 			_commandFactory = commandFactory;
 			_bcCommand = _commandFactory.CreateCommand<MultiChainBlockchainCommand>();
 			_mcConfig = mcConfig;

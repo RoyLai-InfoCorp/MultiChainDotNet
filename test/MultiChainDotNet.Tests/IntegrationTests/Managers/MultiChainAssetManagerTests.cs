@@ -241,7 +241,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 				var issueResult = await _assetManager.IssueAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
 
 				// ACT
-				var signatureResult = _assetManager.CreateSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+				var signatureResult = _assetManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
 				Assert.That(((MultiChainException)signatureResult.Exception).Code, Is.EqualTo(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS));
 			}
 		}
@@ -264,7 +264,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			}
 
 			// ACT
-			var signatureResult = _assetManager.CreateSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+			var signatureResult = _assetManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
 			Assert.That(signatureResult.IsError, Is.False, signatureResult.ExceptionMessage);
 			var signatureSlip = signatureResult.Result;
 

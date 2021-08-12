@@ -17,11 +17,11 @@ namespace MultiChainDotNet.Managers
 	{
 		private readonly ILogger _logger;
 		private readonly IMultiChainCommandFactory _commandFactory;
-		public MultiChainTransactionManager(ILogger<MultiChainTransactionManager> logger, 
+		public MultiChainTransactionManager(ILoggerFactory loggerFactory, 
 			IMultiChainCommandFactory commandFactory)
 		{
 			_commandFactory = commandFactory;
-			_logger = logger;
+			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
 		}
 
 		public MultiChainTransactionManager(ILoggerFactory loggerFactory,

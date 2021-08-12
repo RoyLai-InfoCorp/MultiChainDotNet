@@ -23,7 +23,8 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<string>> IssueMoreAsync(string toAddress, string assetName, UInt64 amt, object data = null);
 		Task<MultiChainResult<string>> IssueMoreAnnotatedAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
 
-		MultiChainResult<string> CreateSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty);
+		MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty);
+		MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null);
 		Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName = null);
 		Task<MultiChainResult<List<GetAddressBalancesResult>>> ListAssetBalancesByAddressAsync(string address);
 		Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName);
