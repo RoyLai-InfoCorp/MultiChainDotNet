@@ -11,23 +11,25 @@ using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using MultiChainDotNet.Fluent.Base;
 
-namespace MultiChainDotNet.Fluent
+namespace MultiChainDotNet.Fluent.Builders2
 {
-	public sealed class MultiSigSender
+	public sealed class MultiSigSender : MultiSigBase, IAddMultiSigSenderBuilder, ISignBuilder
 	{
 		private readonly ILogger _logger;
 		private IList<SignerBase> _signers = new List<SignerBase>();
 		protected MultiChainTransactionCommand _txnCmd;
 		private byte[] _rawSendFrom;
 		private string _signed;
+		private string _raw;
 
-		public MultiSigSender(ILogger<MultiSigSender> logger, MultiChainTransactionCommand txnCmd)
+		public MultiSigSender(ILogger<MultiChainFluentApi> logger, MultiChainTransactionCommand txnCmd, string raw)
 		{
 			_logger = logger;
 			_txnCmd = txnCmd;
+			_raw = raw;
 		}
 
-		public MultiSigSender AddSigner(SignerBase signer)
+		public IAddMultiSigSenderBuilder AddSigner(SignerBase signer)
 		{
 			_signers.Add(signer);
 			return this;
@@ -49,8 +51,12 @@ namespace MultiChainDotNet.Fluent
 			}).GetAwaiter().GetResult();
 		}
 
+		public ISignBuilder MultiSign(string redeemScript)
+		{
+			return MultiSign(_raw,redeemScript);
+		}
 
-		public MultiSigSender MultiSign(string raw, string redeemScript)
+		public ISignBuilder MultiSign(string raw, string redeemScript)
 		{
 			_rawSendFrom = raw.Hex2Bytes();
 			_logger.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
@@ -61,7 +67,12 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiSigSender MultiSign(string raw, string redeemScript, IList<string[]> signersSignatures)
+		public ISignBuilder MultiSign(string redeemScript, IList<string[]> signersSignatures)
+		{
+			return MultiSign(_raw, redeemScript, signersSignatures);
+		}
+
+		public ISignBuilder MultiSign(string raw, string redeemScript, IList<string[]> signersSignatures)
 		{
 			var signed = raw.Hex2Bytes();
 			var vin = MultiChainTxnHelper.GetVin(signed);
@@ -91,21 +102,9 @@ namespace MultiChainDotNet.Fluent
 		}
 
 
-		/// <summary>
-		/// Return a list of signatures from signer.
-		/// </summary>
-		/// <param name="rawSendFrom"></param>
-		/// <param name="redeemScript"></param>
-		/// <returns></returns>
-		public string[] MultiSignPartial(string raw, string redeemScript)
-		{
-			var txnHashes = CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes());
-			return MultiSignPartialAsync(_signers[0], txnHashes).Result.Select(x => x.Bytes2Hex()).ToArray();
-		}
 
 
-
-		public async Task<string> MultiSignAsync(string raw, string redeemScript)
+		public async Task<string> MultiSignAsync(string redeemScript)
 		{
 			return await MultiSignAsync(_signers, _rawSendFrom, redeemScript.Hex2Bytes());
 		}
@@ -179,21 +178,6 @@ namespace MultiChainDotNet.Fluent
 			return finalTxn.Bytes2Hex();
 		}
 
-		private async Task<List<byte[]>> MultiSignPartialAsync(SignerBase signer, List<byte[]> txnHashes, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
-		{
-			var signatures = new List<byte[]>();
-			foreach (var txnHash in txnHashes)
-			{
-				// Create the signature using the txn hash and append the hashtype.
-				var signature = await signer.SignAsync(txnHash);
-				signature = signature.Append((byte)hashType).ToArray();
-				VarInt signatureLen = new VarInt().Import(signature);
-				signature = signatureLen.Bytes.Concat(signature).ToArray();
-				signatures.Add(signature);
-			}
-			return signatures;
-		}
-
 		// List of transaction hashes from temp transaction equal to the number of inputs.
 		private List<byte[]> CreateMultiSigTransactionHashes(byte[] rawSendFrom, byte[] redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
@@ -228,9 +212,15 @@ namespace MultiChainDotNet.Fluent
 			return hashes;
 		}
 
+
+		public string CreateMultiSigTransactionHashes(string redeemScript)
+		{
+			return CreateMultiSigTransactionHashes(_raw, redeemScript, BitCoinConstants.HashTypeEnum.SIGHASH_ALL);
+		}
+
 		public string CreateMultiSigTransactionHashes(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
-			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(),hashType));
+			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(), hashType));
 		}
 
 	}

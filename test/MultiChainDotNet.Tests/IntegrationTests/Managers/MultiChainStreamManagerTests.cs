@@ -97,11 +97,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var newStream = await CreateNewStream();
 
 			// Get first item
-			var result1 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC", false);
+			var result1 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC");
 			Assert.That(result1.Result[0].Counter, Is.EqualTo(0));
 
 			// Get last item
-			var result2 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream}", false);
+			var result2 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream}");
 			Assert.That(result2.Result[0].Counter, Is.EqualTo(9));
 
 		}
@@ -112,20 +112,20 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var newStream = await CreateNewStream();
 
 			// FROM <newStream> DESC PAGE 0 SIZE 2
-			var result7 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 0 SIZE 2", false);
+			var result7 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 0 SIZE 2");
 			Assert.That(result7.Result[0].Counter, Is.EqualTo(9));
 			Assert.That(result7.Result[1].Counter, Is.EqualTo(8));
 			// FROM <newStream> DESC PAGE 1 SIZE 2
-			var result8 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 1 SIZE 2", false);
+			var result8 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 1 SIZE 2");
 			Assert.That(result8.Result[0].Counter, Is.EqualTo(7));
 			Assert.That(result8.Result[1].Counter, Is.EqualTo(6));
 			// FROM <newStream> DESC PAGE 2 SIZE 2
-			var result9 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 2 SIZE 2", false);
+			var result9 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 2 SIZE 2");
 			Assert.That(result9.Result[0].Counter, Is.EqualTo(5));
 			Assert.That(result9.Result[1].Counter, Is.EqualTo(4));
 
 			// FROM <newStream> DESC PAGE 0 SIZE 2
-			var result10 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC PAGE 0 SIZE 2", false);
+			var result10 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC PAGE 0 SIZE 2");
 			Assert.That(result10.Result[0].Counter, Is.EqualTo(0));
 			Assert.That(result10.Result[1].Counter, Is.EqualTo(1));
 

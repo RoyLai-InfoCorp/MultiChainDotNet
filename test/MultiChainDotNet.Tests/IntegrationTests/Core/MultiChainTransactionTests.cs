@@ -176,8 +176,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test, Order(60)]
 		public async Task Should_throw_insane_fees_when_pay_without_change()
 		{
+			//var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
-			var unspent = unspents.Result.SingleOrDefault(x => x.Amount > 0);
+			var unspent = unspents.Result.FirstOrDefault(x => x.Amount > 0);
 			var raw = await _txnCmd.CreateRawTransactionAsync(unspent.TxId, unspent.Vout,
 				new Dictionary<string, object>
 				{

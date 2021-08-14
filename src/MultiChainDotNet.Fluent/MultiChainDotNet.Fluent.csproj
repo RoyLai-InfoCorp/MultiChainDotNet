@@ -10,6 +10,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Builders2\MultiChainFluentBuilder.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj" />
   </ItemGroup>
 

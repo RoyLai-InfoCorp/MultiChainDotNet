@@ -1,5 +1,6 @@
 ﻿using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Fluent.Signers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Fluent.Builders
 {
-    public class TransactionRequestor
+
+	public class TransactionRequestor
     {
 		private TxnFromBuilder _fromBuilder;
 		private List<TxnToBuilder> _toBuilders = new List<TxnToBuilder>();
