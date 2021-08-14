@@ -380,10 +380,10 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public async Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd, bool verbose)
+		public async Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd)
 		{
 			var list = new List<T>();
-			var streamItems = await ListStreamItemsAsync(selectCmd, verbose);
+			var streamItems = await ListStreamItemsAsync(selectCmd,false);
 			foreach (var streamItem in streamItems.Result)
 			{
 				try
@@ -400,6 +400,21 @@ namespace MultiChainDotNet.Managers
 			}
 			return new MultiChainResult<List<T>>(list);
 		}
+
+		public async Task<MultiChainResult<T>> GetStreamItemAsync<T>(string selectCmd)
+		{
+			_logger.LogDebug($"Executing GetStreamItemAsync");
+
+			var result = await ListStreamItemsAsync<T>(selectCmd);
+			if (result.IsError)
+				return new MultiChainResult<T>(result.Exception);
+
+			if (result.Result.Count == 0)
+				return new MultiChainResult<T>();
+
+			return new MultiChainResult<T>(result.Result[0]);
+		}
+
 
 	}
 }
