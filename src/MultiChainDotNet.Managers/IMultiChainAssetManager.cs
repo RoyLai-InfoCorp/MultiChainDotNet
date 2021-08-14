@@ -31,7 +31,8 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false);
 		Task<MultiChainResult<List<AssetTransactionsResult>>> ListAssetTransactionsAsync(string assetName);
 		MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, double qty, string redeemScript);
-		MultiChainResult<string> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript);
+		Task<MultiChainResult<string>> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript);
+		MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript);
 		MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript);
 		Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName);
 	}

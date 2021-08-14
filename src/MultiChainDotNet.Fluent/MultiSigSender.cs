@@ -40,8 +40,13 @@ namespace MultiChainDotNet.Fluent
 
 		public string Send()
 		{
-			var txid = _txnCmd.SendRawTransactionAsync(_signed).Result.Result;
-			return txid;
+			return Task.Run(async () =>
+			{
+				var result = await _txnCmd.SendRawTransactionAsync(_signed);
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}).GetAwaiter().GetResult();
 		}
 
 
@@ -50,9 +55,13 @@ namespace MultiChainDotNet.Fluent
 			_rawSendFrom = raw.Hex2Bytes();
 			_logger.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
 			_txnCmd.DecodeRawTransactionAsync(_rawSendFrom.Bytes2Hex()).Wait();
-
 			_signed = MultiSignAsync(_signers, _rawSendFrom, redeemScript.Hex2Bytes()).Result;
 			return this;
+		}
+
+		public async Task<string> MultiSignAsync(string raw, string redeemScript)
+		{
+			return await MultiSignAsync(_signers, _rawSendFrom, redeemScript.Hex2Bytes());
 		}
 
 		public MultiSigSender MultiSign(string raw, string redeemScript, IList<string[]> signersSignatures)
@@ -124,7 +133,7 @@ namespace MultiChainDotNet.Fluent
 			var vin = MultiChainTxnHelper.GetVin(rawSendFrom);
 
 			// STEP 1: Create the list of temporary transaction hashes, one for each transaction input.
-			_logger.LogInformation($"Creating transaction for signing...");
+			_logger.LogDebug($"Creating transaction for signing...");
 			var txnHashes = CreateMultiSigTransactionHashes(rawSendFrom, redeemScript);
 
 			// STEP 2: Pass the list of transaction hashes to each signer to sign.
@@ -162,8 +171,8 @@ namespace MultiChainDotNet.Fluent
 				finalTxn = finalTxn.BlockReplace(scriptSigPos, BitCoinConstants.SCRIPTSIG_PLACEHOLDER_LENGTH, scriptSig);
 			}
 
-			_logger.LogInformation($"Final Transaction: {finalTxn.Bytes2Hex()}");
-			_logger.LogInformation($"Final Transaction Decoded: {MultiChainTxnHelper.Decode(finalTxn)}");
+			_logger.LogDebug($"Final Transaction: {finalTxn.Bytes2Hex()}");
+			_logger.LogDebug($"Final Transaction Decoded: {MultiChainTxnHelper.Decode(finalTxn)}");
 			return finalTxn.Bytes2Hex();
 		}
 
@@ -187,7 +196,7 @@ namespace MultiChainDotNet.Fluent
 		{
 			var vin = MultiChainTxnHelper.GetVin(rawSendFrom);
 
-			_logger.LogInformation($"Creating transaction for signing...");
+			_logger.LogDebug($"Creating transaction for signing...");
 
 			// Create temp script sig
 			VarInt redeemScriptLen = new VarInt().Import(redeemScript);

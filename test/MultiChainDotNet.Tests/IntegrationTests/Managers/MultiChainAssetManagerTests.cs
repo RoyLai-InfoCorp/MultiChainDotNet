@@ -252,7 +252,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
 			var multisigResult = await addressMgr.CreateMultiSigAsync(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
-
 			var multisig = multisigResult.Result.Address;
 			var redeemScript = multisigResult.Result.RedeemScript;
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
@@ -269,8 +268,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var signatureSlip = signatureResult.Result;
 
 			var relayer1Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
-			var relayer2Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
-			var result = _assetManager.SendMultiSigAssetAsync(new List<string[]> { relayer1Sig.Result, relayer2Sig.Result }, signatureSlip, redeemScript);
+			var relayer2Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer2.Ptekey), signatureSlip, redeemScript);
+			var result = _assetManager.SendMultiSigAsset(new List<string[]> { relayer1Sig.Result, relayer2Sig.Result }, signatureSlip, redeemScript);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);

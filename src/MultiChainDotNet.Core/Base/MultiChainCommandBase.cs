@@ -76,7 +76,8 @@ namespace MultiChainDotNet.Core.Base
 			try
 			{
 				string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-				_logger.LogDebug($"multichain command {method}: {ToCommand(method,args)}");
+				var cmd = ToCommand(method, args);
+				_logger.LogDebug($"multichain command {method}: {cmd}");
 				_logger.LogTrace($"multichain request {method}: {JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented)}");
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
 				content = await response.Content.ReadAsStringAsync();

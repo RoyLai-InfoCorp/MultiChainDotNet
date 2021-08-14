@@ -40,10 +40,10 @@ namespace MultiChainDotNet.Fluent
 		{
 			_rawSendFrom = raw.Hex2Bytes();
 			_logger.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
-			var result = _txnCmd.DecodeRawTransactionAsync(_rawSendFrom.Bytes2Hex()).Result;
-			if (result.IsError)
-				throw result.Exception;
-			_signed = SignAsync(_signers[0], _rawSendFrom).Result;
+			_signed = Task.Run(async () =>
+			{
+				return await SignAsync(_signers[0], _rawSendFrom);
+			}).GetAwaiter().GetResult();
 			return this;
 		}
 
@@ -54,10 +54,13 @@ namespace MultiChainDotNet.Fluent
 
 		public string Send()
 		{
-			var result = _txnCmd.SendRawTransactionAsync(_signed).Result;
-			if (result.IsError)
-				throw result.Exception;
-			return result.Result;
+			return Task.Run(async () =>
+			{
+				var result = await _txnCmd.SendRawTransactionAsync(_signed);
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}).GetAwaiter().GetResult();
 		}
 
 		/// <summary>        
@@ -83,7 +86,7 @@ namespace MultiChainDotNet.Fluent
 			byte[] tempTxn = null;
 			IList<byte[]> finalScriptSigs = new List<byte[]>();
 
-			_logger.LogInformation($"Creating transaction for signing...");
+			_logger.LogDebug($"Creating transaction for signing...");
 			// Create scriptsig for each input
 			for (int txinIndex = 0; txinIndex < vin; txinIndex++)
 			{
@@ -113,7 +116,7 @@ namespace MultiChainDotNet.Fluent
 					_logger.LogDebug($"Creating final scriptsig for input {txinIndex}...");
 					var pubkey = await signer.GetPublicKeyAsync();
 					_logger.LogTrace($"Pubkey:{pubkey}");
-					var (scriptSigLen, scriptSig) = CreateFinalScriptSigAsync(signature, tempTxn, (byte)hashType, pubkey.Hex2Bytes());
+					var (scriptSigLen, scriptSig) = CreateFinalScriptSig(signature, tempTxn, (byte)hashType, pubkey.Hex2Bytes());
 					scriptSig = scriptSigLen.Concat(scriptSig).ToArray();
 					_logger.LogTrace($"Final ScriptSig:{scriptSig.Bytes2Hex()}");
 
@@ -188,7 +191,7 @@ namespace MultiChainDotNet.Fluent
 		/// <param name="hashType"></param>
 		/// <param name="pubkey"></param>
 		/// <returns></returns>
-		public (byte[] ScriptSigLength, byte[] ScriptSig) CreateFinalScriptSigAsync(byte[] signature, byte[] tempTxn, byte hashType, byte[] pubkey)
+		public (byte[] ScriptSigLength, byte[] ScriptSig) CreateFinalScriptSig(byte[] signature, byte[] tempTxn, byte hashType, byte[] pubkey)
 		{
 			var signatureWithHashType = signature.Append(hashType).ToArray();
 

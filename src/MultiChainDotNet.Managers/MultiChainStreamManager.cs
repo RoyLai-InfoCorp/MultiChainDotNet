@@ -24,43 +24,40 @@ namespace MultiChainDotNet.Managers
 	{
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger _logger;
-		private IMultiChainCommandFactory _cmdFactory;
 		private MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
 		private MultiChainStreamCommand _streamCmd;
 		MultiChainTransactionCommand _txnCmd;
 
 		public MultiChainStreamManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory, 
+			IMultiChainCommandFactory cmdFactory, 
 			MultiChainConfiguration mcConfig)
 		{
 			_loggerFactory = loggerFactory;
-			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
 			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
-			_streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
-			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_streamCmd = cmdFactory.CreateCommand<MultiChainStreamCommand>();
+			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
 		public MultiChainStreamManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory,
+			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig,
 			SignerBase signer)
 		{
 			_loggerFactory = loggerFactory;
-			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
 			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
-			_streamCmd = _cmdFactory.CreateCommand<MultiChainStreamCommand>();
-			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_streamCmd = cmdFactory.CreateCommand<MultiChainStreamCommand>();
+			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_defaultSigner = signer;
 		}
 
 
 		public async Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool anyoneCanWrite = false)
 		{
-			_logger.LogInformation($"Executing CreateStreamAsync");
+			_logger.LogDebug($"Executing CreateStreamAsync");
 
 			//Note: No need to subscribe since stream hasn't exist
 			if (_defaultSigner is { })
@@ -70,7 +67,7 @@ namespace MultiChainDotNet.Managers
 
 		public Task<MultiChainResult<string>> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
 		{
-			_logger.LogInformation($"Executing {new StackTrace().GetFrame(0).GetMethod().Name}");
+			_logger.LogDebug($"Executing CreateStreamAsync");
 
 			try
 			{
@@ -109,7 +106,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> PublishJsonAsync(string streamName, string key, object json)
 		{
-			_logger.LogInformation($"Executing PublishJsonAsync");
+			_logger.LogDebug($"Executing PublishJsonAsync");
 
 			if (_defaultSigner is { })
 				return await PublishJsonAsync (_defaultSigner, _mcConfig.Node.NodeWallet, streamName, key, json);
@@ -121,7 +118,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string key, object json)
 		{
-			_logger.LogInformation($"Executing PublishJsonAsync");
+			_logger.LogDebug($"Executing PublishJsonAsync");
 			try
 			{
 				// Remember to subscribe
@@ -152,20 +149,17 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> PublishJsonAsync(string streamName, string[] keys, object json)
 		{
-			_logger.LogInformation($"Executing PublishJsonAsync");
+			_logger.LogDebug($"Executing PublishJsonAsync");
 
 			if (_defaultSigner is { })
 				return await PublishJsonAsync (_defaultSigner, _mcConfig.Node.NodeWallet, streamName, keys, json);
-
-			// Remember to subscribe
-			await SubscribeAsync(streamName);
 
 			return await _streamCmd.PublishJsonStreamItemAsync(streamName, keys, json);
 		}
 
 		public async Task<MultiChainResult<string>> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string[] keys, object json)
 		{
-			_logger.LogInformation($"Executing PublishJsonAsync");
+			_logger.LogDebug($"Executing PublishJsonAsync");
 
 			try
 			{
@@ -197,14 +191,14 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string streamName)
 		{
-			_logger.LogInformation($"Executing SubscribeAsync");
+			_logger.LogDebug($"Executing SubscribeAsync");
 
 			return await _streamCmd.SubscribeAsync(streamName);
 		}
 
 		public async Task<MultiChainResult<StreamsResult>> GetStreamAsync(string streamName)
 		{
-			_logger.LogInformation($"Executing GetStreamAsync");
+			_logger.LogDebug($"Executing GetStreamAsync");
 
 			var result = await _streamCmd.ListStreamsAsync(streamName, true);
 
@@ -222,14 +216,14 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(bool verbose = false)
 		{
-			_logger.LogInformation($"Executing ListStreamsAsync");
+			_logger.LogDebug($"Executing ListStreamsAsync");
 
 			return await _streamCmd.ListStreamsAsync("*", verbose);
 		}
 
 		public async Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(string streamName, bool verbose = false)
 		{
-			_logger.LogInformation($"Executing ListStreamsAsync");
+			_logger.LogDebug($"Executing ListStreamsAsync");
 
 			return await _streamCmd.ListStreamsAsync(streamName, verbose);
 		}
@@ -306,7 +300,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<StreamItemsResult>> GetStreamItemAsync(string selectCmd)
 		{
-			_logger.LogInformation($"Executing GetStreamItemAsync");
+			_logger.LogDebug($"Executing GetStreamItemAsync");
 
 			var result = await ListStreamItemsAsync(selectCmd, true);
 			if (result.IsError)
@@ -320,7 +314,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose)
 		{
-			_logger.LogInformation($"Executing SelectStreamItemsAsync");
+			_logger.LogDebug($"Executing SelectStreamItemsAsync");
 
 			var (streamName, searchType, where, order, page, size) = ParseSelectStreamItems(selectCmd);
 			IList<StreamItemsResult> list = null;

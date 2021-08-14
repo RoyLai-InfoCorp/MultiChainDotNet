@@ -41,10 +41,14 @@ namespace MultiChainDotNet.Fluent.Builders
 		public string Request(MultiChainTransactionCommand txnCmd)
 		{
 			var (fromAddress, tos, with) = CreateRawSendFrom();
-			var request = txnCmd.CreateRawSendFromAsync(fromAddress, tos, with).Result;
-			if (request.IsError)
-				throw request.Exception;
-			return request.Result;
+			string request = Task.Run(async () =>
+			{
+				var result = await txnCmd.CreateRawSendFromAsync(fromAddress, tos, with);
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}).GetAwaiter().GetResult();
+			return request;
 		}
 
 		private (string From, Dictionary<string, object> To, List<object> With) CreateRawSendFrom()

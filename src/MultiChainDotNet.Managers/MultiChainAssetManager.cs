@@ -21,46 +21,39 @@ namespace MultiChainDotNet.Managers
 	{
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger _logger;
-		private IMultiChainCommandFactory _cmdFactory;
 		private MultiChainConfiguration _mcConfig;
-		//private HttpClient _httpClient;
 		protected SignerBase _defaultSigner;
 		MultiChainAssetCommand _assetCmd;
 		MultiChainTransactionCommand _txnCmd;
 
 		public MultiChainAssetManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory, 
+			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig)
 		{
 			_loggerFactory = loggerFactory;
-			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
-
-			_assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
 		public MultiChainAssetManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory,
+			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig,
 			SignerBase signer)
 		{
 			_loggerFactory = loggerFactory;
-			_cmdFactory = commandFactory;
 			_mcConfig = mcConfig;
-
-			_assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
 			_defaultSigner = signer;
 		}
 
-
 		public async Task<MultiChainResult<string>> PayAsync(string toAddress, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing PayAsync");
+			_logger.LogDebug($"Executing PayAsync");
 
 			if (_defaultSigner is { })
 				return await PayAsync(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, amt, data);
@@ -71,7 +64,7 @@ namespace MultiChainDotNet.Managers
 
 		public Task<MultiChainResult<string>> PayAnnotateAsync(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing PayAsync");
+			_logger.LogDebug($"Executing PayAsync");
 
 			double qty = amt / _mcConfig.Multiple;
 			try
@@ -100,7 +93,7 @@ namespace MultiChainDotNet.Managers
 
 		public Task<MultiChainResult<string>> PayAsync(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object data=null)
 		{
-			_logger.LogInformation($"Executing PayAsync");
+			_logger.LogDebug($"Executing PayAsync");
 
 			double qty = amt / _mcConfig.Multiple;
 			try
@@ -133,7 +126,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> SendAssetAsync(string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing SendAssetAsync");
+			_logger.LogDebug($"Executing SendAssetAsync");
 
 			if (_defaultSigner is { })
 				return await SendAssetAsync(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, amt, data);
@@ -150,7 +143,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> SendAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing SendAssetAsync");
+			_logger.LogDebug($"Executing SendAssetAsync");
 
 			try
 			{
@@ -193,7 +186,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing SendAssetAsync");
+			_logger.LogDebug($"Executing SendAssetAsync");
 
 			try
 			{
@@ -234,7 +227,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> IssueAsync(string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueAsync");
+			_logger.LogDebug($"Executing IssueAsync");
 
 			if (_defaultSigner is { })
 				return await IssueAsync (_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, amt, canIssueMore, data);
@@ -245,7 +238,7 @@ namespace MultiChainDotNet.Managers
 
 		public Task<MultiChainResult<string>> IssueAnnotateAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueAsync");
+			_logger.LogDebug($"Executing IssueAsync");
 
 			try
 			{
@@ -280,7 +273,7 @@ namespace MultiChainDotNet.Managers
 
 		public Task<MultiChainResult<string>> IssueAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueAsync");
+			_logger.LogDebug($"Executing IssueAsync");
 
 			try
 			{
@@ -316,7 +309,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> IssueMoreAsync(string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueMoreAsync");
+			_logger.LogDebug($"Executing IssueMoreAsync");
 
 			if (_defaultSigner is { })
 				return await IssueMoreAsync (_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, amt, data);
@@ -333,7 +326,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> IssueMoreAnnotatedAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueMoreAnnotatedAsync");
+			_logger.LogDebug($"Executing IssueMoreAnnotatedAsync");
 
 			try
 			{
@@ -365,7 +358,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<string>> IssueMoreAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null)
 		{
-			_logger.LogInformation($"Executing IssueMoreAsync");
+			_logger.LogDebug($"Executing IssueMoreAsync");
 
 			try
 			{
@@ -403,7 +396,7 @@ namespace MultiChainDotNet.Managers
 
 		public MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, double qty, string redeemScript)
 		{
-			_logger.LogInformation($"Executing SendMultiSigAssetAsync");
+			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 
 			try
 			{
@@ -434,7 +427,7 @@ namespace MultiChainDotNet.Managers
 
 		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty)
 		{
-			_logger.LogInformation($"Executing CreateSignatureSlipAsync");
+			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
 			try
 			{
@@ -455,9 +448,37 @@ namespace MultiChainDotNet.Managers
 
 		}
 
+		//public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null)
+		//{
+		//	_logger.LogDebug($"Executing CreateSignatureSlipAsync");
+
+		//	try
+		//	{
+		//		var requestor = new TransactionRequestor();
+		//		requestor
+		//			.From(fromAddress)
+		//			.To(toAddress)
+		//			.IssueMoreAsset(assetName, qty)
+		//			;
+		//		if (data is { })
+		//			requestor
+		//				.With()
+		//				.DeclareJson(data)
+		//				;
+		//		var raw = requestor.Request(_txnCmd);
+		//		return new MultiChainResult<string>(raw);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		_logger.LogWarning(ex.ToString());
+		//		return new MultiChainResult<string>(ex);
+		//	}
+
+		//}
+
 		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null)
 		{
-			_logger.LogInformation($"Executing CreateSignatureSlipAsync");
+			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
 			try
 			{
@@ -483,10 +504,9 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-
 		public MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript)
 		{
-			_logger.LogInformation($"Executing SignMultiSig");
+			_logger.LogDebug($"Executing SignMultiSig");
 
 			try
 			{
@@ -504,9 +524,9 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public MultiChainResult<string> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript)
+		public MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript)
 		{
-			_logger.LogInformation($"Executing SendMultiSigAssetAsync");
+			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 
 			try
 			{
@@ -522,12 +542,34 @@ namespace MultiChainDotNet.Managers
 				return new MultiChainResult<string>(ex);
 			}
 
+		}
+
+		public async Task<MultiChainResult<string>> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript)
+		{
+			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
+
+			try
+			{
+				var multisigMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), _txnCmd);
+				var signed = multisigMgr
+					.MultiSign(signatureSlip, redeemScript, signatures)
+					.RawSigned();
+				var result = await _txnCmd.SendRawTransactionAsync(signed);
+				return new MultiChainResult<string>(result.Result);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.ToString());
+				return new MultiChainResult<string>(ex);
+			}
+
 
 		}
 
+
 		public async Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName)
 		{
-			_logger.LogInformation($"Executing GetAssetInfoAsync");
+			_logger.LogDebug($"Executing GetAssetInfoAsync");
 
 			if (String.IsNullOrEmpty(assetName))
 				return new MultiChainResult<GetAssetInfoResult>();
@@ -536,7 +578,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName=null)
 		{
-			_logger.LogInformation($"Executing GetAssetBalanceByAddressAsync");
+			_logger.LogDebug($"Executing GetAssetBalanceByAddressAsync");
 
 			var result = await _assetCmd.GetAddressBalancesAsync(address);
 			if (result.IsError)
@@ -568,7 +610,7 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<List<GetAddressBalancesResult>>> ListAssetBalancesByAddressAsync(string address)
 		{
-			_logger.LogInformation($"Executing ListAssetBalancesByAddressAsync");
+			_logger.LogDebug($"Executing ListAssetBalancesByAddressAsync");
 
 			var assetsResult = await _assetCmd.GetAddressBalancesAsync(address);
 			if (assetsResult.IsError)
@@ -593,19 +635,19 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false)
 		{
-			_logger.LogInformation($"Executing ListAssetsAsync");
+			_logger.LogDebug($"Executing ListAssetsAsync");
 
 			return await _assetCmd.ListAssetsAsync(assetName, verbose);
 		}
 		public async Task<MultiChainResult<List<AssetTransactionsResult>>> ListAssetTransactionsAsync(string assetName)
 		{
-			_logger.LogInformation($"Executing ListAssetTransactionsAsync");
+			_logger.LogDebug($"Executing ListAssetTransactionsAsync");
 
 			return await _assetCmd.ListAssetTransactionsAsync(assetName);
 		}
 		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName)
 		{
-			_logger.LogInformation($"Executing SubscribeAsync");
+			_logger.LogDebug($"Executing SubscribeAsync");
 
 			return await _assetCmd.SubscribeAsync(assetName);
 		}
