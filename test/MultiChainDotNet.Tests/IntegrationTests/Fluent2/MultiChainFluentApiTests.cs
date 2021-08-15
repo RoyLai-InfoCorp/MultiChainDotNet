@@ -36,15 +36,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 
 		IMultiChainCommandFactory _cmdFactory;
 		ILogger _logger;
-		ILogger<MultiChainFluentApi> _fluentLogger;
 
 		[SetUp]
 		public async Task SetUp()
 		{
 			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
-			_logger = _loggerFactory.CreateLogger<TransactionSenderTests>();
-			_fluentLogger = _container.GetRequiredService<ILogger<MultiChainFluentApi>>();
-
+			_logger = _loggerFactory.CreateLogger<MultiChainFluentApi>();
 		}
 
 		[Test, Order(10)]
@@ -60,8 +57,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			_logger.LogInformation("Balance before:" + balancesBefore.ToString());
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Pay(1_000_000)
@@ -87,8 +84,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueAsset(1000)
@@ -153,8 +150,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueAsset(1000)
@@ -186,8 +183,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueAsset(1000)
@@ -218,8 +215,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 1, true);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueMoreAsset(assetName, 1000)
@@ -243,8 +240,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet,_admin.NodeWallet,assetName,1000,1,true);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(assetName, 100)
@@ -268,8 +265,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var streamName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
 				.CreateStream(streamName, false)
@@ -299,8 +296,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			await streamCmd.SubscribeAsync(state.StreamName);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
 				.PublishJson(state.StreamName, "lid-123456", new { name = "cow1", dob = DateTime.Parse("1-jan-2000"), age = 20 })
@@ -325,8 +322,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Permit($"write", state.StreamName)
@@ -347,8 +344,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Permit("create,issue")
@@ -369,8 +366,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Revoke("create,issue")
@@ -425,8 +422,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
@@ -450,8 +447,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT
-			var fluentApi = new MultiChainFluentApi(_fluentLogger);
-			var txid = fluentApi
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
@@ -476,21 +473,24 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
 
 			// ACT 1
-			var request = new MultiChainFluentApi(_fluentLogger)
+			var request = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
 					.CreateRawTransaction(txnCmd);
 
 			// ACT 2
-			var signatures1 = new MultiChainFluentApi(_fluentLogger)
+			var signatures1 = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.UseMultiStageMultiSig()
 				.AddMultiSigRawTransaction(request)
 				.AddTransactionCommand(txnCmd)
 				.AddSigner(new DefaultSigner(_relayer1.Ptekey))
 				.MultiSignPartial(state.RedeemScript);
 
-			var signatures2 = new MultiChainFluentApi(_fluentLogger)
+			var signatures2 = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.UseMultiStageMultiSig()
 				.AddMultiSigRawTransaction(request)
 				.AddTransactionCommand(txnCmd)
@@ -498,7 +498,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent2
 				.MultiSignPartial(state.RedeemScript);
 
 			// ACT 3
-			var txid = new MultiChainFluentApi(_fluentLogger)
+			var txid = new MultiChainFluentApi()
+				.AddLogger(_logger)
 				.UseMultiSigSubmit()
 				.AddMultiSigRawTransaction(request)
 				.AddTransactionCommand(txnCmd)

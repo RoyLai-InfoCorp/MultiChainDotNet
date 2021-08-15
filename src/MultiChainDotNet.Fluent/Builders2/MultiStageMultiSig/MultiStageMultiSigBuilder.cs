@@ -14,12 +14,12 @@ namespace MultiChainDotNet.Fluent.Builders2.MultiStageMultiSig
 {
     public class MultiStageMultiSigBuilder: MultiSigBase, IAddMultiSigRawTransaction, IAddTransactionCommand, IAddSigner, IMultiSignPartial
 	{
-		ILogger<MultiChainFluentApi> _logger;
+		ILogger _logger;
 		string _raw;
 		MultiChainTransactionCommand _txnCmd;
 		private IList<SignerBase> _signers = new List<SignerBase>();
 
-		public MultiStageMultiSigBuilder(ILogger<MultiChainFluentApi> logger)
+		public MultiStageMultiSigBuilder(ILogger logger)
 		{
 			_logger=logger;
 		}

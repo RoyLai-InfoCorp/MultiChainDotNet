@@ -62,9 +62,24 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<string>("getrawtransaction", txid);
 		}
 
-		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAddressTransactions(string address)
+		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAddressTransactions(string address, int count=10, int skip=0, bool verbose=false)
 		{
-			return await JsonRpcRequestAsync<List<ListAddressTransactionResult>>("listaddresstransactions", address);
+			return await JsonRpcRequestAsync<List<ListAddressTransactionResult>>("listaddresstransactions", address, count, skip, verbose);
+		}
+
+		/// <summary>		
+		///  start: (number, optional, default=-count - last) Start from specific transaction, 0 based, if negative - from the end
+		///  local-ordering: (boolean, optional, default=false) If true, transactions appear in the order they were processed by the wallet,
+		///  if false - in the order they appear in blockchain
+		/// </summary>
+		/// <param name="assetName"></param>
+		/// <param name="count"></param>
+		/// <param name="start"></param>
+		/// <param name="verbose"></param>
+		/// <returns></returns>
+		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAssetTransactions(string assetName, bool verbose=false, int count = 10, int start = -10, bool localOrdering = false)
+		{
+			return await JsonRpcRequestAsync<List<ListAssetTransactionResult>>("listassettransactions", assetName, verbose, count, start, localOrdering);
 		}
 
 		public async Task<MultiChainResult<string>> CreateRawTransactionAsync(List<TxIdVoutStruct> txidVout, object to, object with = null)

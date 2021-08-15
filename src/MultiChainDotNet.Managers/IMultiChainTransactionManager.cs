@@ -7,7 +7,7 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainTransactionManager
 	{
-		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address);
+		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count=10, int skip=0, bool verbose=false);
 
 		Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid);
 

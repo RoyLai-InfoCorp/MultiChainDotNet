@@ -17,9 +17,9 @@ namespace MultiChainDotNet.Core.Base
 		protected HttpClient _httpClient;
 		protected MultiChainConfiguration MultiChainConfiguration => _mcConfig;
 
-		public MultiChainCommandBase(ILogger logger, MultiChainConfiguration mcConfg)
+		public MultiChainCommandBase(ILogger logger, MultiChainConfiguration mcConfig)
 		{
-			_mcConfig = mcConfg;
+			_mcConfig = mcConfig;
 			_logger = logger;
 			var handler = new HttpClientHandler()
 			{

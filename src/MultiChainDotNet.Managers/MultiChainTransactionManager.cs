@@ -71,10 +71,10 @@ namespace MultiChainDotNet.Managers
 			return new MultiChainResult<string>();
 		}
 
-		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address)
+		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			return await txnCmd.ListAddressTransactions(address);
+			return await txnCmd.ListAddressTransactions(address,count,skip,verbose);
 		}
 
 		private (List<TxIdVoutStruct> SelectedUnspents, Dictionary<string, Double> ReturnUnspents) SelectUnspent(List<ListUnspentResult> unspents, UInt64 requiredPayment, string requiredAssetName, Double requiredAssetQty, UInt64 fees = 1000)

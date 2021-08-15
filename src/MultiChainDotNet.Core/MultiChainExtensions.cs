@@ -5,6 +5,7 @@ using MultiChainDotNet.Core.MultiChainBlockchain;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Core.MultiChainVariable;
 using Polly;
 using Polly.Extensions.Http;
 using System;
@@ -99,6 +100,25 @@ namespace MultiChainDotNet.Core
 			return services;
 		}
 
+		static IServiceCollection AddMultiChainVariable(this IServiceCollection services, MultiChainConfiguration mcConfig)
+		{
+			services
+				.AddScoped<MultiChainVariableCommand>()
+				.AddHttpClient<MultiChainVariableCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
+					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
+					.AddPolicyHandler(GetRetryPolicy())
+					.ConfigurePrimaryHttpMessageHandler(() =>
+					{
+						return new HttpClientHandler()
+						{
+							Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)
+						};
+					});
+
+			return services;
+		}
+
+
 		static IServiceCollection AddMultiChainPermission(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
 			services
@@ -163,6 +183,7 @@ namespace MultiChainDotNet.Core
 			services.AddMultiChainStream(mcConfig);
 			services.AddMultiChainPermission(mcConfig);
 			services.AddMultiChainBlockchain(mcConfig);
+			services.AddMultiChainVariable(mcConfig);
 			services.AddMultiChainCommandFactory(mcConfig);
 			return services;
 		}

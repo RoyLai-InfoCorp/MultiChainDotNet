@@ -363,5 +363,41 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
 
+		[Test,Order(120)]
+		public async Task Should_list_transactions_by_asset()
+		{
+			var result = await _txnCmd.ListAssetTransactions("openasset");
+			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+		}
+
+		[Test, Order(130)]
+		public async Task Should_list_transactions_by_address()
+		{
+			var result = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
+			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+		}
+
+		[Test, Order(140)]
+		public async Task Should_list_transaction_by_address_in_the_correct_order()
+		{
+			var result1 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
+			var list1 = result1.Result.Select(x => x.Confirmations);
+			Console.WriteLine("ListAddressTransactions Default:");
+			Console.WriteLine(JsonConvert.SerializeObject(list1, Formatting.Indented));
+
+			var result2 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet,1);
+			var list2 = result2.Result.Select(x => x.Confirmations);
+			Console.WriteLine("ListAddressTransactions 1 count:");
+			Console.WriteLine(JsonConvert.SerializeObject(list2, Formatting.Indented));
+
+			var result3 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet, 20);
+			var list3 = result3.Result.Select(x => x.Confirmations);
+			Console.WriteLine("ListAddressTransactions 20 count:");
+			Console.WriteLine(JsonConvert.SerializeObject(list3, Formatting.Indented));
+		}
+
+
 	}
 }

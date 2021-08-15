@@ -22,7 +22,7 @@ namespace MultiChainDotNet.Fluent.Builders2
 		private string _signed;
 		private string _raw;
 
-		public MultiSigSender(ILogger<MultiChainFluentApi> logger, MultiChainTransactionCommand txnCmd, string raw)
+		public MultiSigSender(ILogger logger, MultiChainTransactionCommand txnCmd, string raw)
 		{
 			_logger = logger;
 			_txnCmd = txnCmd;

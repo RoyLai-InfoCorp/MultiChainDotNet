@@ -17,14 +17,14 @@ namespace MultiChainDotNet.Fluent.Builders2.SubmitMultiSig
 		ICreateTransaction,
 		ISend
 	{
-		ILogger<MultiChainFluentApi> _logger;
+		ILogger _logger;
 		string _raw;
 		MultiChainTransactionCommand _txnCmd;
 		List<string[]> _signatures;
 		string _signed;
 
 
-		public MultiSigSubmitBuilder(ILogger<MultiChainFluentApi> logger)
+		public MultiSigSubmitBuilder(ILogger logger)
 		{
 			_logger = logger;
 		}

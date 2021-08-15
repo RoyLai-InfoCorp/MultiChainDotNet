@@ -16,7 +16,7 @@ namespace MultiChainDotNet.Fluent.Builders2
 
 	public class MultiChainFluentApi: IFromBuilder, IToBuilder, IRequestBuilder, IUseMultiStageMultiSig
 	{
-		ILogger<MultiChainFluentApi> _logger;
+		ILogger _logger;
 		internal TxnFromBuilder _fromBuilder;
 		internal List<TxnToBuilder> _toBuilders = new List<TxnToBuilder>();
 		internal TxnWithBuilder _withBuilder = null;
@@ -26,10 +26,15 @@ namespace MultiChainDotNet.Fluent.Builders2
 		internal MultiSigSubmitBuilder _multiSigSubmitBuilder = null;
 		internal string _raw;
 
-		public MultiChainFluentApi(ILogger<MultiChainFluentApi> logger)
+		public MultiChainFluentApi()
 		{
 			_withBuilder = new TxnWithBuilder(this);
+		}
+
+		public MultiChainFluentApi AddLogger(ILogger logger)
+		{
 			_logger = logger;
+			return this;
 		}
 
 		public IToBuilder From(string address)
