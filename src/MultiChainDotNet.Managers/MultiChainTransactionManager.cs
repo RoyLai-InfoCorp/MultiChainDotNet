@@ -41,7 +41,12 @@ namespace MultiChainDotNet.Managers
 				return new MultiChainResult<string>(txnResult.Exception);
 
 			var decodedResult = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
-			var firstData = decodedResult.Result.Vout.Where(x => x.Assets.Any(y => y.Name == assetName) && x.Data is { }).FirstOrDefault()?.Data?[0];
+			if (decodedResult.IsError)
+				return new MultiChainResult<string>(decodedResult.Exception);
+
+			var firstData = decodedResult.Result.Vout
+				.Where(x => x.Assets is { } && x.Assets.Any(y => y.Name == assetName) && x.Data is { })?
+				.FirstOrDefault()?.Data?[0];
 			if (firstData is { })
 			{
 				var json = JToken.FromObject(firstData);
@@ -76,6 +81,72 @@ namespace MultiChainDotNet.Managers
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			return await txnCmd.ListAddressTransactions(address,count,skip,verbose);
 		}
+
+		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose=false, int count=10, int start=-10, bool localOrdering=false)
+		{
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
+			return await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
+		}
+
+		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAllTransactionsByAsset(string assetName)
+		{
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
+			int page = 0;
+			int count = 100;
+			bool empty = false;
+			List<ListAssetTransactionResult> list = new List<ListAssetTransactionResult>();
+			while (!empty)
+			{
+				var buffer = await txnCmd.ListAssetTransactions(assetName, false, count, page * count, false);
+				if (buffer.IsError)
+					throw buffer.Exception;
+
+				if (buffer.Result.Count == 0)
+					empty = true;
+				else
+				{
+					foreach (var item in buffer.Result)
+						list.Add(item);
+				}
+				page++;
+			}
+
+			return new MultiChainResult<List<ListAssetTransactionResult>>(list);
+		}
+
+		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAllTransactionsByAddress(string address, string assetName = null)
+		{
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
+			int page = 0;
+			int count = 100;
+			bool empty = false;
+			List<ListAddressTransactionResult> list = new List<ListAddressTransactionResult>();
+			while (!empty)
+			{
+				var buffer = await txnCmd.ListAddressTransactions(address, count, page * count, false);
+				if (buffer.IsError)
+					throw buffer.Exception;
+
+				if (buffer.Result.Count == 0)
+					empty = true;
+				else
+				{
+					foreach (var item in buffer.Result)
+						list.Add(item);
+				}
+				page++;
+			}
+
+			if (!string.IsNullOrEmpty(assetName))
+			{
+				var filteredList = list.Where(x => x.Balance.Assets.Any(x => x.Name == assetName)).ToList();
+				return new MultiChainResult<List<ListAddressTransactionResult>>(filteredList);
+			}
+
+			return new MultiChainResult<List<ListAddressTransactionResult>>(list);
+		}
+
+
 
 		private (List<TxIdVoutStruct> SelectedUnspents, Dictionary<string, Double> ReturnUnspents) SelectUnspent(List<ListUnspentResult> unspents, UInt64 requiredPayment, string requiredAssetName, Double requiredAssetQty, UInt64 fees = 1000)
 		{

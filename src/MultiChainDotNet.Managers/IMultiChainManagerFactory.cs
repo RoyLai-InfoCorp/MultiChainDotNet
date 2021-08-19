@@ -5,5 +5,6 @@ namespace MultiChainDotNet.Managers
 	public interface IMultiChainManagerFactory
 	{
 		T CreateInstance<T>(SignerBase signer);
+		T CreateInstance<T>();
 	}
 }

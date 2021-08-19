@@ -23,10 +23,12 @@ namespace MultiChainDotNet.Managers
 		MultiChainConfiguration _mcConfig;
 
 		public MultiChainVariableManager(
+			ILogger<MultiChainVariableManager> logger,
 			IMultiChainCommandFactory commandFactory,
 			MultiChainConfiguration mcConfig)
 		{
 			_commandFactory = commandFactory;
+			_logger = logger;
 			_varCmd = commandFactory.CreateCommand<MultiChainVariableCommand>();
 			_txnCmd = commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			_mcConfig = mcConfig;
@@ -47,7 +49,12 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public MultiChainResult<string> CreateVariable(string variableName, SignerBase signer = null)
+		public MultiChainResult<string> CreateVariable(string variableName)
+		{
+			return CreateVariable(_defaultSigner, variableName);
+		}
+
+		public MultiChainResult<string> CreateVariable(SignerBase signer, string variableName)
 		{
 			_logger.LogDebug($"Executing CreateVariableAsync");
 			signer = signer ?? _defaultSigner;
@@ -59,7 +66,7 @@ namespace MultiChainDotNet.Managers
 					.From(fromAddress)
 					.With()
 					.CreateVariable(variableName, null)
-					.CreateTransaction(_txnCmd)
+					.CreateNormalTransaction(_txnCmd)
 						.AddSigner(_defaultSigner)
 						.Sign()
 						.Send()
@@ -73,7 +80,11 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public MultiChainResult<string> SetVariableValue(string variableName, object variableValue, SignerBase signer = null)
+		public MultiChainResult<string> SetVariableValue(string variableName, object variableValue)
+		{
+			return SetVariableValue(_defaultSigner, variableName, variableValue);
+		}
+		public MultiChainResult<string> SetVariableValue(SignerBase signer, string variableName, object variableValue)
 		{
 			_logger.LogDebug($"Executing SetVariableAsync");
 			signer = signer ?? _defaultSigner;
@@ -85,7 +96,7 @@ namespace MultiChainDotNet.Managers
 					.From(fromAddress)
 					.With()
 					.UpdateVariable(variableName, variableValue)
-					.CreateTransaction(_txnCmd)
+					.CreateNormalTransaction(_txnCmd)
 						.AddSigner(_defaultSigner)
 						.Sign()
 						.Send()

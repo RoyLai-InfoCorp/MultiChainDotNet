@@ -23,9 +23,9 @@ namespace MultiChainDotNet.Fluent.Builders2
 			return _withData;
 		}
 
-		public IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd)
+		public IAddSignerBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd)
 		{
-			return _fluent.CreateTransaction(txnCmd);
+			return _fluent.CreateNormalTransaction(txnCmd);
 		}
 
 		public IAddMultiSigSenderBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd)

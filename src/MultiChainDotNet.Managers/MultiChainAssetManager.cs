@@ -51,6 +51,18 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
+		public async Task<bool> IsExist(string assetName)
+		{
+			var subscribe = await SubscribeAsync(assetName);
+			if (subscribe.IsError)
+			{
+				if (!MultiChainException.IsException(subscribe.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+					throw subscribe.Exception;
+				return false;
+			}
+			return true;
+		}
+
 		public async Task<MultiChainResult<string>> PayAsync(string toAddress, UInt64 amt, object data = null)
 		{
 			_logger.LogDebug($"Executing PayAsync");
@@ -225,17 +237,6 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public async Task<MultiChainResult<string>> IssueAsync(string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
-		{
-			_logger.LogDebug($"Executing IssueAsync");
-
-			if (_defaultSigner is { })
-				return await IssueAsync (_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, amt, canIssueMore, data);
-
-			// Note: No need to subscribe since assetName hasn't exist yet
-			return await _assetCmd.IssueAssetAsync(toAddress, assetName, amt, 1, canIssueMore);
-		}
-
 		public Task<MultiChainResult<string>> IssueAnnotateAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
 		{
 			_logger.LogDebug($"Executing IssueAsync");
@@ -271,7 +272,11 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public Task<MultiChainResult<string>> IssueAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
+		public MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
+		{
+			return Issue(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, amt, canIssueMore, data);
+		}
+		public MultiChainResult<string> Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null)
 		{
 			_logger.LogDebug($"Executing IssueAsync");
 
@@ -297,12 +302,18 @@ namespace MultiChainDotNet.Managers
 					.Sign(raw)
 					.Send()
 					;
-				return Task.FromResult(new MultiChainResult<string>(txid));
+
+				Task.Run(async () =>
+				{
+					await SubscribeAsync(assetName);
+				});
+
+				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return Task.FromResult(new MultiChainResult<string>(ex));
+				return new MultiChainResult<string>(ex);
 			}
 		}
 

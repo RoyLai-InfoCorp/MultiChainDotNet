@@ -51,7 +51,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
-			await Task.Delay(2000);
+			await Task.Delay(5000);
 		}
 
 		[Test, Order(10)]
@@ -337,11 +337,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var state = _stateDb.GetState<TestState>();
 			var assetName = state.AssetName;
-
-			await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 1000);
+			var sendresult = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 1000);
+			Assert.That(sendresult.IsError, Is.False, sendresult.ExceptionMessage);
 			var lockFees = await _txnCmd.PrepareLockUnspentFromAsync(_testUser1.NodeWallet, "", 1000);
 			var unspents = await _txnCmd.ListUnspentAsync(_testUser1.NodeWallet);
-			var unspent = unspents.Result.FirstOrDefault(x => x.Assets.Any(y => y.Name == assetName));
+			var unspent = unspents.Result.First(x => x.Assets.Any(y => y.Name == assetName));
 
 			var raw = await _txnCmd.CreateRawTransactionAsync(
 				new List<TxIdVoutStruct> {
@@ -366,6 +366,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test,Order(120)]
 		public async Task Should_list_transactions_by_asset()
 		{
+			await _assetCmd.SubscribeAsync("openasset");
 			var result = await _txnCmd.ListAssetTransactions("openasset");
 			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);

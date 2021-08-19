@@ -249,7 +249,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// Sender's fee is spent
 			var senderBalanceAfter = await GetRawBalance(newSender);
-			Assert.That(senderBalanceBefore - senderBalanceAfter, Is.AtMost(500));
+			Assert.That(senderBalanceBefore - senderBalanceAfter, Is.AtMost(1000));
 
 			// Recipient's asset is increased
 			var receipientAssetAfter = await GetRawBalance(_testUser1.NodeWallet, assetName);

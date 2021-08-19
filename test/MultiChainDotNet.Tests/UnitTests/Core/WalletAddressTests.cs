@@ -125,5 +125,25 @@ namespace MultiChainDotNet.Tests.UnitTests.Core
 			Console.WriteLine($"{knownAddresses.ToJson()}");
 		}
 
+		[Test]
+		public void Can_convert_address_to_32_char_base64()
+		{
+			var address = "12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL";
+			var base64 = MultiChainAddressHelper.Get32BytesNameFromAddress(address,_mcConfig.AddressPubkeyhashVersion);
+			Assert.That(base64.Length, Is.EqualTo(32));
+			Assert.That(base64, Is.EqualTo("CpoRuzgHpkF1GglbyhZ2Ps+RVoqKVYpb"));
+		}
+
+		[Test]
+		public void Can_convert_address_to_30_char_base64()
+		{
+			var address = "12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL";
+			var base64 = MultiChainAddressHelper.Get28BytesNameFromAddress(address, _mcConfig.AddressPubkeyhashVersion);
+			Assert.That(base64.Length, Is.EqualTo(28));
+			Console.WriteLine((new byte[] { 01,00,0,0}).Bytes2Base64());
+			Assert.That(base64, Is.EqualTo("CpoRuzgHpkF1GglbyhZ2Ps+RVoo="));
+		}
+
+
 	}
 }

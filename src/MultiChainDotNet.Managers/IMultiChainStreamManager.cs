@@ -8,8 +8,9 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainStreamManager
 	{
-		Task<MultiChainResult<string>> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false);
-		Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool anyoneCanWrite = false);
+		Task<bool> IsExist(string streamName);
+		MultiChainResult<string> CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false);
+		MultiChainResult<string> CreateStream(string streamName, bool anyoneCanWrite = false);
 		Task<MultiChainResult<StreamsResult>> GetStreamAsync(string streamName);
 		Task<MultiChainResult<StreamItemsResult>> GetStreamItemAsync(string selectCmd);
 		Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(bool verbose = false);
@@ -22,5 +23,6 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd);
 		Task<MultiChainResult<VoidType>> SubscribeAsync(string streamName);
 		Task<MultiChainResult<T>> GetStreamItemAsync<T>(string selectCmd);
+		Task<MultiChainResult<List<T>>> ListAllStreamItemsAsync<T>(string streamName);
 	}
 }

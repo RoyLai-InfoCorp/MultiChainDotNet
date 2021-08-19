@@ -18,5 +18,13 @@ namespace MultiChainDotNet.Core.Base
 		{
 			Code = code;
 		}
+
+		public static bool IsException(Exception ex, MultiChainErrorCode code)
+		{
+			if (ex is MultiChainException)
+				if (((MultiChainException)ex).Code == code)
+					return true;
+			return false;
+		}
 	}
 }

@@ -9,8 +9,13 @@ namespace MultiChainDotNet.Managers
 	{
 		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count=10, int skip=0, bool verbose=false);
 
+		Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false);
+
 		Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid);
 
 		Task<MultiChainResult<string>> GetDeclarationAsync(string txid);
+
+		Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAllTransactionsByAsset(string assetName);
+		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAllTransactionsByAddress(string address, string assetName = null);
 	}
 }

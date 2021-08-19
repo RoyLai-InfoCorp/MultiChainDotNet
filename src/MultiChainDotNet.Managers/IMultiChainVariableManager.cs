@@ -6,8 +6,10 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainVariableManager
 	{
-		MultiChainResult<string> CreateVariable(string variableName, SignerBase signer = null);
+		MultiChainResult<string> CreateVariable(SignerBase signer, string variableName);
+		MultiChainResult<string> CreateVariable(string variableName);
 		Task<MultiChainResult<T>> GetVariableValueAsync<T>(string variableName);
-		MultiChainResult<string> SetVariableValue(string variableName, object variableValue, SignerBase signer = null);
+		MultiChainResult<string> SetVariableValue(SignerBase signer, string variableName, object variableValue);
+		MultiChainResult<string> SetVariableValue(string variableName, object variableValue);
 	}
 }

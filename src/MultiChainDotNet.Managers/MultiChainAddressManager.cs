@@ -33,12 +33,19 @@ namespace MultiChainDotNet.Managers
 			return await _addressCmd.ImportAddressAsync(address);
 		}
 
-		public async Task<MultiChainResult<CreateMultiSigResult>> CreateMultiSigAsync(int nRequired, string[] pubkeys)
+		public MultiChainResult<CreateMultiSigResult> CreateMultiSig(int nRequired, string[] pubkeys)
 		{
-			var result = await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+			var result = Task.Run(async () => {
+				return await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+			}).GetAwaiter().GetResult();
 			if (result.IsError)
 				return result;
-			await ImportAddressAsync(result.Result.Address);
+
+			Task.Run(async () =>
+			{
+				await ImportAddressAsync(result.Result.Address);
+			}).GetAwaiter().GetResult();
+
 			return result;
 		}
 

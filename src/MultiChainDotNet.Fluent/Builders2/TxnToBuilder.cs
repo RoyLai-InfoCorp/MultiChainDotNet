@@ -44,7 +44,7 @@ namespace MultiChainDotNet.Fluent.Builders2
 
 		public IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd)
 		{
-			return _fluent.CreateTransaction(txnCmd);
+			return _fluent.CreateNormalTransaction(txnCmd);
 		}
 
 		public IAddMultiSigSenderBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd)

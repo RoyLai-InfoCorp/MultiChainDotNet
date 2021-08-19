@@ -51,17 +51,20 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
+		public MultiChainResult<string> GrantPermission(string toAddress, string permissions, string entityName = null)
+		{
+			return GrantPermission(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, permissions, entityName);
+		}
 
-
-		public async Task<MultiChainResult<string>> GrantPermissionAsync(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
+		public MultiChainResult<string> GrantPermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
 		{
 			try
 			{
 				var requestor = new TransactionRequestor();
-				requestor
+				var to = requestor
 					.From(fromAddress)
 					.To(toAddress)
-						.Permit(permissions, entityName)
+					.Permit(permissions, entityName)
 					;
 				var raw = requestor.Request(_txnCmd);
 				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
@@ -78,7 +81,12 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public async Task<MultiChainResult<string>> RevokePermissionAsync(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
+		public MultiChainResult<string> RevokePermission(string toAddress, string permissions, string entityName = null)
+		{
+			return RevokePermission(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, permissions, entityName);
+		}
+
+		public MultiChainResult<string> RevokePermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
 		{
 			try
 			{
@@ -120,9 +128,16 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<MultiChainResult<bool>> CheckPermissionGrantedAsync(string address, string permission, string entityName = null)
 		{
-			return await _permCmd.CheckPermissionGrantedAsync(address, permission, entityName);
+			var permissions = permission.Split(',');
+			foreach (var perm in permissions)
+			{
+				var result = await _permCmd.CheckPermissionGrantedAsync(address, perm, entityName);
+				if (result.IsError)
+					return result;
+				if (!result.Result)
+					return new MultiChainResult<bool>(false);
+			}
+			return new MultiChainResult<bool>(true);
 		}
-
-
 	}
 }

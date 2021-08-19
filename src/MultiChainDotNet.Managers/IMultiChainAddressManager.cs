@@ -6,7 +6,7 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainAddressManager
 	{
-		Task<MultiChainResult<CreateMultiSigResult>> CreateMultiSigAsync(int nRequired, string[] pubkeys);
+		MultiChainResult<CreateMultiSigResult> CreateMultiSig(int nRequired, string[] pubkeys);
 		Task<MultiChainResult<VoidType>> ImportAddressAsync(string address);
 		Task<MultiChainResult<bool>> IsExistAsync(string address);
 	}

@@ -36,7 +36,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_create_new_stream()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -50,7 +50,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_publish_new_streamitem()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -64,10 +64,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_throw_rpc_transaction_rejected_error_when_stream_already_exists()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
-			var result2 = await _streamManager.CreateStreamAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result2 = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
 			Assert.That(result2.IsError, Is.True);
 			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
 		}
@@ -82,7 +82,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			var prefix = Guid.NewGuid().ToString("N").Substring(0, 5);
 			var newStream = prefix;
-			await _streamManager.CreateStreamAsync(newStream);
+			_streamManager.CreateStream(newStream);
 			for (int i = 0; i < 10; i++)
 			{
 				var key = prefix + "-" + i;
@@ -128,10 +128,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var result10 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC PAGE 0 SIZE 2");
 			Assert.That(result10.Result[0].Counter, Is.EqualTo(0));
 			Assert.That(result10.Result[1].Counter, Is.EqualTo(1));
+		}
 
-			// Fluent Syntax: Query(streamName).FromLast(0).Page(2).Size(2) returns an array of 2
-			// Fluent Syntax: Query(streamName).FromLast(0).Next(2).Next(2).Next(2) returns a list of 3 x 2
-
+		class TestClassA
+		{
+			public string Name;
 		}
 
 	}

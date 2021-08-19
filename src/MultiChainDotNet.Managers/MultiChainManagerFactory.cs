@@ -31,5 +31,11 @@ namespace MultiChainDotNet.Managers
 			return (T)Activator.CreateInstance(typeof(T), loggerFactory, _cmdFactory, _mcConfig, signer);
 		}
 
+		public T CreateInstance<T>()
+		{
+			var loggerFactory = _container.GetRequiredService<ILoggerFactory>();
+			return (T)Activator.CreateInstance(typeof(T), loggerFactory, _cmdFactory, _mcConfig);
+		}
+
 	}
 }

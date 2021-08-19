@@ -54,20 +54,27 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-
-		public async Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool anyoneCanWrite = false)
+		public async Task<bool> IsExist(string streamName)
 		{
-			_logger.LogDebug($"Executing CreateStreamAsync");
-
-			//Note: No need to subscribe since stream hasn't exist
-			if (_defaultSigner is { })
-				return await CreateStreamAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, anyoneCanWrite);
-			return await _streamCmd.CreateStreamAsync(streamName, anyoneCanWrite);
+			var subscribe = await SubscribeAsync(streamName);
+			if (subscribe.IsError)
+			{
+				if (!MultiChainException.IsException(subscribe.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+					throw subscribe.Exception;
+				return false;
+			}
+			return true;
 		}
 
-		public Task<MultiChainResult<string>> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
+		public MultiChainResult<string> CreateStream(string streamName, bool anyoneCanWrite = false)
 		{
 			_logger.LogDebug($"Executing CreateStreamAsync");
+			return CreateStream(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, anyoneCanWrite);
+		}
+
+		public MultiChainResult<string> CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
+		{
+			_logger.LogDebug($"Executing CreateStream");
 
 			try
 			{
@@ -86,8 +93,12 @@ namespace MultiChainDotNet.Managers
 					.Send()
 					;
 
-				_streamCmd.SubscribeAsync(streamName).GetAwaiter().GetResult();
-				return Task.FromResult(new MultiChainResult<string>(txid));
+				Task.Run(async () =>
+				{
+					await _streamCmd.SubscribeAsync(streamName);
+				});
+				
+				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
 			{
@@ -96,11 +107,11 @@ namespace MultiChainDotNet.Managers
 				{
 					Exception me = new MultiChainException(MultiChainErrorCode.RPC_DUPLICATE_NAME);
 					_logger.LogWarning(me.ToString());
-					return Task.FromResult(new MultiChainResult<string>(me));
+					return new MultiChainResult<string>(me);
 				}
 
 				_logger.LogWarning(ex.ToString());
-				return Task.FromResult(new MultiChainResult<string>(ex));
+				return new MultiChainResult<string>(ex);
 			}
 		}
 
@@ -202,7 +213,7 @@ namespace MultiChainDotNet.Managers
 
 			var result = await _streamCmd.ListStreamsAsync(streamName, true);
 
-			if (result.IsError && ((MultiChainException)result.Exception).Code == MultiChainErrorCode.RPC_ENTITY_NOT_FOUND)
+			if (result.IsError && MultiChainException.IsException(result.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 				return new MultiChainResult<StreamsResult>();
 
 			if (result.IsError)
@@ -212,6 +223,52 @@ namespace MultiChainDotNet.Managers
 			}
 
 			return new MultiChainResult<StreamsResult>(result.Result[0]);
+		}
+
+
+		/// <summary>
+		/// Returns all items from streams containing Json stream item of type T
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="streamName"></param>
+		/// <returns></returns>
+		public async Task<MultiChainResult<List<T>>> ListAllStreamItemsAsync<T>(string streamName)
+		{
+			int page = 0;
+			int size = 20;
+			bool empty = false;
+			var streamItems = new List<T>();
+			while (!empty)
+			{
+				var result = await ListStreamItemsAsync($"FROM {streamName} ASC PAGE {page} SIZE {size}");
+
+				if (result.IsError && MultiChainException.IsException(result.Exception,MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+					return new MultiChainResult<List<T>>();
+
+				if (result.IsError)
+					throw result.Exception;
+
+				if (result.Result.Count == 0)
+					empty = true;
+				else
+				{
+					foreach (var item in result.Result)
+					{
+						try
+						{
+							var json = ConvertMultiChainJsonResult<T>(item);
+							streamItems.Add(json);
+						}
+						catch(Exception ex)
+						{
+							if (!ex.ToString().Contains("cast"))
+								return new MultiChainResult<List<T>>(ex);
+						}
+					}
+				}
+				page++;
+			}
+			return new MultiChainResult<List<T>>(streamItems);
 		}
 
 		public async Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(bool verbose = false)
@@ -312,7 +369,7 @@ namespace MultiChainDotNet.Managers
 			return new MultiChainResult<StreamItemsResult>(result.Result[0]);
 		}
 
-		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose)
+		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose=false)
 		{
 			_logger.LogDebug($"Executing SelectStreamItemsAsync");
 
@@ -380,17 +437,27 @@ namespace MultiChainDotNet.Managers
 
 		}
 
+		private T ConvertMultiChainJsonResult<T>(StreamItemsResult streamItem)
+		{
+			var data = JToken.FromObject(streamItem.Data);
+			var item = data.SelectToken("json");
+			return item.ToObject<T>();
+		}
+
 		public async Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd)
 		{
 			var list = new List<T>();
 			var streamItems = await ListStreamItemsAsync(selectCmd,false);
+			if (streamItems.IsError)
+				return new MultiChainResult<List<T>>(streamItems.Exception);
+			if (streamItems.Result is null)
+				return new MultiChainResult<List<T>>();
+
 			foreach (var streamItem in streamItems.Result)
 			{
 				try
 				{
-					var data = JToken.FromObject(streamItem.Data);
-					var item = data.SelectToken("json");
-					var json = item.ToObject<T>();
+					var json = ConvertMultiChainJsonResult<T>(streamItem);
 					list.Add(json);
 				}
 				catch (Exception ex)

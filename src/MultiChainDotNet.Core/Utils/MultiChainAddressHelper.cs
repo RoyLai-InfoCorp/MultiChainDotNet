@@ -177,8 +177,8 @@ namespace MultiChainDotNet.Core.Utils
 
 
 		/// <summary>
-		/// Convert the address to hexadecimal, strip away the version and checksum to get 20 bytes pk hash
-		/// Convert the 20 bytes pk hash to Base64 = 32 bytes string.
+		/// Convert the address to hexadecimal, strip away the version to get 24 bytes pk hash
+		/// Convert the 24 bytes pk hash to Base64 = 32 bytes string.
 		/// </summary>
 		/// <param name="address"></param>
 		/// <param name="addressVersion"></param>
@@ -187,11 +187,28 @@ namespace MultiChainDotNet.Core.Utils
 		{
 			byte[] bytes = address.Base582Bytes();
 			var checkSum = bytes.SafeSubarray(bytes.Length - 5, 4);
-			var addressByte32 = RemoveAddressVersion(bytes.SkipLast(4).ToArray(), pubkeyVersion.Hex2Bytes())
+			var addressByte24 = RemoveAddressVersion(bytes.SkipLast(4).ToArray(), pubkeyVersion.Hex2Bytes())
 				.Concat(checkSum)
 				.ToArray();
-			return addressByte32.Bytes2Base64();
+			return addressByte24.Bytes2Base64();
 		}
+
+		/// <summary>
+		/// Convert the address to hexadecimal, strip away the version and checksum to get 20 bytes pk hash
+		/// Convert the 20 bytes pk hash to Base64 = 28 bytes string.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="addressVersion"></param>
+		/// <returns></returns>
+		public static string Get28BytesNameFromAddress(string address, string pubkeyVersion)
+		{
+			byte[] bytes = address.Base582Bytes();
+			var checkSum = bytes.SafeSubarray(bytes.Length - 5, 4);
+			var addressByte20 = RemoveAddressVersion(bytes.SkipLast(4).ToArray(), pubkeyVersion.Hex2Bytes())
+				.ToArray();
+			return addressByte20.Bytes2Base64();
+		}
+
 
 		public static byte[] RemoveAddressVersion(byte[] pubkeyHashBytes, byte[] versionBytes)
 		{

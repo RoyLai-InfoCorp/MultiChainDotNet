@@ -67,7 +67,7 @@ namespace MultiChainDotNet.Fluent.Builders2
 		IDeclarationBuilder UpdateVariable(string variableName, object value);
 		IDeclarationBuilder AddJavascript(string scriptName, LibraryUpdateMode mode, string javascript);
 		IDeclarationBuilder UpdateJavascript(string scriptName, string versionName, string javascript);
-		IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd);
+		IAddSignerBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd);
 		IAddMultiSigSenderBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd);
 		string CreateRawTransaction(MultiChainTransactionCommand txnCmd);
 	}
@@ -77,14 +77,14 @@ namespace MultiChainDotNet.Fluent.Builders2
 		IRequestBuilder DeclareBytes(byte[] bytes);
 		IRequestBuilder DeclareJson(object json);
 		IRequestBuilder DeclareText(string text);
-		IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd);
+		IAddSignerBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd);
 		IAddMultiSigSenderBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd);
 		string CreateRawTransaction(MultiChainTransactionCommand txnCmd);
 	}
 
 	public interface IRequestBuilder
 	{
-		IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd);
+		IAddSignerBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd);
 		IAddMultiSigSenderBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd);
 		string CreateRawTransaction(MultiChainTransactionCommand txnCmd);
 	}

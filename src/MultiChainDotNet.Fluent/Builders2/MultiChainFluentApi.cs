@@ -69,7 +69,7 @@ namespace MultiChainDotNet.Fluent.Builders2
 			return request;
 		}
 
-		public IAddSignerBuilder CreateTransaction(MultiChainTransactionCommand txnCmd)
+		public IAddSignerBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd)
 		{
 			var request = CreateRawTransaction(txnCmd);
 			_txnSender = new TransactionSender(_logger, txnCmd, request);
