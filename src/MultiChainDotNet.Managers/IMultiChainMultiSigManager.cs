@@ -12,7 +12,6 @@ namespace MultiChainDotNet.Managers
 		MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty);
 		MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript);
 		MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, double qty, string redeemScript);
-		Task<MultiChainResult<string>> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript);
 		MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript);
 
 	}

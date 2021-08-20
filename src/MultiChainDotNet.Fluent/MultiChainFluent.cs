@@ -13,15 +13,15 @@ using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Fluent
 {
-    public class MultiChainFluent
-    {
+	public class MultiChainFluent : ITransactionBuilder,INormalTransactionBuilder,IMultiSigTransactionBuilder
+	{
 		protected ILogger _logger;
 		protected IList<SignerBase> _signers = new List<SignerBase>();
 		protected MultiChainTransactionCommand _txnCmd;
 		protected byte[] _rawSendFrom;
 		protected string _signed;
 
-		public MultiChainFluent AddLogger(ILogger logger)
+		public ITransactionBuilder AddLogger(ILogger logger)
 		{
 			_logger = logger;
 			return this;
@@ -30,7 +30,7 @@ namespace MultiChainDotNet.Fluent
 
 		#region From
 		private string _fromAddress;
-		public MultiChainFluent From(string address)
+		public ITransactionBuilder From(string address)
 		{
 			_fromAddress = address;
 			return this;
@@ -43,7 +43,7 @@ namespace MultiChainDotNet.Fluent
 
 		Dictionary<string, Dictionary<string, object>> _toBuilders = new Dictionary<string, Dictionary<string, object>>();
 
-		public MultiChainFluent To(string address)
+		public ITransactionBuilder To(string address)
 		{
 			if (_toBuilders.ContainsKey(address))
 				throw new Exception("Address TO is already added. ");
@@ -52,31 +52,31 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent Pay(double qty)
+		public ITransactionBuilder Pay(double qty)
 		{
 			_toBuilders[_to][""] = qty;
 			return this;
 		}
 
-		public MultiChainFluent IssueAsset(UInt64 amt)
+		public ITransactionBuilder IssueAsset(UInt64 amt)
 		{
 			_toBuilders[_to]["issue"] = new { raw = amt };
 			return this;
 		}
 
-		public MultiChainFluent IssueMoreAsset(string assetName, UInt64 amt)
+		public ITransactionBuilder IssueMoreAsset(string assetName, UInt64 amt)
 		{
 			_toBuilders[_to]["issuemore"] = new { asset = assetName, raw = amt };
 			return this;
 		}
 
-		public MultiChainFluent SendAsset(string assetName, double qty)
+		public ITransactionBuilder SendAsset(string assetName, double qty)
 		{
 			_toBuilders[_to][assetName] = qty;
 			return this;
 		}
 
-		public MultiChainFluent Permit(string permission, string entityName = null)
+		public ITransactionBuilder Permit(string permission, string entityName = null)
 		{
 			_toBuilders[_to]["permissions"] = new Dictionary<string, object> { { "type", permission } };
 			if (entityName is { })
@@ -85,7 +85,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent Revoke(string permission, string entityName = null)
+		public ITransactionBuilder Revoke(string permission, string entityName = null)
 		{
 			_toBuilders[_to]["permissions"] = new Dictionary<string, object> { { "type", permission }, { "startblock", 0 }, { "endblock", 0 } };
 			if (entityName is { })
@@ -94,40 +94,40 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent AnnotateJson(object json)
+		public ITransactionBuilder AnnotateJson(object json)
 		{
 			if (json is { })
 				_toBuilders[_to]["data"] = new Dictionary<string, object> { { "json", json } };
 			return this;
 		}
 
-		public MultiChainFluent AnnotateText(string text)
+		public ITransactionBuilder AnnotateText(string text)
 		{
 			if (!String.IsNullOrEmpty(text))
 				_toBuilders[_to]["data"] = new Dictionary<string, string> { { "text", text } };
 			return this;
 		}
 
-		public MultiChainFluent AnnotateBytes(byte[] bytes)
+		public ITransactionBuilder AnnotateBytes(byte[] bytes)
 		{
 			if (bytes is { })
 				_toBuilders[_to]["data"] = new Dictionary<string, string> { { "cache", bytes.Bytes2Hex() } };
 			return this;
 		}
 
-		public MultiChainFluent Filter(string filterName, bool isApprove)
+		public ITransactionBuilder Filter(string filterName, bool isApprove)
 		{
 			_toBuilders[_to][filterName] = new { approve = isApprove };
 			return this;
 		}
 
-		public MultiChainFluent Filter(string filterName, string streamName, bool isApprove)
+		public ITransactionBuilder Filter(string filterName, string streamName, bool isApprove)
 		{
 			_toBuilders[_to][filterName] = new Dictionary<string, string> { { "approve", isApprove.ToString() }, { "for", streamName } };
 			return this;
 		}
 
-		public MultiChainFluent UpdateLibrary(string libName, string updateName, bool isApprove)
+		public ITransactionBuilder UpdateLibrary(string libName, string updateName, bool isApprove)
 		{
 			_toBuilders[_to][libName] = new Dictionary<string, string> { { "approve", isApprove.ToString() }, { "updatename", updateName } };
 			return this;
@@ -138,33 +138,33 @@ namespace MultiChainDotNet.Fluent
 		#region With
 
 		List<object> _withData = new List<object>();
-		public MultiChainFluent With()
+		public ITransactionBuilder With()
 		{
 			return this;
 		}
 
-		public MultiChainFluent DeclareBytes(byte[] bytes)
+		public ITransactionBuilder DeclareBytes(byte[] bytes)
 		{
 			if (bytes is { })
 				_withData.Add(bytes.Bytes2Hex());
 			return this;
 		}
 
-		public MultiChainFluent DeclareJson(object json)
+		public ITransactionBuilder DeclareJson(object json)
 		{
 			if (json is { })
 				_withData.Add(new { json = json });
 			return this;
 		}
 
-		public MultiChainFluent DeclareText(string text)
+		public ITransactionBuilder DeclareText(string text)
 		{
 			if (!String.IsNullOrEmpty(text))
 				_withData.Add(new { text = text });
 			return this;
 		}
 
-		public MultiChainFluent IssueDetails(string assetName, UInt32 multiple, bool canIssueMore)
+		public ITransactionBuilder IssueDetails(string assetName, UInt32 multiple, bool canIssueMore)
 		{
 			_withData.Add(
 				new
@@ -177,7 +177,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent IssueDetails(string assetName, UInt32 multiple, bool reissuable, Dictionary<string, object> details)
+		public ITransactionBuilder IssueDetails(string assetName, UInt32 multiple, bool reissuable, Dictionary<string, object> details)
 		{
 			_withData.Add(
 				new
@@ -191,7 +191,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent IssueMoreDetails(string assetName)
+		public ITransactionBuilder IssueMoreDetails(string assetName)
 		{
 			_withData.Add(
 				new
@@ -200,7 +200,7 @@ namespace MultiChainDotNet.Fluent
 				});
 			return this;
 		}
-		public MultiChainFluent IssueMoreDetails(string assetName, Dictionary<string, object> details)
+		public ITransactionBuilder IssueMoreDetails(string assetName, Dictionary<string, object> details)
 		{
 			_withData.Add(
 				new
@@ -211,7 +211,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent CreateStream(string streamName, bool publicWritable, Dictionary<string, object> details)
+		public ITransactionBuilder CreateStream(string streamName, bool publicWritable, Dictionary<string, object> details)
 		{
 			_withData.Add(
 				new
@@ -225,7 +225,7 @@ namespace MultiChainDotNet.Fluent
 		}
 
 
-		public MultiChainFluent CreateStream(string streamName, bool anyoneCanWrite)
+		public ITransactionBuilder CreateStream(string streamName, bool anyoneCanWrite)
 		{
 			_withData.Add(
 				new
@@ -237,7 +237,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent PublishJson(string streamName, string key, object json)
+		public ITransactionBuilder PublishJson(string streamName, string key, object json)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -249,7 +249,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent PublishJson(string streamName, string[] keys, object json)
+		public ITransactionBuilder PublishJson(string streamName, string[] keys, object json)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -262,7 +262,7 @@ namespace MultiChainDotNet.Fluent
 		}
 
 
-		public MultiChainFluent PublishText(string streamName, string key, string text)
+		public ITransactionBuilder PublishText(string streamName, string key, string text)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -274,7 +274,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent CreateVariable(string variableName, object value)
+		public ITransactionBuilder CreateVariable(string variableName, object value)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -286,7 +286,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent UpdateVariable(string variableName, object value)
+		public ITransactionBuilder UpdateVariable(string variableName, object value)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -297,8 +297,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public enum LibraryUpdateMode { NONE, INSTANT, APPROVE }
-		public MultiChainFluent AddJavascript(string scriptName, LibraryUpdateMode mode, string javascript)
+		public ITransactionBuilder AddJavascript(string scriptName, LibraryUpdateMode mode, string javascript)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -311,7 +310,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiChainFluent UpdateJavascript(string scriptName, string versionName, string javascript)
+		public ITransactionBuilder UpdateJavascript(string scriptName, string versionName, string javascript)
 		{
 			_withData.Add(
 				new Dictionary<string, object>
@@ -325,22 +324,48 @@ namespace MultiChainDotNet.Fluent
 
 		#endregion
 
-		#region Normal Transaction
 
-		public MultiChainFluent UseNormalTransaction(MultiChainTransactionCommand txnCmd)
+		private (string From, Dictionary<string, Dictionary<string, object>> To, List<object> With) CreateRawSendFrom()
+		{
+			return (_fromAddress, _toBuilders, _withData);
+		}
+
+		public string CreateRawTransaction(MultiChainTransactionCommand txnCmd)
 		{
 			_txnCmd = txnCmd;
-			return this;
+			var (fromAddress, tos, with) = CreateRawSendFrom();
+			string request = Task.Run(async () =>
+			{
+				var result = await _txnCmd.CreateRawSendFromAsync(fromAddress, tos, with);
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}).GetAwaiter().GetResult();
+			return request;
+		}
+
+		public string Describe()
+		{
+			var (fromAddress, tos, with) = CreateRawSendFrom();
+			return $"createrawsendfrom {fromAddress} '{JsonConvert.SerializeObject(tos)}' '{JsonConvert.SerializeObject(with)}'";
 		}
 
 
-		public MultiChainFluent AddSigner(SignerBase signer)
+		#region Normal Transaction
+
+		public INormalTransactionBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd)
+		{
+			_rawSendFrom = CreateRawTransaction(txnCmd).Hex2Bytes();
+			return this;
+		}
+
+		public INormalTransactionBuilder AddSigner(SignerBase signer)
 		{
 			_signers.Add(signer);
 			return this;
 		}
 
-		public MultiChainFluent Sign()
+		public INormalTransactionBuilder Sign()
 		{
 			_logger?.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
 			_signed = Task.Run(async () =>
@@ -494,83 +519,59 @@ namespace MultiChainDotNet.Fluent
 		#endregion
 
 		#region Multisig Transaction
-
-		public MultiChainFluent UseMultiSigTransaction(MultiChainTransactionCommand txnCmd)
+		public IMultiSigTransactionBuilder UseMultiSigTransaction(MultiChainTransactionCommand txnCmd)
 		{
 			_txnCmd = txnCmd;
 			return this;
 		}
 
-		public MultiChainFluent MultiSign(string redeemScript)
+		public IMultiSigTransactionBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd)
 		{
-			return MultiSign(_rawSendFrom.Bytes2Hex(), redeemScript);
-		}
-
-		public MultiChainFluent CreateMultiSigTransaction()
-		{
-			_rawSendFrom = CreateRawTransaction().Hex2Bytes();
+			_rawSendFrom = CreateRawTransaction(txnCmd).Hex2Bytes();
 			return this;
 		}
 
-		public MultiChainFluent MultiSign(string raw, string redeemScript)
+		public IMultiSigTransactionBuilder AddMultiSigSigner(SignerBase signer)
 		{
-			_rawSendFrom = raw.Hex2Bytes();
+			_signers.Add(signer);
+			return this;
+		}
+
+		public IMultiSigTransactionBuilder AddMultiSigSigners(IList<SignerBase> signers)
+		{
+			_signers=signers;
+			return this;
+		}
+
+
+
+		public IMultiSigTransactionBuilder MultiSign(string redeemScript)
+		{
+			//_rawSendFrom = raw.Hex2Bytes();
 			_logger?.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
 			if (_signers is { } && _signers.Count > 0)
-			{
-				_signed = Task.Run(async () =>
-				{
-					return await MultiSignUsingSignersAsync(_signers, _rawSendFrom, redeemScript.Hex2Bytes());
-				}).GetAwaiter().GetResult();
-			}
+				_signed = MultiSignUsingSigners(_signers, _rawSendFrom, redeemScript.Hex2Bytes());
 			else if (_signersSignatures is { } && _signersSignatures.Count > 0)
-			{
-				return MultiSignUsingSignatures(raw, redeemScript);
-			}
-
+				_signed = MultiSignUsingSignatures(redeemScript);
 			return this;
 		}
 
-		private MultiChainFluent MultiSignUsingSignatures(string raw, string redeemScript)
+		private string[] MultiSignPartial(SignerBase signer, List<byte[]> txnHashes, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
-			var signed = raw.Hex2Bytes();
-			var vin = MultiChainTxnHelper.GetVin(signed);
-			for (int txinIndex = 0; txinIndex < vin; txinIndex++)
+			var signatures = new List<string>();
+			foreach (var txnHash in txnHashes)
 			{
-				byte[] scriptSig = new byte[] { 0x00 };
-				foreach (var signatureList in _signersSignatures)
+				// Create the signature using the txn hash and append the hashtype.
+				var signature = Task.Run(async () =>
 				{
-					var signature = signatureList[txinIndex].Hex2Bytes();
-					scriptSig = scriptSig.Concat(signature).ToArray();
-				}
-				// Append the redeemscript
-				byte[] redeemScriptLen = MultiChainTxnHelper.CreatePushDataOpCode((uint)redeemScript.Hex2Bytes().Length);
-				scriptSig = scriptSig.Concat(redeemScriptLen).ToArray();
-				scriptSig = scriptSig.Concat(redeemScript.Hex2Bytes()).ToArray();
-
-				// Encode the length of the new sigscript
-				var scriptSigLen = new VarInt().Import(scriptSig);
-				scriptSig = scriptSigLen.Bytes.Concat(scriptSig).ToArray();
-
-				var scriptSigPos = MultiChainTxnHelper.GetScriptSigPosition(signed, txinIndex);
-				signed = signed.BlockReplace(scriptSigPos, BitCoinConstants.SCRIPTSIG_PLACEHOLDER_LENGTH, scriptSig);
+					return await signer.SignAsync(txnHash);
+				}).GetAwaiter().GetResult();
+				signature = signature.Append((byte)hashType).ToArray();
+				VarInt signatureLen = new VarInt().Import(signature);
+				signature = signatureLen.Bytes.Concat(signature).ToArray();
+				signatures.Add(signature.Bytes2Hex());
 			}
-			_signed = signed.Bytes2Hex();
-
-			return this;
-		}
-
-
-		/// <summary>
-		/// Return a list of signatures from signer.
-		/// </summary>
-		/// <param name="rawSendFrom"></param>
-		/// <param name="redeemScript"></param>
-		/// <returns></returns>
-		public string[] MultiSignPartial(string raw, string redeemScript)
-		{
-			var txnHashes = CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes());
-			return MultiSignPartialAsync(_signers[0], txnHashes).Result.Select(x => x.Bytes2Hex()).ToArray();
+			return signatures.ToArray();
 		}
 
 		/// <summary>
@@ -594,7 +595,7 @@ namespace MultiChainDotNet.Fluent
 		/// <param name="redeemScript"></param>
 		/// <param name="hashType"></param>
 		/// <returns></returns>
-		private async Task<string> MultiSignUsingSignersAsync(IList<SignerBase> signers, byte[] rawSendFrom, byte[] redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
+		private string MultiSignUsingSigners(IList<SignerBase> signers, byte[] rawSendFrom, byte[] redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
 			var vin = MultiChainTxnHelper.GetVin(rawSendFrom);
 
@@ -607,10 +608,10 @@ namespace MultiChainDotNet.Fluent
 			// Do not combine STEP 2 and 3!!
 			// This is because the multisig transaction expects the signers to sign in certain order following the multisig address creation.
 			// STEP 2 is used to collect the signatures first then use step 3 to re-arrange the signatures in the right order.
-			Dictionary<Guid, List<byte[]>> signerSignatures = new Dictionary<Guid, List<byte[]>>();
+			Dictionary<Guid, string[]> signerSignatures = new Dictionary<Guid, string[]>();
 			foreach (var signer in signers)
 			{
-				var signatures = await MultiSignPartialAsync(signer, txnHashes);
+				var signatures = MultiSignPartial(signer, txnHashes);
 				signerSignatures[signer.Id] = signatures;
 			}
 
@@ -622,7 +623,7 @@ namespace MultiChainDotNet.Fluent
 				foreach (var signer in signers)
 				{
 					var signature = signerSignatures[signer.Id][txinIndex];
-					scriptSig = scriptSig.Concat(signature).ToArray();
+					scriptSig = scriptSig.Concat(signature.Hex2Bytes()).ToArray();
 				}
 				// Append the redeemscript
 				byte[] redeemScriptLen = MultiChainTxnHelper.CreatePushDataOpCode((uint)redeemScript.Length);
@@ -640,21 +641,6 @@ namespace MultiChainDotNet.Fluent
 			_logger?.LogDebug($"Final Transaction: {finalTxn.Bytes2Hex()}");
 			_logger?.LogDebug($"Final Transaction Decoded: {MultiChainTxnHelper.Decode(finalTxn)}");
 			return finalTxn.Bytes2Hex();
-		}
-
-		private async Task<List<byte[]>> MultiSignPartialAsync(SignerBase signer, List<byte[]> txnHashes, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
-		{
-			var signatures = new List<byte[]>();
-			foreach (var txnHash in txnHashes)
-			{
-				// Create the signature using the txn hash and append the hashtype.
-				var signature = await signer.SignAsync(txnHash);
-				signature = signature.Append((byte)hashType).ToArray();
-				VarInt signatureLen = new VarInt().Import(signature);
-				signature = signatureLen.Bytes.Concat(signature).ToArray();
-				signatures.Add(signature);
-			}
-			return signatures;
 		}
 
 		// List of transaction hashes from temp transaction equal to the number of inputs.
@@ -691,51 +677,69 @@ namespace MultiChainDotNet.Fluent
 			return hashes;
 		}
 
-		public string CreateMultiSigTransactionHashes(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
-		{
-			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(), hashType));
-		}
+		#endregion
+
+		#region Multstage Multisig Transaction
 
 		IList<string[]> _signersSignatures = new List<string[]>();
-		public MultiChainFluent AddMultiSignatures(List<string[]> signatures)
+		public IMultiSigTransactionBuilder AddMultiSignatures(IList<string[]> signatures)
 		{
 			_signersSignatures = signatures;
 			return this;
 		}
 
-		#endregion
-
-		#region Create, Describe and Send Raw Transaction
-
-		public string CreateRawTransaction()
+		public IMultiSigTransactionBuilder AddRawTransaction(string raw)
 		{
-			var (fromAddress, tos, with) = CreateRawSendFrom();
-			string request = Task.Run(async () =>
-			{
-				var result = await _txnCmd.CreateRawSendFromAsync(fromAddress, tos, with);
-				if (result.IsError)
-					throw result.Exception;
-				return result.Result;
-			}).GetAwaiter().GetResult();
-			return request;
-		}
-
-		public MultiChainFluent CreateTransaction()
-		{
-			_rawSendFrom = CreateRawTransaction().Hex2Bytes();
+			_rawSendFrom = raw.Hex2Bytes();
 			return this;
 		}
 
-		private (string From, Dictionary<string, Dictionary<string, object>> To, List<object> With) CreateRawSendFrom()
+		/// <summary>
+		/// Return a list of signatures from signer.
+		/// </summary>
+		/// <param name="rawSendFrom"></param>
+		/// <param name="redeemScript"></param>
+		/// <returns></returns>
+		public string[] MultiSignPartial(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
-			return (_fromAddress, _toBuilders, _withData);
+			if (_signers.Count > 1)
+				throw new Exception("Cannot be partial signed by more than 1 signer.");
+			var txnHashes = CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes());
+
+			return MultiSignPartial(_signers[0], txnHashes);
 		}
 
-		public string Describe()
+		private string MultiSignUsingSignatures(string redeemScript)
 		{
-			var (fromAddress, tos, with) = CreateRawSendFrom();
-			return $"createrawsendfrom {fromAddress} '{JsonConvert.SerializeObject(tos)}' '{JsonConvert.SerializeObject(with)}'";
+			//var signed = raw.Hex2Bytes();
+			var signed = _rawSendFrom;
+			var vin = MultiChainTxnHelper.GetVin(signed);
+			for (int txinIndex = 0; txinIndex < vin; txinIndex++)
+			{
+				byte[] scriptSig = new byte[] { 0x00 };
+				foreach (var signatureList in _signersSignatures)
+				{
+					var signature = signatureList[txinIndex].Hex2Bytes();
+					scriptSig = scriptSig.Concat(signature).ToArray();
+				}
+				// Append the redeemscript
+				byte[] redeemScriptLen = MultiChainTxnHelper.CreatePushDataOpCode((uint)redeemScript.Hex2Bytes().Length);
+				scriptSig = scriptSig.Concat(redeemScriptLen).ToArray();
+				scriptSig = scriptSig.Concat(redeemScript.Hex2Bytes()).ToArray();
+
+				// Encode the length of the new sigscript
+				var scriptSigLen = new VarInt().Import(scriptSig);
+				scriptSig = scriptSigLen.Bytes.Concat(scriptSig).ToArray();
+
+				var scriptSigPos = MultiChainTxnHelper.GetScriptSigPosition(signed, txinIndex);
+				signed = signed.BlockReplace(scriptSigPos, BitCoinConstants.SCRIPTSIG_PLACEHOLDER_LENGTH, scriptSig);
+			}
+			return signed.Bytes2Hex();
 		}
+
+		#endregion
+
+		#region Create, Describe and Send Raw Transaction
 
 		public string RawSigned()
 		{

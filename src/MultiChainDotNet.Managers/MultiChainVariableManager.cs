@@ -3,7 +3,7 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.MultiChainVariable;
-using MultiChainDotNet.Fluent.Builders2;
+using MultiChainDotNet.Fluent;
 using MultiChainDotNet.Fluent.Signers;
 using System;
 using System.Collections.Generic;
@@ -61,11 +61,11 @@ namespace MultiChainDotNet.Managers
 			try
 			{
 				var fromAddress = _mcConfig.Node.NodeWallet;
-				var txid = new MultiChainFluentApi()
+				var txid = new MultiChainFluent()
 					.AddLogger(_logger)
 					.From(fromAddress)
 					.With()
-					.CreateVariable(variableName, null)
+						.CreateVariable(variableName, null)
 					.CreateNormalTransaction(_txnCmd)
 						.AddSigner(_defaultSigner)
 						.Sign()
@@ -91,11 +91,11 @@ namespace MultiChainDotNet.Managers
 			try
 			{
 				var fromAddress = _mcConfig.Node.NodeWallet;
-				var txid = new MultiChainFluentApi()
+				var txid = new MultiChainFluent()
 					.AddLogger(_logger)
 					.From(fromAddress)
 					.With()
-					.UpdateVariable(variableName, variableValue)
+						.UpdateVariable(variableName, variableValue)
 					.CreateNormalTransaction(_txnCmd)
 						.AddSigner(_defaultSigner)
 						.Sign()

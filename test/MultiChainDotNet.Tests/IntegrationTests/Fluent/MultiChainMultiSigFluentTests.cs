@@ -42,7 +42,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		{
 			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
 			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = _loggerFactory.CreateLogger<TransactionSenderTests>();
+			_logger = _loggerFactory.CreateLogger<MultiChainMultiSigFluentTests>();
 		}
 
 		private async Task Prepare_MultiSigAddress(int n, string[] addresses)
@@ -86,13 +86,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseMultiSigTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
-				.CreateTransaction()
-					.AddSigner(new DefaultSigner(_relayer1.Ptekey))
+				.CreateMultiSigTransaction(_txnCmd)
+					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
 					.MultiSign(state.RedeemScript)
 					.Send()
 					;
@@ -112,14 +111,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseMultiSigTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
-				.CreateTransaction()
-					.AddSigner(new DefaultSigner(_relayer1.Ptekey))
-					.AddSigner(new DefaultSigner(_relayer2.Ptekey))
+				.CreateMultiSigTransaction(_txnCmd)
+					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+					.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
 					.MultiSign(state.RedeemScript)
 					.Send()
 					;
@@ -136,33 +134,33 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT 1
 			var request = new MultiChainFluent()
-				.UseMultiSigTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(state.MultiSigAddress)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(state.AssetName, 1)
-					.CreateRawTransaction();
+					.CreateRawTransaction(_txnCmd);
 
 			// ACT 2
 			var signatures1 = new MultiChainFluent()
 				.AddLogger(_logger)
 				.UseMultiSigTransaction(_txnCmd)
-				.AddSigner(new DefaultSigner(_relayer1.Ptekey))
-				.MultiSignPartial(request, state.RedeemScript);
+					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+					.MultiSignPartial(request, state.RedeemScript);
 
 			var signatures2 = new MultiChainFluent()
 				.AddLogger(_logger)
 				.UseMultiSigTransaction(_txnCmd)
-				.AddSigner(new DefaultSigner(_relayer2.Ptekey))
-				.MultiSignPartial(request,state.RedeemScript);
+					.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
+					.MultiSignPartial(request,state.RedeemScript);
 
 			// ACT 3
 			var txid = new MultiChainFluent()
 				.AddLogger(_logger)
 				.UseMultiSigTransaction(_txnCmd)
-				.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
-				.MultiSign(request, state.RedeemScript)
-				.Send();
+					.AddRawTransaction(request)
+					.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
+					.MultiSign(state.RedeemScript)
+					.Send();
 
 			Assert.That(String.IsNullOrEmpty(txid), Is.False);
 		}

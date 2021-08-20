@@ -78,21 +78,15 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				//Note: No need to subscribe since stream hasn't exist
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.With()
 					.CreateStream(streamName, anyoneCanWrite)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-				.AddSigner(signer)
-					.AddLogger(_logger)
-					.Sign(raw)
-					.Send()
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 
 				Task.Run(async () =>
@@ -137,20 +131,15 @@ namespace MultiChainDotNet.Managers
 				// Remember to subscribe
 				await SubscribeAsync(streamName);
 
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.With()
 					.PublishJson(streamName, key, json)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 
 				return new MultiChainResult<string>(txid);
@@ -181,21 +170,17 @@ namespace MultiChainDotNet.Managers
 				// Remember to subscribe
 				await SubscribeAsync(streamName);
 
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.With()
 					.PublishJson(streamName, keys, json)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)

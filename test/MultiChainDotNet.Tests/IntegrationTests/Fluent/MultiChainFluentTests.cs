@@ -42,7 +42,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		{
 			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
 			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = _loggerFactory.CreateLogger<TransactionSenderTests>();
+			_logger = _loggerFactory.CreateLogger<MultiChainFluentTests>();
 		}
 
 		[Test, Order(10)]
@@ -58,12 +58,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Pay(1_000_000)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -86,14 +85,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueAsset(1000)
 				.With()
 					.IssueDetails(assetName, 1, true)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -152,7 +150,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
@@ -160,7 +157,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 					.AnnotateJson(new { Name = "Annotation" })
 				.With()
 					.IssueDetails(assetName, 1, true)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -185,7 +182,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
@@ -193,7 +189,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 				.With()
 					.IssueDetails(assetName, 1, true)
 					.DeclareJson(new { Name = "Declaration" })
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -217,12 +213,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.IssueMoreAsset(assetName, 1000)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -242,12 +237,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.SendAsset(assetName, 100)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -267,12 +261,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
 				.CreateStream(streamName, false)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -298,12 +291,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
 				.PublishJson(state.StreamName, "lid-123456", new { name = "cow1", dob = DateTime.Parse("1-jan-2000"), age = 20 })
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -324,12 +316,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Permit($"write", state.StreamName)
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -346,12 +337,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Permit("create,issue")
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()
@@ -368,12 +358,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 			// ACT
 			var txid = new MultiChainFluent()
-				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Revoke("create,issue")
-				.CreateTransaction()
+				.CreateNormalTransaction(_txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
 					.Send()

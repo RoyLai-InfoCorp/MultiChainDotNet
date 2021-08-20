@@ -60,21 +60,17 @@ namespace MultiChainDotNet.Managers
 		{
 			try
 			{
-				var requestor = new TransactionRequestor();
-				var to = requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.Permit(permissions, entityName)
+						.Permit(permissions, entityName)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch(Exception ex)
@@ -92,21 +88,17 @@ namespace MultiChainDotNet.Managers
 		{
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
 						.Revoke(permissions, entityName)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)

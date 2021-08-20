@@ -75,24 +75,17 @@ namespace MultiChainDotNet.Managers
 			double qty = units / _mcConfig.Multiple;
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.Pay(qty)
-					;
-				requestor
+						.Pay(qty)
 					.With()
-					.DeclareJson(data)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
+						.DeclareJson(data)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 				return new MultiChainResult<string>(txid);
 			}
@@ -115,21 +108,18 @@ namespace MultiChainDotNet.Managers
 			double qty = units / _mcConfig.Multiple;
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.Pay(qty)
-					.AnnotateJson(annotation);
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
+						.Pay(qty)
+						.AnnotateJson(annotation)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -167,24 +157,17 @@ namespace MultiChainDotNet.Managers
 				UInt64 multiple = GetAssetMultiple(assetName);
 				double qty = units / multiple;
 
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.SendAsset(assetName, qty)
-					;
-				requestor
+						.SendAsset(assetName, qty)
 					.With()
-					.DeclareJson(data)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
+						.DeclareJson(data)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 				return new MultiChainResult<string>(txid);
 			}
@@ -211,22 +194,18 @@ namespace MultiChainDotNet.Managers
 				UInt64 multiple = GetAssetMultiple(assetName);
 				double qty = units / multiple;
 
-				var requestor = new TransactionRequestor();
-				var to = requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.SendAsset(assetName, qty)
-					.AnnotateJson(annotation)
+						.SendAsset(assetName, qty)
+						.AnnotateJson(annotation)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -248,25 +227,18 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.IssueAsset(units)
-					;
-				requestor
+						.IssueAsset(units)
 					.With()
-					.IssueDetails(assetName, 1, canIssueMore)
-					.DeclareJson(data)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
+						.IssueDetails(assetName, 1, canIssueMore)
+						.DeclareJson(data)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 
 				Task.Run(async () =>
@@ -294,26 +266,20 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.IssueAsset(units)
-					.AnnotateJson(annotation)
-					;
-				requestor
+						.IssueAsset(units)
+						.AnnotateJson(annotation)
 					.With()
-					.IssueDetails(assetName, 1, canIssueMore)
+						.IssueDetails(assetName, 1, canIssueMore)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -334,28 +300,19 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.IssueMoreAsset(assetName, units)
-					;
-				if (data is { })
-				requestor
+						.IssueMoreAsset(assetName, units)
 					.With()
-					.DeclareJson(data)
+						.DeclareJson(data)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
 
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -375,23 +332,18 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.IssueMoreAsset(assetName, units)
-					.AnnotateJson(annotation)
+						.IssueMoreAsset(assetName, units)
+						.AnnotateJson(annotation)
+					.CreateNormalTransaction(_txnCmd)
+						.AddSigner(signer)
+						.Sign()
+						.Send()
 					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-				var txnMgr = new TransactionSender(_txnCmd);
-				var txid = txnMgr
-					.AddLogger(_logger)
-					.AddSigner(signer)
-					.Sign(raw)
-					.Send()
-					;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)

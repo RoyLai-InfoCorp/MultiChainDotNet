@@ -39,22 +39,17 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.SendAsset(assetName, qty)
-					;
-				var raw = requestor.Request(_txnCmd);
-				//var txnMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), _txnCmd);
-				var txnMgr = new MultiSigSender(_txnCmd);
-				txnMgr.AddLogger(_logger);
-				foreach (SignerBase signer in signers)
-					txnMgr.AddSigner(signer);
-				var txid = txnMgr
-					.MultiSign(raw, redeemScript)
-					.Send()
-					;
+						.SendAsset(assetName, qty)
+					.CreateMultiSigTransaction(_txnCmd)
+						.AddMultiSigSigners(signers)
+						.MultiSign(redeemScript)
+						.Send()
+						;
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -72,13 +67,14 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var raw = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.SendAsset(assetName, qty)
+						.SendAsset(assetName, qty)
+						.CreateRawTransaction(_txnCmd)
 					;
-				var raw = requestor.Request(_txnCmd);
+
 				return new MultiChainResult<string>(raw);
 			}
 			catch (Exception ex)
@@ -95,18 +91,14 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var requestor = new TransactionRequestor();
-				requestor
+				var raw = new MultiChainFluent()
+					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-					.IssueMoreAsset(assetName, qty)
+						.IssueMoreAsset(assetName, qty)
+						.CreateRawTransaction(_txnCmd)
 					;
-				if (data is { })
-					requestor
-						.With()
-						.DeclareJson(data)
-						;
-				var raw = requestor.Request(_txnCmd);
+
 				return new MultiChainResult<string>(raw);
 			}
 			catch (Exception ex)
@@ -123,13 +115,13 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				//var txnMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), _txnCmd);
-				var txnMgr = new MultiSigSender(_txnCmd);
-				var signatures = txnMgr
+				var signatures = new MultiChainFluent()
 					.AddLogger(_logger)
-					.AddSigner(signer)
-					.MultiSignPartial(signatureSlip, redeemScript)
+					.UseMultiSigTransaction(_txnCmd)
+						.AddMultiSigSigner(signer)
+						.MultiSignPartial(signatureSlip, redeemScript)
 					;
+
 				return new MultiChainResult<string[]>(signatures);
 			}
 			catch (Exception ex)
@@ -145,12 +137,14 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				//var txnMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), _txnCmd);
-				var txnMgr = new MultiSigSender(_txnCmd);
-				var txid = txnMgr
+				var txid = new MultiChainFluent()
 					.AddLogger(_logger)
-					.MultiSign(signatureSlip, redeemScript, signatures)
-					.Send();
+					.UseMultiSigTransaction(_txnCmd)
+						.AddRawTransaction(signatureSlip)
+						.AddMultiSignatures(signatures)
+						.MultiSign(redeemScript)
+						.Send()
+						;
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -158,31 +152,6 @@ namespace MultiChainDotNet.Managers
 				_logger.LogWarning(ex.ToString());
 				return new MultiChainResult<string>(ex);
 			}
-
-		}
-
-		public async Task<MultiChainResult<string>> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript)
-		{
-			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
-
-			try
-			{
-				//var txnMgr = new MultiSigSender(_loggerFactory.CreateLogger<MultiSigSender>(), _txnCmd);
-				var txnMgr = new MultiSigSender(_txnCmd);
-
-				var signed = txnMgr
-					.AddLogger(_logger)
-					.MultiSign(signatureSlip, redeemScript, signatures)
-					.RawSigned();
-				var result = await _txnCmd.SendRawTransactionAsync(signed);
-				return new MultiChainResult<string>(result.Result);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
-			}
-
 
 		}
 

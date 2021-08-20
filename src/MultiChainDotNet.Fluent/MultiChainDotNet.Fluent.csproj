@@ -10,8 +10,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Builders2\MultiChainFluentBuilder.cs" />
+	  <Compile Remove="Builders\IMultiChainFluent.cs" />
+	  <Compile Remove="Builders\TransactionRequestor.cs" />
+	  <Compile Remove="Builders\TxnFromBuilder.cs" />
+	  <Compile Remove="Builders\TxnToBuilder.cs" />
+	  <Compile Remove="Builders\TxnWithBuilder.cs" />
 	  <Compile Remove="MultiChainMultiSigFluent.cs" />
+	  <Compile Remove="MultiSigSender.cs" />
+	  <Compile Remove="TransactionSender.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
