@@ -1,4 +1,7 @@
-﻿using Org.BouncyCastle.Asn1.Sec;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Encodings;

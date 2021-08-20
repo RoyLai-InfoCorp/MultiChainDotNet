@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;

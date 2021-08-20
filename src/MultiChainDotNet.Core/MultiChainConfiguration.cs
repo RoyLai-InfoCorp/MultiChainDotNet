@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace MultiChainDotNet.Core

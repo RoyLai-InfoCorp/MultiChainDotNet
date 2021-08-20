@@ -1,4 +1,7 @@
-﻿using MultiChainDotNet.Fluent.Signers;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using MultiChainDotNet.Fluent.Signers;
 
 namespace MultiChainDotNet.Managers
 {

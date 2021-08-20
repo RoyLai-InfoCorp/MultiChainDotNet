@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
 using System;

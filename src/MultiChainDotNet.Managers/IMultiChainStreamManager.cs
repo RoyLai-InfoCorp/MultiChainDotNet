@@ -1,4 +1,7 @@
-﻿using MultiChainDotNet.Core.Base;
+// SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
+// SPDX-License-Identifier: See LICENSE.txt
+
+using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Fluent.Signers;
 using System.Collections.Generic;
