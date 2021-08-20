@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 {
 	[TestFixture]
-	public class TransactionSenderTests : TestCommandFactoryBase
+	public class MultiChainFluentTests : TestCommandFactoryBase
 	{
 		public class TestState
 		{
@@ -54,22 +54,19 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			var result1 = await assetCmd.GetAddressBalancesAsync(_testUser1.NodeWallet);
 			var balancesBefore = result1.Result.FirstOrDefault(x => String.IsNullOrEmpty(x.Name)).Raw;
-			_logger.LogInformation("Balance before:"+balancesBefore.ToString());
+			_logger.LogInformation("Balance before:" + balancesBefore.ToString());
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-				.Pay(1_000_000);
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var result = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+					.Pay(1_000_000)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -81,8 +78,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			Assert.That(balancesAfter, Is.EqualTo(balancesBefore + 1_000_000));
 		}
 
-		//----- ASSETS
-
 		[Test, Order(20)]
 		public void Should_issue_asset()
 		{
@@ -90,25 +85,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-				.IssueAsset(1000)
-				;
-			requestor
+					.IssueAsset(1000)
 				.With()
-				.IssueDetails(assetName, 1, true)
-				//.Pay(MultiChainConfiguration.MinimumTxnFee)
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+					.IssueDetails(assetName, 1, true)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -120,11 +108,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		private async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
-			var txnResult = await _txnCmd.GetRawTransaction(txid);
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
 
-			var decodedResult = await _txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+			var decodedResult = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
 			var firstData = decodedResult.Result.Vout.Where(x => x.Assets.Any(y => y.Name == assetName) && x.Data is { }).FirstOrDefault()?.Data?[0];
 			if (firstData is { })
 			{
@@ -138,11 +127,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		private async Task<string> GetDeclarationAsync(string txid)
 		{
-			var txnResult = await _txnCmd.GetRawTransaction(txid);
+			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
 
-			var decodedResult = await _txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+			var decodedResult = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
 			var firstData = decodedResult.Result.Vout.Where(x => x.Assets is null && x.Data is { }).FirstOrDefault()?.Data?[0];
 			if (firstData is { })
 			{
@@ -154,7 +144,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			return null;
 		}
 
-
 		[Test, Order(22)]
 		public async Task Should_issue_annotate_asset()
 		{
@@ -162,26 +151,19 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-				.IssueAsset(1000)
-				.AnnotateJson(new { Name = "Annotation" })
-				;
-			requestor
+					.IssueAsset(1000)
+					.AnnotateJson(new { Name = "Annotation" })
 				.With()
-				.IssueDetails(assetName, 1, true)
-				//.Pay(MultiChainConfiguration.MinimumTxnFee)
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+					.IssueDetails(assetName, 1, true)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -202,25 +184,19 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-				.IssueAsset(1000)
-				;
-			requestor
+					.IssueAsset(1000)
 				.With()
-				.IssueDetails(assetName, 1, true)
-				.DeclareJson(new { Name = "Declaration"})
-				//.Pay(MultiChainConfiguration.MinimumTxnFee)
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+					.IssueDetails(assetName, 1, true)
+					.DeclareJson(new { Name = "Declaration" })
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -229,38 +205,27 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var annotation = await GetDeclarationAsync(txid);
 			Assert.That(annotation, Is.EqualTo("{\"Name\":\"Declaration\"}"));
 
-
-			// STATE
-			_stateDb.SaveState(new TestState { AssetName = assetName });
 		}
-
-
 
 		[Test, Order(30)]
 		public async Task Should_issue_more_asset()
 		{
-			var state = _stateDb.GetState<TestState>();
-
 			//Prepare
-			var assetName = state.AssetName;
+			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 1, true);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-				.IssueMoreAsset(assetName, 1000)
-				//.Pay(MultiChainConfiguration.MinimumTxnFee)
-				;
-			var raw = requestor.Request(_txnCmd);
-
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-			.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.AddLogger(_logger)
-				.Sign(raw)
-				.Send()
+					.IssueMoreAsset(assetName, 1000)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -270,27 +235,22 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		[Test, Order(40)]
 		public async Task Should_send_asset()
 		{
-			var state = _stateDb.GetState<TestState>();
-
 			//Prepare
-			var assetName = state.AssetName;
+			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 1, true);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
-				.From(_testUser1.NodeWallet)
-				.To(_admin.NodeWallet)
-				.SendAsset(assetName, 100)
-				//.Pay(MultiChainConfiguration.MinimumTxnFee)
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
 				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_testUser1.Ptekey))
-				.Sign(raw)
-				.Send()
+				.From(_admin.NodeWallet)
+				.To(_testUser1.NodeWallet)
+					.SendAsset(assetName, 100)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -306,21 +266,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var streamName = Guid.NewGuid().ToString("N").Substring(0, 20);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
-				.CreateStream(streamName,false)
+				.CreateStream(streamName, false)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
-				;
+
 
 			// ASSERT
 			Assert.IsNotNull(txid);
@@ -330,7 +287,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			_stateDb.SaveState(state);
 		}
 
-		[Test,Order(80)]
+		[Test, Order(80)]
 		public async Task Should_publish_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
@@ -340,21 +297,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			await streamCmd.SubscribeAsync(state.StreamName);
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.With()
-				.PublishJson(state.StreamName,"lid-123456", new { name = "cow1", dob = DateTime.Parse("1-jan-2000"), age = 20 })
+				.PublishJson(state.StreamName, "lid-123456", new { name = "cow1", dob = DateTime.Parse("1-jan-2000"), age = 20 })
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
-				;
+
 
 			// ASSERT
 			Assert.IsNotNull(txid);
@@ -369,20 +323,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// PREPARE
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
-					.Permit($"write",state.StreamName)
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+					.Permit($"write", state.StreamName)
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -395,20 +345,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// PREPARE
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Permit("create,issue")
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT
@@ -421,20 +367,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// PREPARE
 
 			// ACT
-			var requestor = new TransactionRequestor();
-			requestor
+			var txid = new MultiChainFluent()
+				.UseNormalTransaction(_txnCmd)
+				.AddLogger(_logger)
 				.From(_admin.NodeWallet)
 				.To(_testUser1.NodeWallet)
 					.Revoke("create,issue")
-				;
-			var raw = requestor.Request(_txnCmd);
-			//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
-			var txnMgr = new TransactionSender(_txnCmd);
-			var txid = txnMgr
-				.AddLogger(_logger)
-				.AddSigner(new DefaultSigner(_admin.Ptekey))
-				.Sign(raw)
-				.Send()
+				.CreateTransaction()
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
 				;
 
 			// ASSERT

@@ -1,4 +1,5 @@
-﻿using MultiChainDotNet.Core.Utils;
+﻿using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

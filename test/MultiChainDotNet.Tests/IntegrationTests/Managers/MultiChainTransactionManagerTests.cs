@@ -47,7 +47,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			// PREPARE
 			for (int i = 0; i < 30; i++)
-				await _mcAssetMgr.SendAssetAsync(_testUser1.NodeWallet, assetName, 1);
+			{
+				await Task.Delay(1000);
+				_mcAssetMgr.SendAsset(_testUser1.NodeWallet, assetName, 1);
+			}
 
 			// ACT
 			var result1 = await _mcTxnMgr.ListAllTransactionsByAsset(assetName);
@@ -64,7 +67,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var assetName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
 			var issue = _mcAssetMgr.Issue(_admin.NodeWallet, assetName, 1000, true);
 			for (int i = 0; i < 5; i++)
-				await _mcAssetMgr.SendAssetAsync(_testUser1.NodeWallet, assetName, 1);
+				_mcAssetMgr.SendAsset(_testUser1.NodeWallet, assetName, 1);
 
 			// ACT
 			var result1 = await _mcTxnMgr.ListAllTransactionsByAddress(_testUser1.NodeWallet, assetName);

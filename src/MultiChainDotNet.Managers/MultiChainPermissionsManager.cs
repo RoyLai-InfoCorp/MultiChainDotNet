@@ -67,8 +67,10 @@ namespace MultiChainDotNet.Managers
 					.Permit(permissions, entityName)
 					;
 				var raw = requestor.Request(_txnCmd);
-				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				var txnMgr = new TransactionSender(_txnCmd);
 				var txid = txnMgr
+					.AddLogger(_logger)
 					.AddSigner(signer)
 					.Sign(raw)
 					.Send()
@@ -97,8 +99,10 @@ namespace MultiChainDotNet.Managers
 						.Revoke(permissions, entityName)
 					;
 				var raw = requestor.Request(_txnCmd);
-				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				var txnMgr = new TransactionSender(_txnCmd);
 				var txid = txnMgr
+					.AddLogger(_logger)
 					.AddSigner(signer)
 					.Sign(raw)
 					.Send()

@@ -18,16 +18,21 @@ namespace MultiChainDotNet.Fluent
 {
 	public sealed class TransactionSender
 	{
-		private readonly ILogger _logger;
+		private ILogger _logger;
 		private IList<SignerBase> _signers = new List<SignerBase>();
-		protected MultiChainTransactionCommand _txnCmd;
+		private MultiChainTransactionCommand _txnCmd;
 		private byte[] _rawSendFrom;
 		private string _signed;
 
-		public TransactionSender(ILogger<TransactionSender> logger, MultiChainTransactionCommand txnCmd)
+		public TransactionSender(MultiChainTransactionCommand txnCmd)
 		{
 			_txnCmd = txnCmd;
+		}
+
+		public TransactionSender AddLogger(ILogger logger)
+		{
 			_logger = logger;
+			return this;
 		}
 
 		public TransactionSender AddSigner(SignerBase signer)
@@ -39,7 +44,7 @@ namespace MultiChainDotNet.Fluent
 		public TransactionSender Sign(string raw)
 		{
 			_rawSendFrom = raw.Hex2Bytes();
-			_logger.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
+			_logger?.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
 			_signed = Task.Run(async () =>
 			{
 				return await SignAsync(_signers[0], _rawSendFrom);
@@ -86,45 +91,45 @@ namespace MultiChainDotNet.Fluent
 			byte[] tempTxn = null;
 			IList<byte[]> finalScriptSigs = new List<byte[]>();
 
-			_logger.LogDebug($"Creating transaction for signing...");
+			_logger?.LogDebug($"Creating transaction for signing...");
 			// Create scriptsig for each input
 			for (int txinIndex = 0; txinIndex < vin; txinIndex++)
 			{
 				try
 				{
 					// Create the temporary script sig and insert into the transaction.
-					_logger.LogDebug($"Creating temporary scriptsig for input {txinIndex}...");
+					_logger?.LogDebug($"Creating temporary scriptsig for input {txinIndex}...");
 					var tempScriptSig = await CreateTempScriptSigAsync(rawSendFrom, txinIndex);
-					_logger.LogTrace($"Temporary ScriptSig:{tempScriptSig.Bytes2Hex()}");
+					_logger?.LogTrace($"Temporary ScriptSig:{tempScriptSig.Bytes2Hex()}");
 
-					_logger.LogDebug($"Creating temporary txn for input {txinIndex}...");
+					_logger?.LogDebug($"Creating temporary txn for input {txinIndex}...");
 					var scriptSigPos = MultiChainTxnHelper.GetScriptSigPosition(rawSendFrom, txinIndex);
 					tempTxn = rawSendFrom.BlockReplace(scriptSigPos, BitCoinConstants.SCRIPTSIG_PLACEHOLDER_LENGTH, tempScriptSig);
 					tempTxn = tempTxn.Concat(MultiChainTxnHelper.HashTypeCode((byte)hashType)).ToArray();
-					_logger.LogTrace($"TempTransaction:{tempTxn.Bytes2Hex()}");
+					_logger?.LogTrace($"TempTransaction:{tempTxn.Bytes2Hex()}");
 
 					// Create transaction hash
 					byte[] hash = tempTxn.SHA256().SHA256();
-					_logger.LogTrace($"TransactionHash:{hash.Bytes2Hex()}");
+					_logger?.LogTrace($"TransactionHash:{hash.Bytes2Hex()}");
 
 					// Sign transaction hash
-					_logger.LogDebug($"Signing transaction hash txn for input {txinIndex}...");
+					_logger?.LogDebug($"Signing transaction hash txn for input {txinIndex}...");
 					byte[] signature = await signer.SignAsync(hash);
-					_logger.LogTrace($"Signature:{signature.Bytes2Hex()}");
+					_logger?.LogTrace($"Signature:{signature.Bytes2Hex()}");
 
 					// Create sigscript = sigLen + signature + hashType + pubkeyLen + pubkey
-					_logger.LogDebug($"Creating final scriptsig for input {txinIndex}...");
+					_logger?.LogDebug($"Creating final scriptsig for input {txinIndex}...");
 					var pubkey = await signer.GetPublicKeyAsync();
-					_logger.LogTrace($"Pubkey:{pubkey}");
+					_logger?.LogTrace($"Pubkey:{pubkey}");
 					var (scriptSigLen, scriptSig) = CreateFinalScriptSig(signature, tempTxn, (byte)hashType, pubkey.Hex2Bytes());
 					scriptSig = scriptSigLen.Concat(scriptSig).ToArray();
-					_logger.LogTrace($"Final ScriptSig:{scriptSig.Bytes2Hex()}");
+					_logger?.LogTrace($"Final ScriptSig:{scriptSig.Bytes2Hex()}");
 
 					finalScriptSigs.Add(scriptSig);
 				}
 				catch(Exception ex)
 				{
-					_logger.LogWarning(ex.ToString());
+					_logger?.LogWarning(ex.ToString());
 					throw;
 				}
 			}
@@ -137,7 +142,7 @@ namespace MultiChainDotNet.Fluent
 				var scriptSigPos = MultiChainTxnHelper.GetScriptSigPosition(finalTxn, txinIndex);
 				finalTxn = finalTxn.BlockReplace(scriptSigPos, BitCoinConstants.SCRIPTSIG_PLACEHOLDER_LENGTH, finalScriptSig);
 			}
-			_logger.LogTrace($"FinalTransaction:{finalTxn.Bytes2Hex()}");
+			_logger?.LogTrace($"FinalTransaction:{finalTxn.Bytes2Hex()}");
 
 			return finalTxn.Bytes2Hex();
 		}
@@ -161,8 +166,8 @@ namespace MultiChainDotNet.Fluent
 			// Get Prev Txid in Little Endian and pull it from blockchain
 			var (prevTxid, prevVout) = MultiChainTxnHelper.GetPrevTxn(rawSendFrom, txinIndex);
 			var prevTxidHex = prevTxid.Reverse().ToArray().Bytes2Hex();
-			_logger.LogTrace($"PrevTxid:{prevTxidHex}");
-			_logger.LogTrace($"PrevVout:{prevVout.Bytes2Hex()}");
+			_logger?.LogTrace($"PrevTxid:{prevTxidHex}");
+			_logger?.LogTrace($"PrevVout:{prevVout.Bytes2Hex()}");
 
 			// Extract the scriptPubKey
 			var result = await _txnCmd.GetTxOutAsync(prevTxidHex, BitConverter.ToInt32(prevVout));
@@ -176,7 +181,7 @@ namespace MultiChainDotNet.Fluent
 			// Create the scriptsig
 			var tempScriptSig = scriptPubKeyLen.Bytes;
 			tempScriptSig = tempScriptSig.Concat(scriptPubKey).ToArray();
-			_logger.LogTrace($"tempScripSig:{tempScriptSig.Bytes2Hex()}");
+			_logger?.LogTrace($"tempScripSig:{tempScriptSig.Bytes2Hex()}");
 
 			return tempScriptSig;
 		}

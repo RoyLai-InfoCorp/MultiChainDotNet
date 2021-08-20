@@ -86,9 +86,11 @@ namespace MultiChainDotNet.Managers
 					.CreateStream(streamName, anyoneCanWrite)
 					;
 				var raw = requestor.Request(_txnCmd);
-				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				var txnMgr = new TransactionSender(_txnCmd);
 				var txid = txnMgr
 				.AddSigner(signer)
+					.AddLogger(_logger)
 					.Sign(raw)
 					.Send()
 					;
@@ -142,9 +144,11 @@ namespace MultiChainDotNet.Managers
 					.PublishJson(streamName, key, json)
 					;
 				var raw = requestor.Request(_txnCmd);
-				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				var txnMgr = new TransactionSender(_txnCmd);
 				var txid = txnMgr
-				.AddSigner(signer)
+					.AddLogger(_logger)
+					.AddSigner(signer)
 					.Sign(raw)
 					.Send()
 					;
@@ -184,8 +188,10 @@ namespace MultiChainDotNet.Managers
 					.PublishJson(streamName, keys, json)
 					;
 				var raw = requestor.Request(_txnCmd);
-				var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				//var txnMgr = new TransactionSender(_loggerFactory.CreateLogger<TransactionSender>(), _txnCmd);
+				var txnMgr = new TransactionSender(_txnCmd);
 				var txid = txnMgr
+					.AddLogger(_logger)
 					.AddSigner(signer)
 					.Sign(raw)
 					.Send()

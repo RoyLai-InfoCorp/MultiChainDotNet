@@ -59,7 +59,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			// ACT
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
-			var result = await _assetManager.PayAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, 1_000_000, payload);
+			var result = _assetManager.Pay(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, 1_000_000, payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -88,14 +88,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			//Prepare
 			var assetName = "openasset";
-			await _assetManager.IssueMoreAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1_000);
+			_assetManager.IssueMore(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1_000);
 			var senderAssetBalBefore = (await _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet, assetName)).Result.Raw;
 			var receiverAssetBalBefore = _assetManager.GetAssetBalanceByAddressAsync(_testUser1.NodeWallet, assetName).Result?.Result?.Raw ?? 0;
 			var senderBalBefore = (await _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet)).Result.Raw;
 
 			// ACT
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
-			var result = await _assetManager.SendAssetAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1_000, payload);
+			var result = _assetManager.SendAsset(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1_000, payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -155,7 +155,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			// ACT
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
-			var result = await _assetManager.IssueMoreAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, "openasset", 1_000_000, payload);
+			var result = _assetManager.IssueMore(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, "openasset", 1_000_000, payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -178,7 +178,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var issueResult = _assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1, true, payload);
 
 			// ACT
-			var result = await _assetManager.SendAssetAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1);
+			var result = _assetManager.SendAsset(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -193,10 +193,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			//Prepare
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
-			var issueResult = await _assetManager.IssueAnnotateAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1, true, payload);
+			var issueResult = _assetManager.IssueAnnotate(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1, true, payload);
 
 			// ACT
-			var result = await _assetManager.SendAssetAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1);
+			var result = _assetManager.SendAsset(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.True);
@@ -217,7 +217,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var issueResult = _assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _admin.NodeWallet, assetName, 1, true);
 
 			// ACT
-			var result = await _assetManager.SendAnnotateAssetAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1, payload);
+			var result = _assetManager.SendAnnotateAsset(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, _testUser1.NodeWallet, assetName, 1, payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False,result.ExceptionMessage);
@@ -227,53 +227,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 		}
 
-		[Test]
-		public async Task Should_not_be_able_to_create_transaction_when_multisig_address_has_no_fund()
-		{
-			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
-			var multisigResult = addressMgr.CreateMultiSig(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
-			var multisig = multisigResult.Result.Address;
-			var redeemScript = multisigResult.Result.RedeemScript;
-			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
-			if (balanceResult.Result.Raw < 1000)
-			{
-				var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
-				var issueResult = _assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
-
-				// ACT
-				var signatureResult = _assetManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
-				Assert.That(((MultiChainException)signatureResult.Exception).Code, Is.EqualTo(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS));
-			}
-		}
-
-
-		[Test, Order(70)]
-		public async Task Should_be_able_to_multisign_send_asset_transaction()
-		{
-			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
-			var multisigResult = addressMgr.CreateMultiSig(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
-			var multisig = multisigResult.Result.Address;
-			var redeemScript = multisigResult.Result.RedeemScript;
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
-			_assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
-			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
-			if (balanceResult.Result.Raw < 1000)
-			{
-				await _assetManager.PayAsync(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, 5000);
-			}
-
-			// ACT
-			var signatureResult = _assetManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
-			Assert.That(signatureResult.IsError, Is.False, signatureResult.ExceptionMessage);
-			var signatureSlip = signatureResult.Result;
-
-			var relayer1Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
-			var relayer2Sig = _assetManager.SignMultiSig(new DefaultSigner(_relayer2.Ptekey), signatureSlip, redeemScript);
-			var result = _assetManager.SendMultiSigAsset(new List<string[]> { relayer1Sig.Result, relayer2Sig.Result }, signatureSlip, redeemScript);
-
-			// ASSERT
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-		}
 
 	}
 }

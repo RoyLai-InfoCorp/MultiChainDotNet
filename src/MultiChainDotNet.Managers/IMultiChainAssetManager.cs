@@ -10,31 +10,38 @@ namespace MultiChainDotNet.Managers
 	public interface IMultiChainAssetManager
 	{
 		Task<bool> IsExist(string assetName);
-		Task<MultiChainResult<string>> PayAsync(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> PayAnnotateAsync(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> PayAsync(string toAddress, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> SendAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> SendAssetAsync(string toAddress, string assetName, UInt64 amt, object data = null);
+		MultiChainResult<string> Pay(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object data = null);
+		MultiChainResult<string> Pay(string toAddress, UInt64 amt, object data = null);
+
+		MultiChainResult<string> PayAnnotate(string toAddress, UInt64 amt, object annotation);
+		MultiChainResult<string> PayAnnotate(SignerBase signer, string fromAddress, string toAddress, UInt64 amt, object annotation);
+
+		MultiChainResult<string> SendAsset(string toAddress, string assetName, UInt64 amt, object data = null);
+		MultiChainResult<string> SendAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
+
+		MultiChainResult<string> SendAnnotateAsset(string toAddress, string assetName, UInt64 amt, object annotation);
+		MultiChainResult<string> SendAnnotateAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object annotation);
 
 		MultiChainResult<string> Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null);
-		Task<MultiChainResult<string>> IssueAnnotateAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null);
 		MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 amt, bool canIssueMore,object data = null);
-		Task<MultiChainResult<string>> IssueMoreAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> IssueMoreAsync(string toAddress, string assetName, UInt64 amt, object data = null);
-		Task<MultiChainResult<string>> IssueMoreAnnotatedAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
 
-		MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty);
-		MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null);
+		MultiChainResult<string> IssueAnnotate(string toAddress, string assetName, UInt64 amt, bool canIssueMore, object annotation);
+		MultiChainResult<string> IssueAnnotate(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore, object annotation);
+
+		MultiChainResult<string> IssueMore(string toAddress, string assetName, UInt64 amt, object data = null);
+		MultiChainResult<string> IssueMore(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
+
+		MultiChainResult<string> IssueMoreAnnotated(string toAddress, string assetName, UInt64 amt, object annotation);
+		MultiChainResult<string> IssueMoreAnnotated(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object annotation);
+
+
 		Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName = null);
 		Task<MultiChainResult<List<GetAddressBalancesResult>>> ListAssetBalancesByAddressAsync(string address);
 		Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName);
 		Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false);
 		Task<MultiChainResult<List<AssetTransactionsResult>>> ListAssetTransactionsAsync(string assetName);
-		MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, double qty, string redeemScript);
-		Task<MultiChainResult<string>> SendMultiSigAssetAsync(IList<string[]> signatures, string signatureSlip, string redeemScript);
-		MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript);
-		MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript);
+		
+
 		Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName);
 	}
 }

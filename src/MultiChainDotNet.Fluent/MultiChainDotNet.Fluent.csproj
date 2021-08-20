@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 	  <Compile Remove="Builders2\MultiChainFluentBuilder.cs" />
+	  <Compile Remove="MultiChainMultiSigFluent.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,67 +1,20 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using MultiChainDotNet.Fluent.Signers;
+﻿using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using MultiChainDotNet.Fluent.Base;
+using MultiChainDotNet.Fluent.Signers;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Fluent
 {
-	public sealed class MultiSigSender
-	{
-		private ILogger _logger;
-		private IList<SignerBase> _signers = new List<SignerBase>();
-		protected MultiChainTransactionCommand _txnCmd;
-		private byte[] _rawSendFrom;
-		private string _signed;
-
-		public MultiSigSender(ILogger<MultiSigSender> logger, MultiChainTransactionCommand txnCmd)
-		{
-			_logger = logger;
-			_txnCmd = txnCmd;
-		}
-
-		public MultiSigSender(MultiChainTransactionCommand txnCmd)
-		{
-			_txnCmd = txnCmd;
-		}
-
-		public MultiSigSender AddLogger(ILogger logger)
-		{
-			_logger = logger;
-			return this;
-		}
-
-		public MultiSigSender AddSigner(SignerBase signer)
-		{
-			_signers.Add(signer);
-			return this;
-		}
-
-		public string RawSigned()
-		{
-			return _signed;
-		}
-
-		public string Send()
-		{
-			return Task.Run(async () =>
-			{
-				var result = await _txnCmd.SendRawTransactionAsync(_signed);
-				if (result.IsError)
-					throw result.Exception;
-				return result.Result;
-			}).GetAwaiter().GetResult();
-		}
-
-
-		public MultiSigSender MultiSign(string raw, string redeemScript)
+    public class MultiChainMultiSigFluent : MultiChainFluent
+    {
+		public MultiChainMultiSigFluent MultiSign(string raw, string redeemScript)
 		{
 			_rawSendFrom = raw.Hex2Bytes();
 			_logger?.LogDebug($"InitTransaction:{_rawSendFrom.Bytes2Hex()}");
@@ -72,7 +25,14 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public MultiSigSender MultiSign(string raw, string redeemScript, IList<string[]> signersSignatures)
+		public MultiChainMultiSigFluent CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd)
+		{
+			_txnCmd = txnCmd;
+			_rawSendFrom = CreateTransaction().Hex2Bytes();
+			return this;
+		}
+
+		public MultiChainMultiSigFluent MultiSign(string raw, string redeemScript, IList<string[]> signersSignatures)
 		{
 			var signed = raw.Hex2Bytes();
 			var vin = MultiChainTxnHelper.GetVin(signed);
@@ -114,9 +74,7 @@ namespace MultiChainDotNet.Fluent
 			return MultiSignPartialAsync(_signers[0], txnHashes).Result.Select(x => x.Bytes2Hex()).ToArray();
 		}
 
-
-
-		public async Task<string> MultiSignAsync(string raw, string redeemScript)
+		private async Task<string> MultiSignAsync(string raw, string redeemScript)
 		{
 			return await MultiSignAsync(_signers, _rawSendFrom, redeemScript.Hex2Bytes());
 		}
@@ -142,7 +100,7 @@ namespace MultiChainDotNet.Fluent
 		/// <param name="redeemScript"></param>
 		/// <param name="hashType"></param>
 		/// <returns></returns>
-		public async Task<string> MultiSignAsync(IList<SignerBase> signers, byte[] rawSendFrom, byte[] redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
+		private async Task<string> MultiSignAsync(IList<SignerBase> signers, byte[] rawSendFrom, byte[] redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
 			var vin = MultiChainTxnHelper.GetVin(rawSendFrom);
 
@@ -241,7 +199,7 @@ namespace MultiChainDotNet.Fluent
 
 		public string CreateMultiSigTransactionHashes(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL)
 		{
-			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(),hashType));
+			return JsonConvert.SerializeObject(CreateMultiSigTransactionHashes(raw.Hex2Bytes(), redeemScript.Hex2Bytes(), hashType));
 		}
 
 	}
