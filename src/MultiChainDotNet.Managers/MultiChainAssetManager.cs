@@ -39,16 +39,15 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainAssetManager(ILoggerFactory loggerFactory,
+		public MultiChainAssetManager(ILogger<MultiChainAssetManager> logger,
 			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig,
 			SignerBase signer)
 		{
-			//_loggerFactory = loggerFactory;
 			_mcConfig = mcConfig;
 			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
+			_logger = logger;
 			_defaultSigner = signer;
 		}
 
@@ -292,7 +291,7 @@ namespace MultiChainDotNet.Managers
 
 		public MultiChainResult<string> IssueMore(string toAddress, string assetName, UInt64 units, object data = null)
 		{
-			return IssueMore(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units);
+			return IssueMore(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, data);
 		}
 		public MultiChainResult<string> IssueMore(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object data = null)
 		{

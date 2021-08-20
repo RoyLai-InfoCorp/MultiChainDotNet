@@ -56,7 +56,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			if (balanceResult.Result.Raw < 1000)
 			{
 				var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
-				var issueResult = _assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
+				var issueResult = _assetManager.Issue(multisig, assetName, 10, true);
 
 				// ACT
 				var signatureResult = _multisSigManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
@@ -74,11 +74,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var multisig = multisigResult.Result.Address;
 			var redeemScript = multisigResult.Result.RedeemScript;
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
-			_assetManager.Issue(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, assetName, 10, true);
+			_assetManager.Issue(multisig, assetName, 10, true);
 			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
 			if (balanceResult.Result.Raw < 1000)
 			{
-				_assetManager.Pay(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, multisig, 5000);
+				_assetManager.Pay(multisig, 5000);
 			}
 
 			// ACT

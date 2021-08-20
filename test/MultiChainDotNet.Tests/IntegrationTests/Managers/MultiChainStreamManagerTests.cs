@@ -36,7 +36,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_create_new_stream()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result = _streamManager.CreateStream(streamName);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -44,39 +44,42 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var found = await _streamManager.GetStreamAsync(streamName);
 			Assert.That(found.IsError, Is.False, result.ExceptionMessage);
 			Assert.That(found.Result.Name, Is.EqualTo(streamName));
+		}
+
+		public class JsonStreamItem
+		{
+			public int Counter;
 		}
 
 		[Test]
 		public async Task Should_be_able_to_publish_new_streamitem()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			_streamManager.CreateStream(streamName);
+
+			// ACT
+			var result = await _streamManager.PublishJsonAsync(streamName, "1", new JsonStreamItem { Counter = 1 });
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			var txid = result.Result;
-			var found = await _streamManager.GetStreamAsync(streamName);
+			var found = await _streamManager.GetStreamItemAsync<JsonStreamItem>($"FROM {streamName} WHERE key='1'");
 			Assert.That(found.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(found.Result.Name, Is.EqualTo(streamName));
+			Assert.That(found.Result.Counter, Is.EqualTo(1));
 		}
 
 		[Test, Order(50)]
 		public async Task Should_throw_rpc_transaction_rejected_error_when_stream_already_exists()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result = _streamManager.CreateStream(streamName);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
-			var result2 = _streamManager.CreateStream(new DefaultSigner(_admin.Ptekey), _admin.NodeWallet, streamName);
+			var result2 = _streamManager.CreateStream(streamName);
 			Assert.That(result2.IsError, Is.True);
 			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
 		}
 
 
-		public class JsonStreamItem
-		{
-			public int Counter;
-		}
 
 		private async Task<string> CreateNewStream()
 		{

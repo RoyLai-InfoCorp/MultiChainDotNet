@@ -2,7 +2,7 @@
 
 
 
-MultiChainDotNet is a cross-Platform development library for integrating with MultiChain blockchain platform. It includes features for supporting construction and externally signed transactions for both normal and multisig using a fluent-style syntax. It also features an SQL-style query for stream items . MultiChainDotNet is built using .NET Core on Ubuntu on Windows, aka WSL.
+MultiChainDotNet is a cross-Platform development library for integrating with [MultiChain](https://www.multichain.com/developers/) blockchain platform. It includes features for supporting construction and externally signed transactions for both normal and multisig using a fluent-style syntax. It also features an SQL-style query for stream items . MultiChainDotNet is built using .NET Core on Ubuntu on Windows, aka WSL.
 
 
 
@@ -102,28 +102,28 @@ sh$ docker exec -it multichain-node3 multichain-cli sennet getpeerinfo
 Add the configuration to appSettings.json and replace the relevant configuration settings to match the network settings.
 
 ```json
-	"MultiChainConfiguration": {
-		"AddressPubkeyhashVersion": "000d5fec",
-		"AddressScripthashVersion": "058a97f8",
-		"PrivateKeyVersion": "80b3eab4",
-		"AddressChecksumValue": "7cb412e3",
-		"Multiple": 1,
-		"MinimumTxnFee": 1000,
-		"MinimumStorageFee": 100000,
-		"Node": {
-			"Protocol": "http",
-			"NodeName": "seednode",
-			"NodeWallet": "12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB",
-			"Pubkey": "03013ffb59769ea760da19bcc6a22bcb7b0e4a4a1ff64e862916af2703758b8fa0",
-			"Wif": "V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff",
-			"Ptekey": "45dea220005d271b35edaf08b84e3e505ebb41886a19980fd585d137be693738",
-			"NetworkAddress": "localhost",
-			"NetworkPort": 12021,
-			"ChainName": "sennet",
-			"RpcUserName": "multichainrpc",
-			"RpcPassword": "C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq"
-		}
-	}
+    "MultiChainConfiguration": {
+        "AddressPubkeyhashVersion": "000d5fec",
+        "AddressScripthashVersion": "058a97f8",
+        "PrivateKeyVersion": "80b3eab4",
+        "AddressChecksumValue": "7cb412e3",
+        "Multiple": 1,
+        "MinimumTxnFee": 1000,
+        "MinimumStorageFee": 100000,
+        "Node": {
+            "Protocol": "http",
+            "NodeName": "seednode",
+            "NodeWallet": "12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB",
+            "Pubkey": "03013ffb59769ea760da19bcc6a22bcb7b0e4a4a1ff64e862916af2703758b8fa0",
+            "Wif": "V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff",
+            "Ptekey": "45dea220005d271b35edaf08b84e3e505ebb41886a19980fd585d137be693738",
+            "NetworkAddress": "localhost",
+            "NetworkPort": 12021,
+            "ChainName": "sennet",
+            "RpcUserName": "multichainrpc",
+            "RpcPassword": "C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq"
+        }
+    }
 ```
 
 
@@ -135,20 +135,20 @@ Add the configuration to appSettings.json and replace the relevant configuration
     {
         static async Task Main(string[] args)
         {
-			var container = Host.CreateDefaultBuilder()
-				.ConfigureServices((hostContext, services) =>
-				{
-					services
-					.AddSingleton(hostContext.Configuration.GetSection("MultiChainConfiguration").Get<MultiChainConfiguration>())
-					.AddMultiChain()
-					.AddMultiChainManagers()
-					.AddSingleton<SignerBase>(sp => new DefaultSigner(sp.GetRequiredService<MultiChainConfiguration>().Node.Ptekey))
-					;
-				}).Build().Services;
-			var config = container.GetRequiredService<IConfiguration>();
-			var blockchain = container.GetRequiredService<MultiChainBlockchainCommand>();
-			var getinfo = await blockchain.GetInfoAsync();
-			Console.WriteLine(JsonConvert.SerializeObject(getinfo.Result,Formatting.Indented));
+            var container = Host.CreateDefaultBuilder()
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services
+                    .AddSingleton(hostContext.Configuration.GetSection("MultiChainConfiguration").Get<MultiChainConfiguration>())
+                    .AddMultiChain()
+                    .AddMultiChainManagers()
+                    .AddSingleton<SignerBase>(sp => new DefaultSigner(sp.GetRequiredService<MultiChainConfiguration>().Node.Ptekey))
+                    ;
+                }).Build().Services;
+            var config = container.GetRequiredService<IConfiguration>();
+            var blockchain = container.GetRequiredService<MultiChainBlockchainCommand>();
+            var getinfo = await blockchain.GetInfoAsync();
+            Console.WriteLine(JsonConvert.SerializeObject(getinfo.Result,Formatting.Indented));
 
         }
     }
@@ -160,15 +160,15 @@ Add the configuration to appSettings.json and replace the relevant configuration
 
 
 
-All MultiChainDotNet Command classes follows the MultiChain RPC API command structure. Below example shows how to issue an asset using the MultiChainAssetCommand. It will issue 100 units of "testasset" into the node address from the appSettings.json configuration file and show balance. 
+All MultiChainDotNet Command classes follows the [MultiChain RPC API](https://www.multichain.com/developers/json-rpc-api/) command structure. Below example shows how to issue an asset using the MultiChainAssetCommand. It will issue 100 units of "testasset" into the node address from the appSettings.json configuration file and show balance. 
 
 ```
-	var mcConfig = container.GetRequiredService<MultiChainConfiguration>();
-	var address = mcConfig.Node.NodeWallet;
-	var assetCmd = container.GetRequiredService<MultiChainAssetCommand>();
-	await assetCmd.IssueAssetFromAsync(address, address, "testasset", 100, 1, true);
-	var getBalance = assetCmd.GetAddressBalancesAsync(address);
-	Console.WriteLine(JsonConvert.SerializeObject(getBalance.Result, Formatting.Indented));
+    var mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+    var address = mcConfig.Node.NodeWallet;
+    var assetCmd = container.GetRequiredService<MultiChainAssetCommand>();
+    await assetCmd.IssueAssetFromAsync(address, address, "testasset", 100, 1, true);
+    var getBalance = assetCmd.GetAddressBalancesAsync(address);
+    Console.WriteLine(JsonConvert.SerializeObject(getBalance.Result, Formatting.Indented));
 ```
 
 This is equivalent to sending the API call 'issuefrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB {"name":"testasset","open":true} 100 1' assuming that the wallet address is 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB.
@@ -192,16 +192,16 @@ The library has also made some changes to the MultiChain terminologies to lend c
 
 ```C#
     var txnCmd = _container.GetRequiredService<IMultiChainTransactionCommand>();
-	var txid = new MultiChainFluent()
-		.AddLogger(logger)
-		.From(admin)
-		.To(testUser1)
-		.Pay(1_000_000)
-		.CreateNormalTransaction(txnCmd)
-			.AddSigner(signer)
-			.Sign()
-			.Send()
-		;
+    var txid = new MultiChainFluent()
+        .AddLogger(logger)
+        .From(admin)
+        .To(testUser1)
+        .Pay(1_000_000)
+        .CreateNormalTransaction(txnCmd)
+            .AddSigner(signer)
+            .Sign()
+            .Send()
+        ;
 ```
 
 
@@ -211,19 +211,19 @@ The library has also made some changes to the MultiChain terminologies to lend c
 **Code**:
 
 ```C#
-	var txid = new MultiChainFluent()
-		.AddLogger(logger)
-		.From(admin)
-		.To(testUser1)
-		.IssueAsset(1000)
-		.With()
-		.IssueDetails(assetName, 1, true)
-		.DeclareJson(new { Name = "Non-Inline meta-data" })
-		.CreateNormalTransaction(txnCmd)
-			.AddSigner(signer)
-			.Sign()
-			.Send()
-		;
+    var txid = new MultiChainFluent()
+        .AddLogger(logger)
+        .From(admin)
+        .To(testUser1)
+        .IssueAsset(1000)
+        .With()
+        .IssueDetails(assetName, 1, true)
+        .DeclareJson(new { Name = "Non-Inline meta-data" })
+        .CreateNormalTransaction(txnCmd)
+            .AddSigner(signer)
+            .Sign()
+            .Send()
+        ;
 ```
 
 
@@ -233,19 +233,19 @@ The library has also made some changes to the MultiChain terminologies to lend c
 **Code**:
 
 ```C#
-	var txid = new MultiChainFluent()
-		.AddLogger(_logger)
-		.From(_admin.NodeWallet)
-		.To(_testUser1.NodeWallet)
-		.IssueAsset(1000)
-		.AnnotateJson(new { Name = "Inline meta-data" })
-		.With()
-		.IssueDetails(assetName, 1, true)
-		.CreateNormalTransaction(_txnCmd)
-			.AddSigner(new DefaultSigner(_admin.Ptekey))
-			.Sign()
-			.Send()
-		;
+    var txid = new MultiChainFluent()
+        .AddLogger(_logger)
+        .From(_admin.NodeWallet)
+        .To(_testUser1.NodeWallet)
+        .IssueAsset(1000)
+        .AnnotateJson(new { Name = "Inline meta-data" })
+        .With()
+        .IssueDetails(assetName, 1, true)
+        .CreateNormalTransaction(_txnCmd)
+            .AddSigner(new DefaultSigner(_admin.Ptekey))
+            .Sign()
+            .Send()
+        ;
 ```
 
 
@@ -255,17 +255,17 @@ The library has also made some changes to the MultiChain terminologies to lend c
 **Code**:
 
 ```C#
-	var txid = new MultiChainFluent()
-		.AddLogger(_logger)
-		.From(multisig)
-		.To(testuser1)
-		.SendAsset(assetName, 1)
-		.CreateMultiSigTransaction(txnCmd)
-			.AddMultiSigSigner(signer1)
-			.AddMultiSigSigner(signer2)
-			.MultiSign(redeemScript)
-			.Send()
-		;
+    var txid = new MultiChainFluent()
+        .AddLogger(_logger)
+        .From(multisig)
+        .To(testuser1)
+        .SendAsset(assetName, 1)
+        .CreateMultiSigTransaction(txnCmd)
+            .AddMultiSigSigner(signer1)
+            .AddMultiSigSigner(signer2)
+            .MultiSign(redeemScript)
+            .Send()
+        ;
 
 ```
 
@@ -279,31 +279,31 @@ The library has also made some changes to the MultiChain terminologies to lend c
 
 // Create the transaction hash for signing
 
-	var request = new MultiChainFluent()
-		.From(multisig)
-		.To(testUser1)
-		.SendAsset(assetName, 1)
-		.CreateRawTransaction(txnCmd);
+    var request = new MultiChainFluent()
+        .From(multisig)
+        .To(testUser1)
+        .SendAsset(assetName, 1)
+        .CreateRawTransaction(txnCmd);
 
 // Externally signed by user 1
-	var signatures1 = new MultiChainFluent()
-		.UseMultiSigTransaction(txnCmd)
-		.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
-		.MultiSignPartial(request, state.RedeemScript);
+    var signatures1 = new MultiChainFluent()
+        .UseMultiSigTransaction(txnCmd)
+        .AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+        .MultiSignPartial(request, state.RedeemScript);
 
 // Externally signed by user 2
-	var signatures2 = new MultiChainFluent()
-		.UseMultiSigTransaction(txnCmd)
-		.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
-		.MultiSignPartial(request,state.RedeemScript);
+    var signatures2 = new MultiChainFluent()
+        .UseMultiSigTransaction(txnCmd)
+        .AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
+        .MultiSignPartial(request,state.RedeemScript);
 
 // Send signed transaction
-	var txid = new MultiChainFluent()
-		.UseMultiSigTransaction(txnCmd)
-		.AddRawTransaction(request)
-		.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
-		.MultiSign(state.RedeemScript)
-		.Send();
+    var txid = new MultiChainFluent()
+        .UseMultiSigTransaction(txnCmd)
+        .AddRawTransaction(request)
+        .AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
+        .MultiSign(state.RedeemScript)
+        .Send();
 
 ```
 
