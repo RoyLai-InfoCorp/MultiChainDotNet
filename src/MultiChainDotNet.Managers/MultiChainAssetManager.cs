@@ -22,7 +22,6 @@ namespace MultiChainDotNet.Managers
 {
 	public class MultiChainAssetManager : IMultiChainAssetManager
 	{
-		//private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger _logger;
 		private MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
@@ -33,11 +32,9 @@ namespace MultiChainDotNet.Managers
 			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig)
 		{
-			//_loggerFactory = loggerFactory;
 			_mcConfig = mcConfig;
 			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			//_logger = loggerFactory.CreateLogger<MultiChainAssetManager>();
 			_logger = logger;
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}

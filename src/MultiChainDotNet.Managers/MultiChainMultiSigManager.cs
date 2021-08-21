@@ -36,7 +36,7 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, double qty, string redeemScript)
+		public MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, UInt64 qty, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 
@@ -46,12 +46,12 @@ namespace MultiChainDotNet.Managers
 					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-						.SendAsset(assetName, qty)
+					.SendAsset(assetName, qty)
 					.CreateMultiSigTransaction(_txnCmd)
-						.AddMultiSigSigners(signers)
-						.MultiSign(redeemScript)
-						.Send()
-						;
+					.AddMultiSigSigners(signers)
+					.MultiSign(redeemScript)
+					.Send()
+					;
 
 				return new MultiChainResult<string>(txid);
 			}
@@ -64,7 +64,7 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, double qty)
+		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -74,8 +74,8 @@ namespace MultiChainDotNet.Managers
 					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-						.SendAsset(assetName, qty)
-						.CreateRawTransaction(_txnCmd)
+					.SendAsset(assetName, qty)
+					.CreateRawTransaction(_txnCmd)
 					;
 
 				return new MultiChainResult<string>(raw);
@@ -88,7 +88,8 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data = null)
+
+		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -98,8 +99,61 @@ namespace MultiChainDotNet.Managers
 					.AddLogger(_logger)
 					.From(fromAddress)
 					.To(toAddress)
-						.IssueMoreAsset(assetName, qty)
-						.CreateRawTransaction(_txnCmd)
+					.SendAsset(assetName, qty)
+					.With()
+					.DeclareJson(data)
+					.CreateRawTransaction(_txnCmd)
+					;
+
+				return new MultiChainResult<string>(raw);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.ToString());
+				return new MultiChainResult<string>(ex);
+			}
+
+		}
+
+		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
+		{
+			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
+
+			try
+			{
+				var raw = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(fromAddress)
+					.To(toAddress)
+					.IssueMoreAsset(assetName, qty)
+					.CreateRawTransaction(_txnCmd)
+					;
+
+				return new MultiChainResult<string>(raw);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.ToString());
+				return new MultiChainResult<string>(ex);
+			}
+
+		}
+
+
+		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
+		{
+			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
+
+			try
+			{
+				var raw = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(fromAddress)
+					.To(toAddress)
+					.IssueMoreAsset(assetName, qty)
+					.With()
+					.DeclareJson(data)
+					.CreateRawTransaction(_txnCmd)
 					;
 
 				return new MultiChainResult<string>(raw);
