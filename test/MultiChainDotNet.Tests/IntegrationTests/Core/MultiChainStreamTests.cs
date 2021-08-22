@@ -37,16 +37,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainStreamCommand>();
+			services
+				.AddMultiChain()
+				;
 		}
 
 		[SetUp]
 		public async Task SetUp()
 		{
 			_streamCmd = _container.GetRequiredService<MultiChainStreamCommand>();
-			//await Task.Delay(2000);
 		}
-
 
 		[Test, Order(10)]
 		public async Task Should_be_able_to_create_new_stream_and_get_by_name()

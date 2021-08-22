@@ -25,19 +25,24 @@ namespace MultiChainDotNet.Core
 	public class MultiChainCommandFactory : IMultiChainCommandFactory
 	{
 		IServiceProvider _container;
-		HttpClient _httpClient;
+		private readonly HttpClient _httpClient;
 		MultiChainConfiguration _mcConfig;
-		public MultiChainCommandFactory(IServiceProvider provider, MultiChainConfiguration mcConfig, HttpClient httpClient)
+
+		public MultiChainCommandFactory(IServiceProvider container, MultiChainConfiguration mcConfig, HttpClient httpClient)
 		{
-			_container = provider;
+			_container = container;
 			_httpClient = httpClient;
 			_mcConfig = mcConfig;
 		}
 
+		/// <summary>
+		/// Bypass DI
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		public T CreateCommand<T>() where T:MultiChainCommandBase
 		{
 			var logger = _container.GetRequiredService<ILogger<T>>();
-
 			return (T)Activator.CreateInstance(typeof(T), logger, _mcConfig, _httpClient);
 		}
 	}

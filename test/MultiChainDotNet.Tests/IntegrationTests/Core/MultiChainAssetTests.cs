@@ -16,6 +16,8 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -34,21 +36,25 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainAssetCommand>();
-			services.AddTransient<MultiChainPermissionCommand>();
-			services.AddTransient<MultiChainAddressCommand>();
-			services.AddTransient<MultiChainTransactionCommand>();
+			services
+				.AddMultiChain();
 		}
 
 		[SetUp]
 		public async Task SetUp()
 		{
+
+			//var factory = _container.GetRequiredService<IMultiChainCommandFactory>();
+			//_assetCmd = factory.CreateCommand<MultiChainAssetCommand>();
+			//_txnCmd = factory.CreateCommand<MultiChainTransactionCommand>();
+			//_addrCmd = factory.CreateCommand<MultiChainAddressCommand>();
+			//_permCmd = factory.CreateCommand<MultiChainPermissionCommand>();
+
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 
-			//await Task.Delay(2000);
 		}
 
 		public async Task<string> GetMetaDataAsync(string txid)

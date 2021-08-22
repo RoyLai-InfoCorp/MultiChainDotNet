@@ -28,15 +28,15 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
     public class MultiChainPermissionTests : TestBase
     {
 		MultiChainPermissionCommand _permCmd;
+		MultiChainAssetCommand _mcAssetCmd;
 		MultiChainAddressCommand _addrCmd;
-		MultiChainAssetCommand _assetCmd;
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainPermissionCommand>();
-			services.AddTransient<MultiChainAddressCommand>();
-			services.AddTransient<MultiChainAssetCommand>();
+			services
+				.AddMultiChain()
+				;
 		}
 
 		protected override void ConfigureLogging(ILoggingBuilder logging)
@@ -55,9 +55,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[SetUp]
 		public async Task SetUp()
 		{
+			_mcAssetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
-			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 
 			////https://www.generacodice.com/en/articolo/2900697/add,-enable-and-disable-nlog-loggers-programmatically
 
@@ -91,7 +91,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(JsonConvert.SerializeObject(result.Result));
 		}
 
-		[Test,Order(10)]
+		[Test,Order(20)]
 		public async Task Should_not_be_able_to_grant_issue_permission_by_1_admin()
 		{
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
@@ -104,9 +104,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.False);
 		}
 
-		[Test,Order(20)]
+		[Test,Order(30)]
 		public async Task Should_be_able_to_grant_issue_permission_by_2_admins()
 		{
+			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
+			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 
 			// ACT
@@ -118,9 +120,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.True);
 		}
 
-		[Test,Order(30)]
+		[Test,Order(40)]
 		public async Task Should_not_be_able_to_revoke_issue_permission_by_one_admin()
 		{
+			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
+			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
 			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
@@ -135,9 +139,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.True);
 		}
 
-		[Test,Order(40)]
+		[Test,Order(50)]
 		public async Task Should_be_able_to_revoke_issue_permission_by_2_admin()
 		{
+			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
+			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
 			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");

@@ -11,7 +11,7 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainStreamManager
 	{
-		Task<bool> IsExist(string streamName);
+		Task<MultiChainResult<bool>> IsExist(string streamName);
 		MultiChainResult<string> CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false);
 		MultiChainResult<string> CreateStream(string streamName, bool anyoneCanWrite = false);
 		Task<MultiChainResult<StreamsResult>> GetStreamAsync(string streamName);

@@ -10,6 +10,30 @@ namespace MultiChainDotNet.Core.Base
 	public static class MultiChainResultParser
 	{
 
+		public static MultiChainException ParseError(string errorContent)
+		{
+			JToken token = JToken.Parse(errorContent);
+			var error = token.SelectToken("error");
+			if ( error is { })
+			{
+				int code;
+				string message;
+				try
+				{
+					if (int.TryParse(error.SelectToken("code").ToString(), out code))
+					{
+						message = error.SelectToken("message").ToString();
+						if (Enum.IsDefined(typeof(MultiChainErrorCode), code))
+							return new MultiChainException((MultiChainErrorCode)code, message);
+					}
+				}
+				catch
+				{
+				}
+			}
+			return new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, JsonConvert.SerializeObject(error));
+		}
+
 		public static MultiChainResult<T> ParseError<T>(dynamic error)
 		{
 			int code;

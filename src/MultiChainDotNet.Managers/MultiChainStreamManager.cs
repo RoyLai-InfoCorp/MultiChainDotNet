@@ -57,16 +57,16 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public async Task<bool> IsExist(string streamName)
+		public async Task<MultiChainResult<bool>> IsExist(string streamName)
 		{
 			var subscribe = await SubscribeAsync(streamName);
 			if (subscribe.IsError)
 			{
 				if (!MultiChainException.IsException(subscribe.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 					throw subscribe.Exception;
-				return false;
+				return new MultiChainResult<bool>(false);
 			}
-			return true;
+			return new MultiChainResult<bool>(true);
 		}
 
 		public MultiChainResult<string> CreateStream(string streamName, bool anyoneCanWrite = false)

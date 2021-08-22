@@ -23,7 +23,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainAddressCommand>();
+			services
+				.AddMultiChain();
 		}
 
 		[SetUp]

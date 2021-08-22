@@ -15,13 +15,13 @@ namespace MultiChainDotNet.Managers.Extensions
         public static IServiceCollection AddMultiChainManagers(this IServiceCollection services)
 		{
 			return services
-				.AddTransient<IMultiChainStreamManager, MultiChainStreamManager>()
-				.AddTransient<IMultiChainPermissionsManager, MultiChainPermissionsManager>()
-				.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>()
-				.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>()
-				.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>()
-				.AddTransient<IMultiChainBlockchainManager, MultiChainBlockchainManager>()
-				.AddTransient<IMultiChainMultiSigManager, MultiChainMultiSigManager>()
+				.AddScoped<IMultiChainStreamManager, MultiChainStreamManager>()
+				.AddScoped<IMultiChainPermissionsManager, MultiChainPermissionsManager>()
+				.AddScoped<IMultiChainAssetManager, MultiChainAssetManager>()
+				.AddScoped<IMultiChainTransactionManager, MultiChainTransactionManager>()
+				.AddScoped<IMultiChainAddressManager, MultiChainAddressManager>()
+				.AddScoped<IMultiChainBlockchainManager, MultiChainBlockchainManager>()
+				.AddScoped<IMultiChainMultiSigManager, MultiChainMultiSigManager>()
 				.AddSingleton<IMultiChainManagerFactory, MultiChainManagerFactory>()
 				;
 		}

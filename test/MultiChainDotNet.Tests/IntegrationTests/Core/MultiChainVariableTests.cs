@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainVariable;
 using NUnit.Framework;
 using System;
@@ -19,7 +20,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainVariableCommand>();
+			services
+				.AddMultiChain()
+				;
 		}
 
 		[SetUp]

@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
@@ -34,9 +35,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainTransactionCommand>();
-			services.AddTransient<MultiChainAssetCommand>();
+			services
+				.AddMultiChain()
+				;
 		}
+
 		protected override void ConfigureLogging(ILoggingBuilder logging)
 		{
 			base.ConfigureLogging(logging);
@@ -51,10 +54,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[SetUp]
 		public async Task SetUp()
 		{
+			//var factory = _container.GetRequiredService<IMultiChainCommandFactory>();
+			//_txnCmd = factory.CreateCommand<MultiChainTransactionCommand>();
+			//_assetCmd = factory.CreateCommand<MultiChainAssetCommand>();
+
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
+
+
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
-			await Task.Delay(5000);
+
 		}
 
 		[Test, Order(10)]
@@ -174,29 +183,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
 			Assert.That(result.IsError, Is.True, result.ExceptionMessage);
 			Assert.That(result.ExceptionMessage, Contains.Substring("insufficient priority"));
-		}
-
-		[Test, Order(60)]
-		public async Task Should_throw_insane_fees_when_pay_without_change()
-		{
-			//var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);
-			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
-			var unspent = unspents.Result.FirstOrDefault(x => x.Amount > 0);
-			var raw = await _txnCmd.CreateRawTransactionAsync(unspent.TxId, unspent.Vout,
-				new Dictionary<string, object>
-				{
-					{
-						_testUser1.NodeWallet,
-						new Dictionary<string, object>
-						{
-							{ "", 1 }
-						}
-					}
-				});
-			var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
-			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
-			Assert.That(result.IsError, Is.True, result.ExceptionMessage);
-			Assert.That(result.ExceptionMessage, Contains.Substring("Insane fees"));
 		}
 
 		/// <summary>
@@ -328,11 +314,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						}
 					}
 				});
-
 			var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
 			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-
 		}
 
 		[Test, Order(110)]
@@ -343,8 +327,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var sendresult = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 1000);
 			Assert.That(sendresult.IsError, Is.False, sendresult.ExceptionMessage);
 			var lockFees = await _txnCmd.PrepareLockUnspentFromAsync(_testUser1.NodeWallet, "", 1000);
-			var unspents = await _txnCmd.ListUnspentAsync(_testUser1.NodeWallet);
-			var unspent = unspents.Result.First(x => x.Assets.Any(y => y.Name == assetName));
+
+			ListUnspentResult unspent = null;
+			while (unspent == null)
+			{
+				var unspents = await _txnCmd.ListUnspentAsync(_testUser1.NodeWallet);
+				unspent = unspents.Result.FirstOrDefault(x => x.Assets.Any(y => y.Name == assetName));
+				await Task.Delay(2000);
+			}
 
 			var raw = await _txnCmd.CreateRawTransactionAsync(
 				new List<TxIdVoutStruct> {
@@ -400,6 +390,36 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var list3 = result3.Result.Select(x => x.Confirmations);
 			Console.WriteLine("ListAddressTransactions 20 count:");
 			Console.WriteLine(JsonConvert.SerializeObject(list3, Formatting.Indented));
+		}
+
+		[Test, Order(160)]
+		public async Task Should_throw_insane_fees_when_pay_without_change()
+		{
+			//var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);
+			ListUnspentResult unspent = null;
+			while (unspent == null)
+			{
+				var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
+				unspent = unspents.Result.FirstOrDefault(x => x.Amount > 3000);
+				await Task.Delay(2000);
+			}
+
+			var raw = await _txnCmd.CreateRawTransactionAsync(unspent.TxId, unspent.Vout,
+				new Dictionary<string, object>
+				{
+					{
+						_testUser1.NodeWallet,
+						new Dictionary<string, object>
+						{
+							{ "", 1 }
+						}
+					}
+				});
+			var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
+			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
+			Assert.That(result.IsError, Is.True, result.ExceptionMessage);
+			Assert.That(result.ExceptionMessage, Contains.Substring("Insane fees"));
+
 		}
 
 

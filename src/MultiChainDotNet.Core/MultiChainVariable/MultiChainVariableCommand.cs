@@ -31,6 +31,9 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 		/// </summary>
 		public async Task<MultiChainResult<string>> CreateVariableAsync(string variableName)
 		{
+			if (variableName is null)
+				throw new ArgumentNullException(nameof(variableName));
+
 			return await JsonRpcRequestAsync<string>("create","variable", variableName);
 		}
 
@@ -41,6 +44,9 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 		/// </summary>
 		public async Task<MultiChainResult<string>> SetVariableValueAsync(string variableName, object variableValue)
 		{
+			if (variableName is null)
+				throw new ArgumentNullException(nameof(variableName));
+
 			return await JsonRpcRequestAsync<string>("setvariablevalue", variableName,variableValue);
 		}
 
@@ -51,6 +57,9 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 		/// </summary>
 		public async Task<MultiChainResult<T>> GetVariableValueAsync<T>(string variableName)
 		{
+			if (variableName is null)
+				throw new ArgumentNullException(nameof(variableName));
+
 			return await JsonRpcRequestAsync<T>("getvariablevalue", variableName);
 		}
     }

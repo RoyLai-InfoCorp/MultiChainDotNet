@@ -28,16 +28,25 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 		public async Task<MultiChainResult<GetTxOutResult>> GetTxOutAsync(string txid, int vout)
 		{
+			if (txid is null)
+				throw new ArgumentNullException(nameof(txid));
+
 			return await JsonRpcRequestAsync<GetTxOutResult>("gettxout", txid, vout);
 		}
 
 		public async Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionAsync(string hexdata)
 		{
+			if (hexdata is null)
+				throw new ArgumentNullException(nameof(hexdata));
+
 			return await JsonRpcRequestAsync<DecodeRawTransactionResult>("decoderawtransaction", hexdata);
 		}
 
 		public async Task<MultiChainResult<string>> SendRawTransactionAsync(string txHex)
 		{
+			if (txHex is null)
+				throw new ArgumentNullException(nameof(txHex));
+
 			return await JsonRpcRequestAsync<string>("sendrawtransaction", txHex);
 		}
 
@@ -45,6 +54,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		{
 			if (from is null)
 				throw new ArgumentNullException(nameof(from));
+
 			return $"createrawsendfrom {from} '{JsonConvert.SerializeObject(to)}' '{JsonConvert.SerializeObject(with)}'";
 		}
 
@@ -62,11 +72,17 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 		public async Task<MultiChainResult<string>> GetRawTransaction(string txid)
 		{
+			if (txid is null)
+				throw new ArgumentNullException(nameof(txid));
+
 			return await JsonRpcRequestAsync<string>("getrawtransaction", txid);
 		}
 
 		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAddressTransactions(string address, int count=10, int skip=0, bool verbose=false)
 		{
+			if (address is null)
+				throw new ArgumentNullException(nameof(address));
+
 			return await JsonRpcRequestAsync<List<ListAddressTransactionResult>>("listaddresstransactions", address, count, skip, verbose);
 		}
 
@@ -82,11 +98,18 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		/// <returns></returns>
 		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAssetTransactions(string assetName, bool verbose=false, int count = 10, int start = -10, bool localOrdering = false)
 		{
+			if (assetName is null)
+				throw new ArgumentNullException(nameof(assetName));
+
 			return await JsonRpcRequestAsync<List<ListAssetTransactionResult>>("listassettransactions", assetName, verbose, count, start, localOrdering);
 		}
 
 		public async Task<MultiChainResult<string>> CreateRawTransactionAsync(List<TxIdVoutStruct> txidVout, object to, object with = null)
 		{
+			if (txidVout is null)
+				throw new ArgumentNullException(nameof(txidVout));
+
+
 			if (with is null)
 				return await JsonRpcRequestAsync<string>("createrawtransaction",txidVout,to);
 
@@ -95,6 +118,10 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 		public async Task<MultiChainResult<string>> CreateRawTransactionAsync(string txid, int vout, object to, object with = null)
 		{
+			if (txid is null)
+				throw new ArgumentNullException(nameof(txid));
+
+
 			if (with is null)
 				return await JsonRpcRequestAsync<string>("createrawtransaction",
 				new object[] { new { txid = txid, vout = vout } }, 
@@ -108,11 +135,17 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 		public async Task<MultiChainResult<List<ListUnspentResult>>> ListUnspentAsync(string addresses)
 		{
+			if (addresses is null)
+				throw new ArgumentNullException(nameof(addresses));
+
 			return await ListUnspentAsync(new string[] { addresses });
 		}
 
 		public async Task<MultiChainResult<List<ListUnspentResult>>> ListUnspentAsync(string[] addresses)
 		{
+			if (addresses is null)
+				throw new ArgumentNullException(nameof(addresses));
+
 			return await ListUnspentAsync(1, 9999999, addresses);
 		}
 
@@ -139,9 +172,12 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		}
 
 
-		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentFromAsync(string addressFrom, string assetName, Double qty)
+		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentFromAsync(string from, string assetName, Double qty)
 		{
-			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspentfrom", addressFrom, 
+			if (from is null)
+				throw new ArgumentNullException(nameof(from));
+
+			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspentfrom", from, 
 				new Dictionary<string, Double> { {assetName,qty } });
 		}
 

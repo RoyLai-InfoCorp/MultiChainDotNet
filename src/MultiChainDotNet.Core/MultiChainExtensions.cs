@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainBlockchain;
@@ -11,8 +12,10 @@ using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.MultiChainVariable;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Timeout;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -23,22 +26,19 @@ namespace MultiChainDotNet.Core
 {
     public static class MultiChainExtensions
     {
-		static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-		{
-			return HttpPolicyExtensions
-				.HandleTransientHttpError()
-				.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-				.WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2,
-																			retryAttempt)));
-		}
 
 		static IServiceCollection AddMultiChainAddress(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainAddressCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainAddressCommand>()
 				.AddHttpClient<MultiChainAddressCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() => {
 						return new HttpClientHandler()
 						{
@@ -51,11 +51,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainTransaction(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainTransactionCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainTransactionCommand>()
 				.AddHttpClient<MultiChainTransactionCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -69,11 +74,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainAsset(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainAssetCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainAssetCommand>()
 				.AddHttpClient<MultiChainAssetCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -87,11 +97,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainStream(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainStreamCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainStreamCommand>()
 				.AddHttpClient<MultiChainStreamCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -105,11 +120,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainVariable(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainVariableCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainVariableCommand>()
 				.AddHttpClient<MultiChainVariableCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -124,11 +144,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainPermission(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainPermissionCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainPermissionCommand>()
 				.AddHttpClient<MultiChainPermissionCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -142,11 +167,16 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainBlockchain(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddScoped<MultiChainBlockchainCommand>()
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainBlockchainCommand>()
 				.AddHttpClient<MultiChainBlockchainCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -160,11 +190,15 @@ namespace MultiChainDotNet.Core
 
 		static IServiceCollection AddMultiChainCommandFactory(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
-			services
-				.AddSingleton<IMultiChainCommandFactory, MultiChainCommandFactory>()
-				.AddHttpClient<IMultiChainCommandFactory, MultiChainCommandFactory>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+				services
+					.AddScoped<IMultiChainCommandFactory, MultiChainCommandFactory>()
+					.AddHttpClient<IMultiChainCommandFactory, MultiChainCommandFactory>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
@@ -172,7 +206,6 @@ namespace MultiChainDotNet.Core
 							Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)
 						};
 					});
-
 			return services;
 		}
 
@@ -190,5 +223,12 @@ namespace MultiChainDotNet.Core
 			services.AddMultiChainCommandFactory(mcConfig);
 			return services;
 		}
+
+		public static IServiceCollection AddMultiChainCommandFactory(this IServiceCollection services)
+		{
+			return services.AddMultiChainCommandFactory(services.BuildServiceProvider()
+				.GetRequiredService<MultiChainConfiguration>());
+		}
+
 	}
 }

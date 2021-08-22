@@ -18,14 +18,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 {
     public class TestCommandFactoryBase: TestBase
     {
-		static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-		{
-			return HttpPolicyExtensions
-				.HandleTransientHttpError()
-				.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2,
-																			retryAttempt)));
-		}
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
@@ -33,7 +25,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 			services
 				.AddHttpClient<IMultiChainCommandFactory, MultiChainCommandFactory>(c => c.BaseAddress = new Uri($"http://{_mcConfig.Node.NetworkAddress}:{_mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
-					.AddPolicyHandler(GetRetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
 					.ConfigurePrimaryHttpMessageHandler(() =>
 					{
 						return new HttpClientHandler()
