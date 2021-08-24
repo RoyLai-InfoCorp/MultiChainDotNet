@@ -78,7 +78,6 @@ namespace MultiChainDotNet.Managers
 		public MultiChainResult<string> CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
 		{
 			_logger.LogDebug($"Executing CreateStream");
-
 			try
 			{
 				var txid = new MultiChainFluent()
@@ -117,7 +116,6 @@ namespace MultiChainDotNet.Managers
 		public async Task<MultiChainResult<string>> PublishJsonAsync(string streamName, string key, object json)
 		{
 			_logger.LogDebug($"Executing PublishJsonAsync");
-
 			if (_defaultSigner is { })
 				return await PublishJsonAsync (_defaultSigner, _mcConfig.Node.NodeWallet, streamName, key, json);
 

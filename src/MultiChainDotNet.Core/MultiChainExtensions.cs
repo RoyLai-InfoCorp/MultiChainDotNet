@@ -35,7 +35,7 @@ namespace MultiChainDotNet.Core
 
 				services
 					.AddScoped<MultiChainAddressCommand>()
-				.AddHttpClient<MultiChainAddressCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
+					.AddHttpClient<MultiChainAddressCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
 					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())

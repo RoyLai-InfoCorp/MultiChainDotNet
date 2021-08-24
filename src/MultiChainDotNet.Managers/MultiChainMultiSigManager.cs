@@ -9,6 +9,7 @@ using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
 using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,6 +167,11 @@ namespace MultiChainDotNet.Managers
 
 		}
 
+		public MultiChainResult<string[]> SignMultiSig(string signatureSlip, string redeemScript)
+		{
+			return SignMultiSig(_defaultSigner, signatureSlip, redeemScript);
+		}
+
 		public MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SignMultiSig");
@@ -191,7 +197,6 @@ namespace MultiChainDotNet.Managers
 		public MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
-
 			try
 			{
 				var txid = new MultiChainFluent()

@@ -20,11 +20,15 @@ namespace MultiChainDotNet.Managers
 	{
 		private readonly ILogger _logger;
 		private readonly IMultiChainCommandFactory _commandFactory;
-		public MultiChainTransactionManager(ILoggerFactory loggerFactory, 
-			IMultiChainCommandFactory commandFactory)
+		private MultiChainConfiguration _mcConfig;
+
+		public MultiChainTransactionManager(ILoggerFactory loggerFactory,
+			IMultiChainCommandFactory commandFactory,
+			MultiChainConfiguration mcConfig)
 		{
 			_commandFactory = commandFactory;
 			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
+			_mcConfig = mcConfig;
 		}
 
 		public MultiChainTransactionManager(ILoggerFactory loggerFactory,
@@ -35,6 +39,7 @@ namespace MultiChainDotNet.Managers
 			_commandFactory = commandFactory;
 			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
 		}
+
 
 		public async Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid)
 		{

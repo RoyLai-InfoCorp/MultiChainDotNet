@@ -22,7 +22,8 @@ namespace MultiChainDotNet.Managers.Extensions
 				.AddScoped<IMultiChainAddressManager, MultiChainAddressManager>()
 				.AddScoped<IMultiChainBlockchainManager, MultiChainBlockchainManager>()
 				.AddScoped<IMultiChainMultiSigManager, MultiChainMultiSigManager>()
-				.AddSingleton<IMultiChainManagerFactory, MultiChainManagerFactory>()
+				.AddScoped<IMultiChainManagerFactory, MultiChainManagerFactory>()
+				.AddScoped<IMultiChainVariableManager, MultiChainVariableManager>()
 				;
 		}
 	}
