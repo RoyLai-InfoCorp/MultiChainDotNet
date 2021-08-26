@@ -19,11 +19,13 @@ namespace MultiChainDotNet.Core.Base
 		protected MultiChainConfiguration _mcConfig;
 		protected HttpClient _httpClient;
 		protected MultiChainConfiguration MultiChainConfiguration => _mcConfig;
-
 		public MultiChainCommandBase(ILogger logger, MultiChainConfiguration mcConfig)
 		{
 			_mcConfig = mcConfig;
 			_logger = logger;
+			if (_mcConfig.Node is null)
+				throw new MultiChainException(MultiChainErrorCode.CONFIG_NODE_MISSING);
+
 			var handler = new HttpClientHandler()
 			{
 				Credentials = new NetworkCredential(_mcConfig.Node.RpcUserName, _mcConfig.Node.RpcPassword)

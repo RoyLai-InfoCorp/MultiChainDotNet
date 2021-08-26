@@ -67,9 +67,11 @@ namespace MultiChainDotNet.Core.Base
 
 		// UNDOCUMENTED
 		NO_ERROR = 0,
+		ASSET_BALANCE_NOT_FOUND = -9880,		// Asset balance not found.
+		CONFIG_NODE_MISSING = -9897,			// Node configuration is missing
 		INTERNAL_ERROR = -9998,
 		UNKNOWN_ERROR_CODE = -9999,             // Unclassified
-		NON_MULTICHAIN_ERROR_CODE = -99999,             // Unclassified
+		NON_MULTICHAIN_ERROR_CODE = -99999,     // Unclassified
 		RAW_EXCHANGE_INCOMPLETE = -1000,        // Tried submitting a submission in incomplete state.
 		ASSET_FOLLOW_ON_SCRIPT_REJECTED = 64    // Probably tried to issue a non-reissuable asset.
 	}

@@ -56,7 +56,7 @@ namespace MultiChainDotNet.Managers
 			var subscribe = await SubscribeAsync(assetName);
 			if (subscribe.IsError)
 			{
-				if (!MultiChainException.IsException(subscribe.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+				if (!subscribe.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 					throw subscribe.Exception;
 				return false;
 			}
@@ -381,7 +381,7 @@ namespace MultiChainDotNet.Managers
 
 				GetAddressBalancesResult single = result.Result.FirstOrDefault(x => x.Name == assetName);
 				if (single is null)
-					return new MultiChainResult<GetAddressBalancesResult>();
+					return new MultiChainResult<GetAddressBalancesResult>(new MultiChainException( MultiChainErrorCode.ASSET_BALANCE_NOT_FOUND ));
 
 				var assetInfo = await GetAssetInfoAsync(assetName);
 				single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Result.Multiple);

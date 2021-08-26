@@ -63,7 +63,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 				// ACT
 				var signatureResult = _multisSigManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
-				Assert.That(MultiChainException.IsException(signatureResult.Exception, MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS)
+				Assert.That(signatureResult.Exception.IsMultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS)
 					, Is.True);
 			}
 		}

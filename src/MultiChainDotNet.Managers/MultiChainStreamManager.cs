@@ -62,7 +62,7 @@ namespace MultiChainDotNet.Managers
 			var subscribe = await SubscribeAsync(streamName);
 			if (subscribe.IsError)
 			{
-				if (!MultiChainException.IsException(subscribe.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+				if (!subscribe.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 					throw subscribe.Exception;
 				return new MultiChainResult<bool>(false);
 			}
@@ -205,7 +205,7 @@ namespace MultiChainDotNet.Managers
 
 			var result = await _streamCmd.ListStreamsAsync(streamName, true);
 
-			if (result.IsError && MultiChainException.IsException(result.Exception, MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+			if (result.IsError && result.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 				return new MultiChainResult<StreamsResult>();
 
 			if (result.IsError)
@@ -234,7 +234,7 @@ namespace MultiChainDotNet.Managers
 			{
 				var result = await ListStreamItemsAsync($"FROM {streamName} ASC PAGE {page} SIZE {size}");
 
-				if (result.IsError && MultiChainException.IsException(result.Exception,MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+				if (result.IsError && result.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
 					return new MultiChainResult<List<T>>();
 
 				if (result.IsError)
