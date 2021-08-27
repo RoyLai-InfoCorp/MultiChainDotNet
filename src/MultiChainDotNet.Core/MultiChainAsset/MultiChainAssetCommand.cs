@@ -71,12 +71,12 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 		}
 
 
-		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName)
+		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName, bool rescan = false)
 		{
 			if (assetName is null)
 				throw new ArgumentNullException(nameof(assetName));
 
-			return await JsonRpcRequestAsync<VoidType>("subscribe", assetName, false);
+			return await JsonRpcRequestAsync<VoidType>("subscribe", assetName, rescan);
 		}
 
 		/// <summary>

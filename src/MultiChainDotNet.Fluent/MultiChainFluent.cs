@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.Logging;
+using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using MultiChainDotNet.Fluent.Base;
@@ -476,6 +477,9 @@ namespace MultiChainDotNet.Fluent
 			if (result.IsError)
 				throw result.Exception;
 			var txout = result.Result;
+
+			if (txout is null)
+				throw new MultiChainException(MultiChainErrorCode.TXOUT_IS_NULL);
 
 			var scriptPubKey = txout.ScriptPubKey.Hex.Hex2Bytes();
 			VarInt scriptPubKeyLen = new VarInt().Import(scriptPubKey);

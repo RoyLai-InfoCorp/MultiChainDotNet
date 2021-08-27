@@ -72,6 +72,9 @@ namespace MultiChainDotNet.Core.Base
 				// If expecting no return type
 				if (typeof(T) == typeof(VoidType))
 					return new MultiChainResult<T>();
+
+				if (String.IsNullOrEmpty(result.ToString()))
+					return new MultiChainResult<T>();
 			}
 
 			return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, "Expected and return type mistmatch."));
