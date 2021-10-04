@@ -83,13 +83,24 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public MultiChainResult<string> SetVariableValue(string variableName, object variableValue)
+		public MultiChainResult<string> SetVariableValue<T>(string variableName, T variableValue)
 		{
 			return SetVariableValue(_defaultSigner, variableName, variableValue);
 		}
-		public MultiChainResult<string> SetVariableValue(SignerBase signer, string variableName, object variableValue)
+		public MultiChainResult<string> SetVariableValue<T>(SignerBase signer, string variableName, T variableValue)
 		{
 			_logger.LogDebug($"Executing SetVariableAsync");
+
+			var query = Task.Run(async () => await GetVariableValueAsync<T>(variableName)).GetAwaiter().GetResult();
+			if (query.IsError)
+			{
+				if (query.ErrorCode != MultiChainErrorCode.RPC_ENTITY_NOT_FOUND)
+					return new MultiChainResult<string>(query.Exception);
+				var create = CreateVariable(variableName);
+				if (create.IsError)
+					return new MultiChainResult<string>(create.Exception);
+			}
+
 			signer = signer ?? _defaultSigner;
 			try
 			{

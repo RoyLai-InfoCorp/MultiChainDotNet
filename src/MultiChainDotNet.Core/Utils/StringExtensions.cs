@@ -56,7 +56,8 @@ namespace MultiChainDotNet.Core.Utils
 		{
 			if (string.IsNullOrEmpty(data))
 				return null;
-
+			if (data.StartsWith("0x"))
+				data = data.Substring(2);
 			try
 			{
 				var s = data.ToLower();

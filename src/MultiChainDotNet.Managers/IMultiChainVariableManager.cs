@@ -12,7 +12,8 @@ namespace MultiChainDotNet.Managers
 		MultiChainResult<string> CreateVariable(SignerBase signer, string variableName);
 		MultiChainResult<string> CreateVariable(string variableName);
 		Task<MultiChainResult<T>> GetVariableValueAsync<T>(string variableName);
-		MultiChainResult<string> SetVariableValue(SignerBase signer, string variableName, object variableValue);
-		MultiChainResult<string> SetVariableValue(string variableName, object variableValue);
+		MultiChainResult<string> SetVariableValue<T>(SignerBase signer, string variableName, T variableValue);
+		MultiChainResult<string> SetVariableValue<T>(string variableName, T variableValue);
+
 	}
 }
