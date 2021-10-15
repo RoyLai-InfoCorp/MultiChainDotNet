@@ -381,7 +381,15 @@ namespace MultiChainDotNet.Managers
 
 				GetAddressBalancesResult single = result.Result.FirstOrDefault(x => x.Name == assetName);
 				if (single is null)
-					return new MultiChainResult<GetAddressBalancesResult>(new MultiChainException( MultiChainErrorCode.ASSET_BALANCE_NOT_FOUND ));
+				{
+					return new MultiChainResult<GetAddressBalancesResult>(new GetAddressBalancesResult
+					{
+						Qty = 0,
+						AssetRef = "",
+						Name = assetName,
+						Raw = 0
+					});
+				}
 
 				var assetInfo = await GetAssetInfoAsync(assetName);
 				single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Result.Multiple);
