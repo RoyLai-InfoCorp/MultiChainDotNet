@@ -179,13 +179,14 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public MultiChainResult<string> SendAnnotateAsset(string toAddress, string assetName, UInt64 units, object annotation)
+		public Task<MultiChainResult<string>> SendAnnotateAssetAsync(string toAddress, string assetName, UInt64 units, object annotation)
 		{
-			return SendAnnotateAsset(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, annotation);
+			return SendAnnotateAssetAsync(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, annotation);
 		}
-		public MultiChainResult<string> SendAnnotateAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
+		public async Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing SendAssetAsync");
+			Exception ex_=new Exception();
 			try
 			{
 
@@ -210,9 +211,17 @@ namespace MultiChainDotNet.Managers
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				if (!ex.IsMultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS))
+					return new MultiChainResult<string>(ex);
+				ex_ = ex;
 			}
 
+			// Exception message ambiguous. Determine if its wallet has insufficient asset or insufficient native currency
+			var balance = await GetAssetBalanceByAddressAsync(fromAddress, assetName);
+			if (balance.IsError) throw balance.Exception;
+				if (balance.Result.Raw < units)
+					return new MultiChainResult<string>(new MultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_ASSET));
+			return new MultiChainResult<string>(ex_);
 		}
 
 

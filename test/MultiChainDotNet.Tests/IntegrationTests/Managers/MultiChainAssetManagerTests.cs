@@ -221,7 +221,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var issueResult = _assetManager.Issue(_admin.NodeWallet, assetName, 1, true);
 
 			// ACT
-			var result = _assetManager.SendAnnotateAsset(_testUser1.NodeWallet, assetName, 1, payload);
+			var result = await _assetManager.SendAnnotateAssetAsync(_testUser1.NodeWallet, assetName, 1, payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False,result.ExceptionMessage);

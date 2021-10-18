@@ -67,6 +67,7 @@ namespace MultiChainDotNet.Core.Base
 
 		// UNDOCUMENTED
 		NO_ERROR = 0,
+		RPC_WALLET_INSUFFICIENT_ASSET = -9860,     // The wallet or address has insufficient assets for this transaction.
 		TXOUT_IS_NULL = -9870,					// gettxout returns null.
 		ASSET_BALANCE_NOT_FOUND = -9880,		// Asset balance not found.
 		CONFIG_NODE_MISSING = -9897,			// Node configuration is missing

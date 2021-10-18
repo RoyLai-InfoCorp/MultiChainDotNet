@@ -22,8 +22,8 @@ namespace MultiChainDotNet.Managers
 		MultiChainResult<string> SendAsset(string toAddress, string assetName, UInt64 amt, object data = null);
 		MultiChainResult<string> SendAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object data = null);
 
-		MultiChainResult<string> SendAnnotateAsset(string toAddress, string assetName, UInt64 amt, object annotation);
-		MultiChainResult<string> SendAnnotateAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object annotation);
+		Task<MultiChainResult<string>> SendAnnotateAssetAsync(string toAddress, string assetName, UInt64 amt, object annotation);
+		Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object annotation);
 
 		MultiChainResult<string> Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null);
 		MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 amt, bool canIssueMore,object data = null);
