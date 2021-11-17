@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent.Base;
 using MultiChainDotNet.Fluent.Signers;
+using System;
 using System.Collections.Generic;
 
 namespace MultiChainDotNet.Fluent.Builders
@@ -17,6 +18,7 @@ namespace MultiChainDotNet.Fluent.Builders
 		ITransactionBuilder AddLogger(ILogger logger);
 		string Describe();
 		string CreateRawTransaction(MultiChainTransactionCommand txnCmd);
+
 		#endregion
 
 		#region From

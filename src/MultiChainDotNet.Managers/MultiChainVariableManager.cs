@@ -101,7 +101,6 @@ namespace MultiChainDotNet.Managers
 					return new MultiChainResult<string>(create.Exception);
 			}
 
-			signer = signer ?? _defaultSigner;
 			try
 			{
 				var fromAddress = _mcConfig.Node.NodeWallet;

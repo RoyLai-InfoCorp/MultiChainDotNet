@@ -171,6 +171,11 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<string>("appendrawchange", transaction, address);
 		}
 
+		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentAsync(string assetName, Double qty)
+		{
+			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspent",
+				new Dictionary<string, Double> { { assetName, qty } });
+		}
 
 		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentFromAsync(string from, string assetName, Double qty)
 		{

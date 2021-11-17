@@ -329,7 +329,7 @@ namespace MultiChainDotNet.Fluent
 		#endregion
 
 
-		private (string From, Dictionary<string, Dictionary<string, object>> To, List<object> With) CreateRawSendFrom()
+		protected (string From, Dictionary<string, Dictionary<string, object>> To, List<object> With) CreateRawSendFrom()
 		{
 			return (_fromAddress, _toBuilders, _withData);
 		}

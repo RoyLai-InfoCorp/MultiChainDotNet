@@ -88,7 +88,7 @@ namespace MultiChainDotNet.Fluent.Base
 			return txn[GetVinPosition(txn)];
 		}
 
-		public static string Decode(byte[] raw)
+		public static (string,Txn) Decode(byte[] raw)
 		{
 			var txn = new Txn();
 			int pos = 0;
@@ -144,7 +144,7 @@ namespace MultiChainDotNet.Fluent.Base
 
 			txn.LockTime = raw.SafeSubarray(pos, BitCoinConstants.LOCKTIME_LENGTH).Bytes2Hex();
 
-			return JsonConvert.SerializeObject(txn, Formatting.Indented);
+			return (JsonConvert.SerializeObject(txn, Formatting.Indented),txn);
 
 
 			//------
