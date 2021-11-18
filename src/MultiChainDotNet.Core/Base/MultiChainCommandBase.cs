@@ -47,6 +47,10 @@ namespace MultiChainDotNet.Core.Base
 		private string ToCommand(string method,params object[] args)
 		{
 			StringBuilder sb = new StringBuilder(method);
+
+			if (args is null)
+				return sb.ToString();
+
 			foreach (var arg in args)
 			{
 				Type t = arg.GetType();
