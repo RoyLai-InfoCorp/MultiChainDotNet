@@ -36,4 +36,8 @@
 		<PackageReference Include="Polly" Version="7.2.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+
 </Project>
