@@ -25,6 +25,11 @@ public class TransactionWithIdRepo
 			   return JsonConvert.DeserializeObject<object>(output.AsString);
 		   }
 	   );
+		using (var db = new LiteDatabase(_db))
+		{
+			var col = db.GetCollection<TransactionWithId>(nameof(TransactionWithId));
+			col.DeleteAll();
+		}
 	}
 
 	public async Task Insert(DecodeRawTransactionResult result)
