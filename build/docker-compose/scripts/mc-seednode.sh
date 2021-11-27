@@ -1,5 +1,5 @@
 #!/bin/bash
-chain="sennet"
+chain="chain1"
 multichaind $chain -initprivkey=V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff -daemon
 sleep 5
 

@@ -1,7 +1,7 @@
 # Basic chain parameters
 
 chain-protocol = multichain             
-chain-description = Sennet - Sentinel Chain 2.0				# Chain description, embedded in genesis block coinbase, max 90 chars.
+chain-description = chain1              # Chain description, embedded in genesis block coinbase, max 90 chars.
 root-stream-name = root                 
 root-stream-open = false                # Allow anyone to publish in root stream
 chain-is-testnet = false                
@@ -78,7 +78,7 @@ max-std-element-size = 40000
 
 default-network-port = 12020            # Default TCP/IP port for peer-to-peer connection with other nodes.
 default-rpc-port = 12021                # Default TCP/IP port for incoming JSON-RPC API requests.
-chain-name = sennet                     # Chain name, used as first argument for multichaind and multichain-cli.
+chain-name = chain1                     # Chain name, used as first argument for multichaind and multichain-cli.
 protocol-version = 20012                # Protocol version at the moment of blockchain genesis.
 network-message-start = ffd0e1f4        # Magic value sent as the first 4 bytes of every peer-to-peer message.
 address-pubkeyhash-version = 000d5fec   # Version bytes used for pay-to-pubkeyhash addresses.

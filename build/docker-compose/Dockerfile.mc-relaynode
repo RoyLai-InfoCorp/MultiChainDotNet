@@ -1,25 +1,32 @@
-FROM multichain-base:2.1.2 AS base
+FROM ubuntu AS base
+
 EXPOSE 12020
 EXPOSE 12021
-#ARG seed_ip
+
+RUN apt update && apt upgrade
+RUN apt install wget -y
+FROM base AS build
+SHELL ["/bin/bash","-c"]
+RUN wget -q -O - https://www.multichain.com/download/multichain-2.1.2.tar.gz | tar -xzf - -C /tmp
+FROM base AS final
+COPY --from=build /tmp/multichain-2.1.2 /usr/local/bin
+
 ENV seed_ip $seed_ip
-#ARG ptekey
 ENV ptekey $ptekey
-#ARG rpcpassword
 ENV rpcpassword $rpcpassword
 
 WORKDIR /
 SHELL ["/bin/bash","-c"]
 RUN echo '#!/bin/bash' >> init.sh
-RUN echo 'multichaind -initprivkey=${ptekey} sennet@${seed_ip}:12020 -daemon' >> init.sh
+RUN echo 'multichaind -initprivkey=${ptekey} chain1@${seed_ip}:12020 -daemon' >> init.sh
 RUN echo 'sleep 1' >> init.sh
 RUN echo 'pkill multichaind' >> init.sh
 RUN echo 'sleep 1' >> init.sh
-RUN echo 'cd /root/.multichain/sennet' >> init.sh
+RUN echo 'cd /root/.multichain/chain1' >> init.sh
 RUN echo 'replace="rpcpassword=${rpcpassword}"' >> init.sh
 RUN echo 'sed -i "s/rpcpassword.*$/${replace}/" multichain.conf' >> init.sh
 RUN echo 'echo 'rpcallowip=0.0.0.0/0' >> multichain.conf' >> init.sh
-RUN echo 'multichaind sennet -reindex -rescan -lockinlinemetadata=0' >> init.sh
+RUN echo 'multichaind chain1 -reindex -rescan -lockinlinemetadata=0' >> init.sh
 RUN chmod +x init.sh
 
 ENTRYPOINT [ "bash","/init.sh" ]

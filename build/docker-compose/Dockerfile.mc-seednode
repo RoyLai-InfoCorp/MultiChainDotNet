@@ -1,0 +1,28 @@
+#FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
+FROM ubuntu AS base
+
+EXPOSE 12020
+EXPOSE 12021
+
+RUN apt update && apt upgrade
+RUN apt install wget curl -y
+FROM base AS build
+SHELL ["/bin/bash","-c"]
+RUN wget -q -O - https://www.multichain.com/download/multichain-2.1.2.tar.gz | tar -xzf - -C /tmp
+FROM base AS app
+COPY --from=build /tmp/multichain-2.1.2 /usr/local/bin
+
+FROM app AS final
+SHELL ["/bin/bash","-c"]
+RUN multichain-util create chain1
+WORKDIR /root/.multichain/chain1
+COPY /scripts/multichain.conf multichain.conf
+COPY /scripts/params.dat params.dat
+
+COPY /scripts/notify.sh /root
+RUN chmod 755 /root/notify.sh
+
+COPY /scripts/mc-seednode.sh /root
+RUN /root/mc-seednode.sh
+
+ENTRYPOINT ["multichaind","chain1"]
