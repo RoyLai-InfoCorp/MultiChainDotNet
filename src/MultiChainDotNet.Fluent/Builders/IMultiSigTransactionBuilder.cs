@@ -15,7 +15,7 @@ namespace MultiChainDotNet.Fluent.Builders
 		IMultiSigTransactionBuilder AddMultiSigSigner(SignerBase signer);
 		IMultiSigTransactionBuilder AddMultiSigSigners(IList<SignerBase> signers);
 		IMultiSigTransactionBuilder AddMultiSignatures(IList<string[]> signatures);
-		IMultiSigTransactionBuilder AddRawTransaction(string raw);
+		IMultiSigTransactionBuilder AddRawMultiSignatureTransaction(string raw);
 		IMultiSigTransactionBuilder MultiSign(string redeemScript);
 		string[] MultiSignPartial(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL);
 		string RawSigned();

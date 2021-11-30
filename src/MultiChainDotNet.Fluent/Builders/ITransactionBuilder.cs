@@ -62,8 +62,11 @@ namespace MultiChainDotNet.Fluent.Builders
 		ITransactionBuilder AddJavascript(string scriptName, LibraryUpdateMode mode, string javascript);
 
 		#endregion
+
 		IMultiSigTransactionBuilder UseMultiSigTransaction(MultiChainTransactionCommand txnCmd);
 		IMultiSigTransactionBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd);
+
+		INormalTransactionBuilder UseNormalTransaction(MultiChainTransactionCommand txnCmd);
 		INormalTransactionBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd);
 
 

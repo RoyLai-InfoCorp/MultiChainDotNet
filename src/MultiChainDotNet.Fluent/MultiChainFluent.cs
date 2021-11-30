@@ -363,6 +363,19 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
+		public INormalTransactionBuilder UseNormalTransaction(MultiChainTransactionCommand txnCmd)
+		{
+			_txnCmd = txnCmd;
+			return this;
+		}
+
+
+		public INormalTransactionBuilder AddRawNormalTransaction(string raw)
+		{
+			_rawSendFrom = raw.Hex2Bytes();
+			return this;
+		}
+
 		public INormalTransactionBuilder AddSigner(SignerBase signer)
 		{
 			_signers.Add(signer);
@@ -695,7 +708,7 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public IMultiSigTransactionBuilder AddRawTransaction(string raw)
+		public IMultiSigTransactionBuilder AddRawMultiSignatureTransaction(string raw)
 		{
 			_rawSendFrom = raw.Hex2Bytes();
 			return this;

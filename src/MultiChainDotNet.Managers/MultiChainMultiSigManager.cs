@@ -202,7 +202,7 @@ namespace MultiChainDotNet.Managers
 				var txid = new MultiChainFluent()
 					.AddLogger(_logger)
 					.UseMultiSigTransaction(_txnCmd)
-						.AddRawTransaction(signatureSlip)
+						.AddRawMultiSignatureTransaction(signatureSlip)
 						.AddMultiSignatures(signatures)
 						.MultiSign(redeemScript)
 						.Send()

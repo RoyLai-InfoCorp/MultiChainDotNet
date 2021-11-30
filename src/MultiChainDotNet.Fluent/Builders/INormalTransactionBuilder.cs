@@ -12,6 +12,7 @@ namespace MultiChainDotNet.Fluent.Builders
 	public interface INormalTransactionBuilder : ITransactionBuilder
 	{
 		#region Normal Transaction
+		public INormalTransactionBuilder AddRawNormalTransaction(string raw);
 		INormalTransactionBuilder AddSigner(SignerBase signer);
 		INormalTransactionBuilder Sign();
 		string RawSigned();

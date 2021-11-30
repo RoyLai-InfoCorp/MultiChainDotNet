@@ -160,7 +160,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var txid = new MultiChainFluent()
 				.AddLogger(_logger)
 				.UseMultiSigTransaction(_txnCmd)
-					.AddRawTransaction(request)
+					.AddRawMultiSignatureTransaction(request)
 					.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
 					.MultiSign(state.RedeemScript)
 					.Send();
