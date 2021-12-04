@@ -35,7 +35,7 @@ public class TransactionWithIdRepo
 	public async Task Insert(DecodeRawTransactionResult result)
 	{
 
-		await _semaphore.WaitAsync();
+		//await _semaphore.WaitAsync();
 		using (var db = new LiteDatabase(_db))
 		{
 			try
@@ -53,7 +53,7 @@ public class TransactionWithIdRepo
 			}
 			finally
 			{
-				_semaphore.Release();
+				//_semaphore.Release();
 			}
 		}
 	}

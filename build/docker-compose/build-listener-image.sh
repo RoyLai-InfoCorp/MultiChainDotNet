@@ -1,0 +1,1 @@
+docker build -f ../../src/MultiChainDotNet.Listener.Service/Dockerfile -t mc-listener:2.1.2 ../../

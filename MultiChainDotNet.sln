@@ -24,14 +24,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker-compose", "docker-compose", "{83C27AFD-FE8E-4798-9084-14FC0B85FD53}"
 	ProjectSection(SolutionItems) = preProject
 		build\docker-compose\docker-compose.yml = build\docker-compose\docker-compose.yml
-		build\docker-compose\Dockerfile.0 = build\docker-compose\Dockerfile.0
-		build\docker-compose\Dockerfile.1 = build\docker-compose\Dockerfile.1
-		build\docker-compose\init.sh = build\docker-compose\init.sh
-		build\docker-compose\multichain.sennet = build\docker-compose\multichain.sennet
-		build\docker-compose\params.sennet = build\docker-compose\params.sennet
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiChainDotNet.Listener.Service", "src\MultiChainDotNet.Listener.Service\MultiChainDotNet.Listener.Service.csproj", "{C976F8FC-9B21-4EF7-8F1B-EC555FACBDE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Listener.Service", "src\MultiChainDotNet.Listener.Service\MultiChainDotNet.Listener.Service.csproj", "{C976F8FC-9B21-4EF7-8F1B-EC555FACBDE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
