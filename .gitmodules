@@ -1,0 +1,5 @@
+[submodule "src/UtilsDotNet"]
+	path = src/UtilsDotNet
+	url = https://github.com/RoyLai-InfoCorp/UtilsDotNet
+	branch = main
+	update = rebase
