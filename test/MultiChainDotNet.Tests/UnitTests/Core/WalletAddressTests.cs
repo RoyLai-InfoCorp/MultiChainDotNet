@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.UnitTests.Core
 {

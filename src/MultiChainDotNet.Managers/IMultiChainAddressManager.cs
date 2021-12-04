@@ -4,6 +4,7 @@
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using System.Threading.Tasks;
+using UtilsDotNet;
 
 namespace MultiChainDotNet.Managers
 {

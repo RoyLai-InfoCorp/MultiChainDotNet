@@ -15,6 +15,7 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {

@@ -6,6 +6,7 @@ using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Fluent.Signers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UtilsDotNet;
 
 namespace MultiChainDotNet.Managers
 {

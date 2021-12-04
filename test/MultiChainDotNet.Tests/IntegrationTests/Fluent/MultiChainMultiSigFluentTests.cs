@@ -20,6 +20,7 @@ using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Fluent;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 {

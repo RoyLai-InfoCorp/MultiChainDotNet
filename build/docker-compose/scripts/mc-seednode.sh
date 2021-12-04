@@ -47,15 +47,15 @@ address="1Sje9v2fiT7A1C3z6yNFqho4fEtqFAke8Xt9B3"
 create_address
 
 # testasset1
-multichain-cli sennet issue 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB '{ "name": "openasset", "open": true }' 1000 1
-multichain-cli sennet issue 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB '{ "name": "closeasset", "open": false }' 2000 1
+multichain-cli $chain issue 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB '{ "name": "openasset", "open": true }' 1000 1
+multichain-cli $chain issue 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB '{ "name": "closeasset", "open": false }' 2000 1
 
 # teststream
-multichain-cli sennet create stream "openstream" true
+multichain-cli $chain create stream "openstream" true
 
 # Send the relayers startup fund
-multichain-cli sennet sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL 1000000000
-multichain-cli sennet sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 1PPUeMEz3LWdoxQDAj31e9ggDTU7HmWitqLV4X 1000000000
-multichain-cli sennet sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 1Sje9v2fiT7A1C3z6yNFqho4fEtqFAke8Xt9B3 1000000000
+multichain-cli $chain sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 12S7Eg2Gz1ZSdRXqVjzjoSybBV1m9umdZz5nHL 1000000000
+multichain-cli $chain sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 1PPUeMEz3LWdoxQDAj31e9ggDTU7HmWitqLV4X 1000000000
+multichain-cli $chain sendfrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 1Sje9v2fiT7A1C3z6yNFqho4fEtqFAke8Xt9B3 1000000000
 
 multichain-cli $chain stop
