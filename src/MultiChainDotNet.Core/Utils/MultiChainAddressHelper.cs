@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq;
+using UtilsDotNet;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Core.Utils
 {

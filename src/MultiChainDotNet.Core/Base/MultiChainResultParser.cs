@@ -4,6 +4,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using UtilsDotNet;
 
 namespace MultiChainDotNet.Core.Base
 {
