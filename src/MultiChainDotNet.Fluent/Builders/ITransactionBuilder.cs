@@ -23,6 +23,7 @@ namespace MultiChainDotNet.Fluent.Builders
 
 		#region From
 		ITransactionBuilder From(string address);
+		ITransactionBuilder From(string txid, ushort vout);
 		#endregion
 
 		#region To

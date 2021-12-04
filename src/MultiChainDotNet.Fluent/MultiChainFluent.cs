@@ -40,6 +40,15 @@ namespace MultiChainDotNet.Fluent
 			_fromAddress = address;
 			return this;
 		}
+
+		private List<TxIdVoutStruct> _fromUnspent = new List<TxIdVoutStruct>();
+		public ITransactionBuilder From(string txid, ushort vout)
+		{
+			if (_fromUnspent.Any(x=>x.TxId == txid && x.Vout == vout) == false)
+				_fromUnspent.Add(new TxIdVoutStruct { TxId = txid, Vout = vout });
+			return this;
+		}
+
 		#endregion
 
 		#region To
@@ -329,19 +338,12 @@ namespace MultiChainDotNet.Fluent
 
 		#endregion
 
-
-		protected (string From, Dictionary<string, Dictionary<string, object>> To, List<object> With) CreateRawSendFrom()
-		{
-			return (_fromAddress, _toBuilders, _withData);
-		}
-
 		public string CreateRawTransaction(MultiChainTransactionCommand txnCmd)
 		{
 			_txnCmd = txnCmd;
-			var (fromAddress, tos, with) = CreateRawSendFrom();
 			string request = Task.Run(async () =>
 			{
-				var result = await _txnCmd.CreateRawSendFromAsync(fromAddress, tos, with);
+				var result = await _txnCmd.CreateRawSendFromAsync(_fromAddress, _toBuilders, _withData);
 				if (result.IsError)
 					throw result.Exception;
 				return result.Result;
@@ -351,8 +353,7 @@ namespace MultiChainDotNet.Fluent
 
 		public string Describe()
 		{
-			var (fromAddress, tos, with) = CreateRawSendFrom();
-			return $"createrawsendfrom {fromAddress} '{JsonConvert.SerializeObject(tos)}' '{JsonConvert.SerializeObject(with)}'";
+			return $"createrawsendfrom {_fromAddress} '{JsonConvert.SerializeObject(_toBuilders)}' '{JsonConvert.SerializeObject(_withData)}'";
 		}
 
 
@@ -360,7 +361,35 @@ namespace MultiChainDotNet.Fluent
 
 		public INormalTransactionBuilder CreateNormalTransaction(MultiChainTransactionCommand txnCmd)
 		{
-			_rawSendFrom = CreateRawTransaction(txnCmd).Hex2Bytes();
+			_txnCmd = txnCmd;
+
+			// If transaction is created using address then use CreateRawSendFrom
+			if (_fromUnspent.Count == 0)
+			{
+				_rawSendFrom = CreateRawTransaction(_txnCmd).Hex2Bytes();
+				return this;
+			}
+
+			// If transaction is created directly from using txid and vout then use CreateRawTransaction append the change output
+			if (_fromUnspent.Count > 0)
+			{
+				string raw = Task.Run(async () =>
+				{
+					var result = await _txnCmd.CreateRawTransactionAsync(_fromUnspent, _toBuilders, _withData);
+					if (result.IsError)
+						throw result.Exception;
+					return result.Result;
+				}).GetAwaiter().GetResult();
+
+				var result = Task.Run(() =>
+				   _txnCmd.AppendRawChangeAsync(raw, _fromAddress)
+				).GetAwaiter().GetResult();
+				if (result.IsError)
+					throw result.Exception;
+
+				_rawSendFrom = result.Result.Hex2Bytes();
+
+			}
 			return this;
 		}
 
@@ -548,7 +577,36 @@ namespace MultiChainDotNet.Fluent
 
 		public IMultiSigTransactionBuilder CreateMultiSigTransaction(MultiChainTransactionCommand txnCmd)
 		{
-			_rawSendFrom = CreateRawTransaction(txnCmd).Hex2Bytes();
+			_txnCmd = txnCmd;
+
+			// If transaction is created using address then use CreateRawSendFrom
+			if (_fromUnspent.Count == 0)
+			{
+				_rawSendFrom = CreateRawTransaction(_txnCmd).Hex2Bytes();
+				return this;
+			}
+
+			// If transaction is created directly from using txid and vout then use CreateRawTransaction append the change output
+			if (_fromUnspent.Count > 0)
+			{
+				string raw = Task.Run(async () =>
+				{
+					var result = await _txnCmd.CreateRawTransactionAsync(_fromUnspent, _toBuilders, _withData);
+					if (result.IsError)
+						throw result.Exception;
+					return result.Result;
+				}).GetAwaiter().GetResult();
+
+				var result = Task.Run(() =>
+				   _txnCmd.AppendRawChangeAsync(raw, _fromAddress)
+				).GetAwaiter().GetResult();
+				if (result.IsError)
+					throw result.Exception;
+
+				_rawSendFrom = result.Result.Hex2Bytes();
+
+			}
+
 			return this;
 		}
 

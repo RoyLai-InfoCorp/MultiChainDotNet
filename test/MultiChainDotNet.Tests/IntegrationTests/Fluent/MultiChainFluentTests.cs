@@ -274,7 +274,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 					.Send()
 				;
 
-
 			// ASSERT
 			Assert.IsNotNull(txid);
 
@@ -375,6 +374,41 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			Assert.IsNotNull(txid);
 		}
 
+		// USE UTXO
+
+		[Test, Order(120)]
+		public async Task Should_issue_more_asset_from_unspent()
+		{
+			//Prepare
+			var assetName = "openasset";
+
+			// ACT
+			await Task.Delay(3000);
+			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
+			Console.WriteLine("UTXO before:"+JsonConvert.SerializeObject(unspents.Result));
+
+			var unspent = unspents.Result.First(x => x.Amount >= 1000);
+			Console.WriteLine("Unspent selected:"+JsonConvert.SerializeObject(unspent));
+
+			var txid = new MultiChainFluent()
+				.AddLogger(_logger)
+				.From(_admin.NodeWallet)
+				.From(unspent.TxId, unspent.Vout)
+				.To(_testUser1.NodeWallet)
+					.IssueMoreAsset(assetName, 1000)
+				.CreateNormalTransaction(_txnCmd)
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
+				;
+
+			// ASSERT
+			Assert.IsNotNull(txid);
+
+			unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
+			Console.WriteLine("UTXO after:" + JsonConvert.SerializeObject(unspents.Result));
+
+		}
 
 	}
 }

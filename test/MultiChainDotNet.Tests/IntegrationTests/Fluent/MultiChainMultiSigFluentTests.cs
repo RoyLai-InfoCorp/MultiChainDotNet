@@ -170,6 +170,37 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 
+		[Test, Order(212)]
+		public async Task Should_send_asset_with_1_of_2_multisignature_from_unspent()
+		{
+			await Prepare_MultiSigAddress(1, new string[] { _relayer1.Pubkey, _relayer2.Pubkey });
+			var state = _stateDb.GetState<TestState>();
+
+			// PREPARE
+			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
+
+			// ACT
+			await Task.Delay(3000);
+			var unspents = await _txnCmd.ListUnspentAsync(state.MultiSigAddress);
+			var unspent1 = unspents.Result.First(x => x.Assets?.Count > 0 && x.Assets[0].Name == state.AssetName);
+			var unspent2 = unspents.Result.First(x => x.Amount >= 1000);
+			var txid = new MultiChainFluent()
+				.AddLogger(_logger)
+				.From(state.MultiSigAddress)
+				.From(unspent1.TxId, unspent1.Vout)
+				.From(unspent2.TxId, unspent2.Vout)
+				.To(_testUser1.NodeWallet)
+					.SendAsset(state.AssetName, 1)
+				.CreateMultiSigTransaction(_txnCmd)
+					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+					.MultiSign(state.RedeemScript)
+					.Send()
+					;
+
+			// ASSERT
+			Assert.IsNotNull(txid);
+		}
 
 	}
 }

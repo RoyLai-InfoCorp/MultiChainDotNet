@@ -49,7 +49,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(result.Result[0].TxId, Is.EqualTo(txid));
 
 			// PREPARE
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < 10; i++)
 			{
 				await Task.Delay(1000);
 				_mcAssetMgr.SendAsset(_testUser1.NodeWallet, assetName, 1);
@@ -60,7 +60,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			//ASSERT
 			Assert.That(result1.IsError, Is.EqualTo(false), result1.ExceptionMessage);
-			Assert.That(result1.Result.Count, Is.EqualTo(31));
+			Assert.That(result1.Result.Count, Is.EqualTo(11));
 		}
 
 
@@ -70,7 +70,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var assetName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
 			var issue = _mcAssetMgr.Issue(_admin.NodeWallet, assetName, 1000, true);
 			for (int i = 0; i < 5; i++)
+			{
+				await Task.Delay(1000);
 				_mcAssetMgr.SendAsset(_testUser1.NodeWallet, assetName, 1);
+			}
 
 			// ACT
 			var result1 = await _mcTxnMgr.ListAllTransactionsByAddress(_testUser1.NodeWallet, assetName);
