@@ -2,17 +2,17 @@ version: '3.4'
 
 services:
 
-  #mcdotnet-listener:
-  #    image: mcdotnet-listener:2.1.2
+  #mcdotnet-api:
+  #    image: mcdotnet-api:2.1.2
   #    build:
   #        context: ../../
-  #        dockerfile: src/MultiChainDotNet.Listener.Service/Dockerfile
-  #    container_name: mcdotnet-listener
+  #        dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
+  #    container_name: mcdotnet-api
   #    environment:
   #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - ASPNETCORE_URLS=http://+:12040
+  #    - ASPNETCORE_URLS=http://+:12028
   #    ports:
-  #    - '12040:12040'
+  #    - '12028:12028'
   #    depends_on:
   #    - mcdotnet-seednode
 
@@ -23,8 +23,8 @@ services:
         dockerfile: Dockerfile.mcdotnet-seednode
       container_name: mcdotnet-seednode
       environment:
-      #- ReceivingHost=http://host.docker.internal:12040/RawTransactions
-      - ReceivingHost=http://mcdotnet-listener:12040/RawTransactions
+      - ReceivingHost=http://host.docker.internal:12028/transaction
+      #- ReceivingHost=http://mcdotnet-api:12028/transaction
       ports:
       - '12020:12020'
       - '12021:12021'

@@ -21,7 +21,7 @@ namespace Client3
 
 				try
 				{
-					await client.ConnectAsync(new Uri("ws://localhost:12026/socket/subscribe"), cts.Token);
+					await client.ConnectAsync(new Uri("ws://localhost:12028/socket/subscribe"), cts.Token);
 					await client.ClientSendAsync(address, cts.Token);
 					while (client.State == WebSocketState.Open)
 					{

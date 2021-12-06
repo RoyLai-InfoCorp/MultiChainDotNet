@@ -19,7 +19,6 @@ using UtilsDotNet.Extensions;
 namespace MultiChainDotNet.Api.Service.Controllers
 {
 	[ApiController]
-	//[Route("[controller]")]
 	public class SocketController : ControllerBase
 	{
 		
@@ -31,21 +30,6 @@ namespace MultiChainDotNet.Api.Service.Controllers
 			_queue = queue;
 			_clients = clients;
 		}
-
-		private async Task Echo(HttpContext context, WebSocket webSocket)
-		{
-			var buffer = new byte[1024 * 4];
-			WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-			while (!result.CloseStatus.HasValue)
-			{
-				await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
-
-				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-			}
-			await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-		}
-
-
 
 		/// <summary>
 		/// This method will register subscribed clients and add them to a list
@@ -81,23 +65,6 @@ namespace MultiChainDotNet.Api.Service.Controllers
 			{
 				HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 			}
-		}
-
-		[HttpGet("/socket/broadcast")]
-		public async Task Broadcast()
-		{
-			while (_queue.Count > 0)
-			{
-				var txn = _queue.Dequeue();
-				if (txn is { })
-				{
-					Parallel.ForEach(_clients.Clients, async (client) =>
-					{
-						await client.SendAsync(JsonConvert.SerializeObject(txn));
-					});
-				}
-			}
-
 		}
 
 	}

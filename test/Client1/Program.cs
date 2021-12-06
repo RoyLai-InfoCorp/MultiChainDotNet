@@ -26,7 +26,7 @@ namespace Client1
 					var txn = new DecodeRawTransactionResult { Txid = counter.ToString() };
 					try
 					{
-						var response = await client.PostAsync("http://localhost:12026/transaction", new StringContent(JsonConvert.SerializeObject(txn), Encoding.UTF8, "application/json"));
+						var response = await client.PostAsync("http://localhost:12028/transaction", new StringContent(JsonConvert.SerializeObject(txn), Encoding.UTF8, "application/json"));
 						Console.WriteLine(response.ReasonPhrase);
 						var res = await response.Content.ReadAsStringAsync();
 						Console.WriteLine(res);

@@ -5,13 +5,13 @@
     "MultiChainDotNet.Api.Service": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:12026/swagger",
+      "launchUrl": "http://localhost:12028/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://+:12026"
+        "ASPNETCORE_URLS": "http://+:12028"
       },
       "dotnetRunMessages": "true",
-      "httpPort": 12026
+      "httpPort": 12028
     },
 
     "Docker": {
@@ -20,9 +20,9 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://+:12026"
+        "ASPNETCORE_URLS": "http://+:12028"
       },
-      "httpPort": 12026,
+      "httpPort": 12028,
       "publishAllPorts": true
     }
   }
