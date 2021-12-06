@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+
+    "MultiChainDotNet.Api.Service": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:12026/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://+:12026"
+      },
+      "dotnetRunMessages": "true",
+      "httpPort": 12026
+    },
+
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://+:12026"
+      },
+      "httpPort": 12026,
+      "publishAllPorts": true
+    }
+  }
+}

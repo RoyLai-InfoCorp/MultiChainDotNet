@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="UtilsDotNet" Version="1.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\MultiChainDotNet.Api.Abstractions\MultiChainDotNet.Api.Abstractions.csproj" />
+	</ItemGroup>
+
+
+</Project>

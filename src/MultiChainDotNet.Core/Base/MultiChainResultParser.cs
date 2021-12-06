@@ -62,6 +62,10 @@ namespace MultiChainDotNet.Core.Base
 
 			if (result is JValue)
 			{
+
+				if (typeof(T) == typeof(JToken))
+					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(JToken)));
+
 				// If expecting bool
 				if (typeof(T) == typeof(bool) && result.Value is bool)
 					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(bool)));
