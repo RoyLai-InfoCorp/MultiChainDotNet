@@ -5,7 +5,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="UtilsDotNet" Version="1.1.0" />
+		<PackageReference Include="UtilsDotNet" Version="1.2.0" />
 		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
 	</ItemGroup>
 
