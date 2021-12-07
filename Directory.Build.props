@@ -10,12 +10,14 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
  </PropertyGroup>
  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.220">
+	 <PackageReference Include="UtilsDotNet" Version="1.2.1" />
+
+	 <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.220">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
  </ItemGroup>

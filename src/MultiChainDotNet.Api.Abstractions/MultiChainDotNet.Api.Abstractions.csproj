@@ -9,16 +9,13 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Refit.Newtonsoft.Json" Version="6.1.15" />
+		<PackageReference Include="Refit.Newtonsoft.Json" Version="6.0.38" />
 		<PackageReference Include="Refit" Version="6.1.15" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Update="Microsoft.Extensions.Configuration.Json">
-	    <TreatAsUsed>true</TreatAsUsed>
-	  </PackageReference>
-	  <PackageReference Update="Newtonsoft.Json">
 	    <TreatAsUsed>true</TreatAsUsed>
 	  </PackageReference>
 	  <PackageReference Update="NLog.Extensions.Logging">
