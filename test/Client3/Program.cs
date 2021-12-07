@@ -34,9 +34,9 @@ namespace Client3
 		static async Task Main(string[] args)
 		{
 			await WaitForConnection();
-			connection.On<DecodeRawTransactionResult>("Publish", (raw) =>
+			connection.On<string>("Publish", (raw) =>
 			{
-				Console.WriteLine(JsonConvert.SerializeObject(raw));
+				Console.WriteLine(raw);
 			});
 			Console.ReadLine();
 		}

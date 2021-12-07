@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using MultiChainDotNet.Core.MultiChainTransaction;
+using Newtonsoft.Json;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
@@ -24,7 +25,7 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		[HttpPost()]
 		public async Task Post(DecodeRawTransactionResult transaction)
 		{
-			await _transactionHub.Clients.All.SendAsync("Publish", transaction);
+			await _transactionHub.Clients.All.SendAsync("Publish", JsonConvert.SerializeObject(transaction));
 		}
 
 	}
