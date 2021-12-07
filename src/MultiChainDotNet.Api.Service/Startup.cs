@@ -1,18 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MultiChainDotNet.Api.Service.Controllers;
 using MultiChainDotNet.Core;
-using MultiChainDotNet.Core.MultiChainTransaction;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -35,6 +29,8 @@ namespace MultiChainDotNet.Api.Service
 			var container = services.BuildServiceProvider();
 			var configRoot = container.GetRequiredService<IConfiguration>();
 			var allowedOrigins = configRoot.GetSection("AllowedOrigins").Get<string>();
+
+			services.AddSignalR();
 
 			services.AddCors(options =>
 			{
@@ -73,10 +69,6 @@ namespace MultiChainDotNet.Api.Service
 								Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)
 							};
 						});
-
-			services.AddSingleton<TransactionQueue>();
-			services.AddSingleton<ClientList>();
-
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -88,18 +80,15 @@ namespace MultiChainDotNet.Api.Service
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MultiChainDotNet Api"));
 			}
 
-
-			// WebSockets
-			app.UseWebSockets();
-
-
 			app.UseRouting();
 			app.UseCors(AllowAllOrigins);
 			app.UseAuthorization();
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
+				endpoints.MapHub<TransactionHub>("/transaction");
 			});
+
 		}
 	}
 }

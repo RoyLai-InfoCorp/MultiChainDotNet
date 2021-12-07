@@ -2,19 +2,19 @@ version: '3.4'
 
 services:
 
-  #mcdotnet-api:
-  #    image: mcdotnet-api:2.1.2
-  #    build:
-  #        context: ../../
-  #        dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
-  #    container_name: mcdotnet-api
-  #    environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - ASPNETCORE_URLS=http://+:12028
-  #    ports:
-  #    - '12028:12028'
-  #    depends_on:
-  #    - mcdotnet-seednode
+  mcdotnet-api:
+      image: mcdotnet-api:2.1.2
+      build:
+          context: ../../
+          dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
+      container_name: mcdotnet-api
+      environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:12028
+      ports:
+      - '12028:12028'
+      depends_on:
+      - mcdotnet-seednode
 
   mcdotnet-seednode:
       image: mcdotnet-seednode:2.1.2
@@ -23,8 +23,8 @@ services:
         dockerfile: Dockerfile.mcdotnet-seednode
       container_name: mcdotnet-seednode
       environment:
-      - ReceivingHost=http://host.docker.internal:12028/transaction
-      #- ReceivingHost=http://mcdotnet-api:12028/transaction
+      #- ReceivingHost=http://host.docker.internal:12028/transaction
+      - ReceivingHost=http://mcdotnet-api:12028/transaction
       ports:
       - '12020:12020'
       - '12021:12021'

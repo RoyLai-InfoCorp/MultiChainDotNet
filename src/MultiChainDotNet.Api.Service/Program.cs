@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Api.Service
 {
@@ -22,6 +18,12 @@ namespace MultiChainDotNet.Api.Service
 				{
 					logging.ClearProviders();
 					logging.AddConsole();
+				})
+				.ConfigureAppConfiguration((hostingContext, builder) =>
+				{
+					builder
+						.AddEnvironmentVariables("MULTICHAINDOTNET_")
+						;
 				})
 				.ConfigureWebHostDefaults(webBuilder =>
 				{

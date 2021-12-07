@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MultiChainDotNet.Api.Abstractions;
+using MultiChainDotNet.Api.Abstractions.Extensions;
 using MultiChainDotNet.Core;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.WebSockets;
-using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace MultiChainDotNet.Api.Service.Controllers
 {
+
+	/// <summary>
+	/// This controller is for proxying incoming JSON-RPC requests to the multichain node
+	/// </summary>
 	[ApiController]
 	[Route("[controller]")]
 	public class JsonRpcController : ControllerBase
@@ -25,13 +26,12 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		}
 
 		[HttpPost()]
-		public async Task<JToken> Execute(JsonRpcRequest request)
+		public async Task<ActionResult<JToken>> Execute(JsonRpcRequest request)
 		{
 			var result = await _rpc.JsonRpcRequestAsync(request.Method,request.Params);
 			if (result.IsError)
-				return result.ExceptionMessage;
-			return result.Result;
+				return BadRequest(result.ExceptionMessage);
+			return Ok(result.Result);
 		}
-
 	}
 }

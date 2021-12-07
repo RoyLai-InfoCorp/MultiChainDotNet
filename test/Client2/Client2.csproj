@@ -12,12 +12,12 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.11" />
 		<PackageReference Include="UtilsDotNet" Version="1.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src\MultiChainDotNet.Api.Abstractions\MultiChainDotNet.Api.Abstractions.csproj" />
+	  <ProjectReference Include="..\..\src\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj" />
 	</ItemGroup>
 
 

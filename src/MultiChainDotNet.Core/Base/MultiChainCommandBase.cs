@@ -53,6 +53,8 @@ namespace MultiChainDotNet.Core.Base
 
 			foreach (var arg in args)
 			{
+				if (arg is null)
+					throw new Exception("MultiChain command arguments cannot contain null");
 				Type t = arg.GetType();
 				if (!(t.IsPrimitive || t.IsValueType || (t == typeof(string))))
 					sb.Append($" '{JsonConvert.SerializeObject(arg)}'");

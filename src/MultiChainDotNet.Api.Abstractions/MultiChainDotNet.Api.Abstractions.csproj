@@ -1,13 +1,29 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Extensions\WebSocketExtensions.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
-		<PackageReference Include="UtilsDotNet" Version="1.2.0" />
-		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="Refit.Newtonsoft.Json" Version="6.1.15" />
+		<PackageReference Include="Refit" Version="6.1.15" />
+		<PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Extensions.Configuration.Json">
+	    <TreatAsUsed>true</TreatAsUsed>
+	  </PackageReference>
+	  <PackageReference Update="Newtonsoft.Json">
+	    <TreatAsUsed>true</TreatAsUsed>
+	  </PackageReference>
+	  <PackageReference Update="NLog.Extensions.Logging">
+	    <TreatAsUsed>true</TreatAsUsed>
+	  </PackageReference>
+	</ItemGroup>
 
 </Project>

@@ -1,5 +1,8 @@
-﻿using MultiChainDotNet.Core.MultiChainTransaction;
+﻿using MultiChainDotNet.Api.Abstractions;
+using MultiChainDotNet.Api.Abstractions.Extensions;
+using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
+using Refit;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -9,34 +12,34 @@ namespace Client1
 {
 	internal class Program
 	{
-		static HttpClient client = new HttpClient();
 		static async Task Main(string[] args)
 		{
-			int counter = 0;
-
-			Console.WriteLine("Press 1 to notify a new transaction. Q to quit");
+			Console.WriteLine("Press 1 to send a multichain transaction. Anything else to quit");
 			string cmd = "";
 			while (cmd.ToLower()!="q")
 			{
 				cmd = Console.ReadLine();
-			
-				if (cmd == "1")
+				switch(cmd)
 				{
-					counter++;
-					var txn = new DecodeRawTransactionResult { Txid = counter.ToString() };
-					try
-					{
-						var response = await client.PostAsync("http://localhost:12028/transaction", new StringContent(JsonConvert.SerializeObject(txn), Encoding.UTF8, "application/json"));
-						Console.WriteLine(response.ReasonPhrase);
-						var res = await response.Content.ReadAsStringAsync();
-						Console.WriteLine(res);
-
-					}
-					catch (Exception e)
-					{
-						Console.WriteLine(e.ToString());
-						throw;
-					}
+					case "1":
+						try
+						{
+							var response = await RefitExtensions.For<IJsonRpcApi>("http://localhost:12028/").Execute(new JsonRpcRequest
+							{
+								Method = "send",
+								Params = new object[] {
+								"1RE72u8HPMBWwYFDLyjoNJHUQwyPkpwk3fc2QN",
+								0
+							}});
+							Console.WriteLine(response.ToString());
+						}
+						catch (ApiException ex)
+						{
+							Console.WriteLine(ex.Content);
+						}
+						break;
+					default:
+						return;
 				}
 			}
 		}

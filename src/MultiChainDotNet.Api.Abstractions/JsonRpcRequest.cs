@@ -1,4 +1,4 @@
-﻿namespace MultiChainDotNet.Api.Service.Controllers
+﻿namespace MultiChainDotNet.Api.Abstractions
 {
 	public class JsonRpcRequest
 	{
