@@ -3,15 +3,11 @@
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainBlockchain
 {
-    public class GetInfoResult
-    {
+	public class GetInfoResult
+	{
 		[JsonProperty("version")]
 		public string Version { get; set; }
 

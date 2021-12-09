@@ -7,26 +7,17 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
-using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
-using NLog;
-using NLog.Config;
-using NLog.Filters;
-using NLog.Targets;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
 	[TestFixture]
-    public class MultiChainPermissionTests : TestBase
-    {
+	public class MultiChainPermissionTests : TestBase
+	{
 		MultiChainPermissionCommand _permCmd;
 		MultiChainAssetCommand _mcAssetCmd;
 		MultiChainAddressCommand _addrCmd;
@@ -80,7 +71,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(10)]
-        public async Task Should_list_all_permissions()
+		public async Task Should_list_all_permissions()
 		{
 			var result = await _permCmd.ListPermissionsByTypeAsync("issue");
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -91,7 +82,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(JsonConvert.SerializeObject(result.Result));
 		}
 
-		[Test,Order(20)]
+		[Test, Order(20)]
 		public async Task Should_not_be_able_to_grant_issue_permission_by_1_admin()
 		{
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
@@ -104,7 +95,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.False);
 		}
 
-		[Test,Order(30)]
+		[Test, Order(30)]
 		public async Task Should_be_able_to_grant_issue_permission_by_2_admins()
 		{
 			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
@@ -120,7 +111,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.True);
 		}
 
-		[Test,Order(40)]
+		[Test, Order(40)]
 		public async Task Should_not_be_able_to_revoke_issue_permission_by_one_admin()
 		{
 			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
@@ -139,7 +130,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.True);
 		}
 
-		[Test,Order(50)]
+		[Test, Order(50)]
 		public async Task Should_be_able_to_revoke_issue_permission_by_2_admin()
 		{
 			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);

@@ -5,8 +5,8 @@ using System;
 
 namespace MultiChainDotNet.Api.Abstractions.Extensions
 {
-    public static class ServiceConnectionExtension
-    {
+	public static class ServiceConnectionExtension
+	{
 		public static IServiceCollection AddChronnetApiClient(this IServiceCollection services)
 		{
 			// Configure refit for ChronnetApi

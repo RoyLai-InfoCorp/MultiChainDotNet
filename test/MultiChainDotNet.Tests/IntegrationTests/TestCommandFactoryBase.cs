@@ -4,20 +4,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
-using Polly;
-using Polly.Extensions.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
 {
-    public class TestCommandFactoryBase: TestBase
-    {
+	public class TestCommandFactoryBase : TestBase
+	{
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{

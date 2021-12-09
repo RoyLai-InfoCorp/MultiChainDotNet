@@ -7,17 +7,12 @@ using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
-using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UtilsDotNet;
@@ -34,7 +29,7 @@ namespace MultiChainDotNet.Managers
 		MultiChainTransactionCommand _txnCmd;
 
 		public MultiChainStreamManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory cmdFactory, 
+			IMultiChainCommandFactory cmdFactory,
 			MultiChainConfiguration mcConfig)
 		{
 			_loggerFactory = loggerFactory;
@@ -96,7 +91,7 @@ namespace MultiChainDotNet.Managers
 				{
 					await _streamCmd.SubscribeAsync(streamName);
 				});
-				
+
 				return new MultiChainResult<string>(txid);
 			}
 			catch (Exception ex)
@@ -118,7 +113,7 @@ namespace MultiChainDotNet.Managers
 		{
 			_logger.LogDebug($"Executing PublishJsonAsync");
 			if (_defaultSigner is { })
-				return await PublishJsonAsync (_defaultSigner, _mcConfig.Node.NodeWallet, streamName, key, json);
+				return await PublishJsonAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, key, json);
 
 			// Remember to subscribe
 			await SubscribeAsync(streamName);
@@ -158,7 +153,7 @@ namespace MultiChainDotNet.Managers
 			_logger.LogDebug($"Executing PublishJsonAsync");
 
 			if (_defaultSigner is { })
-				return await PublishJsonAsync (_defaultSigner, _mcConfig.Node.NodeWallet, streamName, keys, json);
+				return await PublishJsonAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, keys, json);
 
 			return await _streamCmd.PublishJsonStreamItemAsync(streamName, keys, json);
 		}
@@ -252,7 +247,7 @@ namespace MultiChainDotNet.Managers
 							var json = ConvertMultiChainJsonResult<T>(item);
 							streamItems.Add(json);
 						}
-						catch(Exception ex)
+						catch (Exception ex)
 						{
 							if (!ex.ToString().Contains("cast"))
 								return new MultiChainResult<List<T>>(ex);
@@ -362,7 +357,7 @@ namespace MultiChainDotNet.Managers
 			return new MultiChainResult<StreamItemsResult>(result.Result[0]);
 		}
 
-		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose=false)
+		public async Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose = false)
 		{
 			_logger.LogDebug($"Executing SelectStreamItemsAsync");
 
@@ -384,8 +379,8 @@ namespace MultiChainDotNet.Managers
 			else
 			{
 				count = size;
-				startFrom = -((page+1) * size);
-				if (order=="ASC")
+				startFrom = -((page + 1) * size);
+				if (order == "ASC")
 					startFrom = page * size;
 			}
 
@@ -422,7 +417,7 @@ namespace MultiChainDotNet.Managers
 					return new MultiChainResult<IList<StreamItemsResult>>(listResult.Exception);
 				list = listResult.Result;
 			}
-		
+
 			if (order == "DESC")
 				return new MultiChainResult<IList<StreamItemsResult>>(list.Reverse().ToArray());
 
@@ -440,7 +435,7 @@ namespace MultiChainDotNet.Managers
 		public async Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd)
 		{
 			var list = new List<T>();
-			var streamItems = await ListStreamItemsAsync(selectCmd,false);
+			var streamItems = await ListStreamItemsAsync(selectCmd, false);
 			if (streamItems.IsError)
 				return new MultiChainResult<List<T>>(streamItems.Exception);
 			if (streamItems.Result is null)

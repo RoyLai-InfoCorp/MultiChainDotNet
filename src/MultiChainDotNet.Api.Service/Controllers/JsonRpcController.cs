@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 using MultiChainDotNet.Api.Abstractions;
-using MultiChainDotNet.Api.Abstractions.Extensions;
-using MultiChainDotNet.Core;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
@@ -28,7 +24,7 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		[HttpPost()]
 		public async Task<ActionResult<JToken>> Execute(JsonRpcRequest request)
 		{
-			var result = await _rpc.JsonRpcRequestAsync(request.Method,request.Params);
+			var result = await _rpc.JsonRpcRequestAsync(request.Method, request.Params);
 			if (result.IsError)
 				return BadRequest(result.ExceptionMessage);
 			return Ok(result.Result);

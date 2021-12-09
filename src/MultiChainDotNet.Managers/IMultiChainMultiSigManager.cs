@@ -3,9 +3,7 @@
 
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Fluent.Signers;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers
 {

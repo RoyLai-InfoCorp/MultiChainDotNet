@@ -27,7 +27,7 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, object annotation);
 
 		MultiChainResult<string> Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore = true, object data = null);
-		MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 amt, bool canIssueMore,object data = null);
+		MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 amt, bool canIssueMore, object data = null);
 
 		MultiChainResult<string> IssueAnnotate(string toAddress, string assetName, UInt64 amt, bool canIssueMore, object annotation);
 		MultiChainResult<string> IssueAnnotate(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 amt, bool canIssueMore, object annotation);
@@ -44,7 +44,7 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName);
 		Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false);
 		Task<MultiChainResult<List<AssetTransactionsResult>>> ListAssetTransactionsAsync(string assetName);
-		
+
 
 		Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName);
 	}

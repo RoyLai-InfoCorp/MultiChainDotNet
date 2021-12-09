@@ -2,18 +2,13 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.Base
 {
-    public struct MultiChainAddressStruct
-    {
+	public struct MultiChainAddressStruct
+	{
 		[JsonProperty("wif")]
-        public string Wif { get; set; }
+		public string Wif { get; set; }
 
 		[JsonProperty("ptekey")]
 		public string Ptekey { get; set; }
@@ -21,5 +16,5 @@ namespace MultiChainDotNet.Core.Base
 		public string Pubkey { get; set; }
 		[JsonProperty("address")]
 		public string Address { get; set; }
-    }
+	}
 }

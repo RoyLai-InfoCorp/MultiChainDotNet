@@ -1,25 +1,20 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using NUnit.Framework;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.MultiChainAddress;
+using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainPermission;
+using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Fluent;
+using MultiChainDotNet.Fluent.Signers;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net;
-using MultiChainDotNet.Core;
-using MultiChainDotNet.Core.MultiChainAddress;
-using Microsoft.Extensions.Logging;
-using MultiChainDotNet.Core.MultiChainPermission;
-using MultiChainDotNet.Core.MultiChainAsset;
-using MultiChainDotNet.Core.Utils;
-using MultiChainDotNet.Core.MultiChainTransaction;
-using MultiChainDotNet.Fluent.Builders;
-using MultiChainDotNet.Fluent.Signers;
-using MultiChainDotNet.Fluent;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
@@ -155,7 +150,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 				.AddLogger(_logger)
 				.UseMultiSigTransaction(_txnCmd)
 					.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
-					.MultiSignPartial(request,state.RedeemScript);
+					.MultiSignPartial(request, state.RedeemScript);
 
 			// ACT 3
 			var txid = new MultiChainFluent()

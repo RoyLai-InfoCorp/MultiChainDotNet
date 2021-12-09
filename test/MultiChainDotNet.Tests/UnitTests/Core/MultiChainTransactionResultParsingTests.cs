@@ -8,15 +8,12 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.UnitTests.Core
 {
 	[TestFixture]
-    public class MultiChainTransactionResultParsingTests
-    {
+	public class MultiChainTransactionResultParsingTests
+	{
 
 		[Test]
 
@@ -26,8 +23,8 @@ namespace MultiChainDotNet.Tests.UnitTests.Core
 			Console.WriteLine(JValue.Parse(content).ToString(Formatting.Indented));
 
 			var result = MultiChainResultParser.ParseMultiChainResult<List<ListAddressTransactionResult>>(content);
-			Assert.That(result.IsError,Is.False,result.ExceptionMessage);
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
-        
-    }
+
+	}
 }

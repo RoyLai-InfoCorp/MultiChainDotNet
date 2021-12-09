@@ -6,10 +6,6 @@ using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Fluent.Signers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers
 {

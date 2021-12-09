@@ -1,13 +1,9 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using System;
 using System.IO;
-using System.Reflection;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
 {

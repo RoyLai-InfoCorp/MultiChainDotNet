@@ -25,7 +25,7 @@ namespace MultiChainDotNet.Core
 		/// <summary>
 		/// Not for production!
 		/// </summary>
-		public string Ptekey { get; set; }      
+		public string Ptekey { get; set; }
 		public string Protocol { get; set; }
 		public string NetworkAddress { get; set; }
 		public int NetworkPort { get; set; }

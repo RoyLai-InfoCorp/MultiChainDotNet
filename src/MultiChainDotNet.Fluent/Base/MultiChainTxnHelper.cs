@@ -1,20 +1,15 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using MultiChainDotNet.Core.Utils;
-using MultiChainDotNet.Fluent.Base;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Fluent.Base
 {
-    public class MultiChainTxnHelper
-    {
+	public class MultiChainTxnHelper
+	{
 
 		public static byte[] HashTypeCode(byte hashType)
 		{
@@ -84,12 +79,12 @@ namespace MultiChainDotNet.Fluent.Base
 			return BitCoinConstants.VERSION_BYTE_LENGTH;
 		}
 
-		public static  byte GetVin(byte[] txn)
+		public static byte GetVin(byte[] txn)
 		{
 			return txn[GetVinPosition(txn)];
 		}
 
-		public static (string,Txn) Decode(byte[] raw)
+		public static (string, Txn) Decode(byte[] raw)
 		{
 			var txn = new Txn();
 			int pos = 0;
@@ -126,7 +121,7 @@ namespace MultiChainDotNet.Fluent.Base
 			txn.Outputs = new TxOut[txn.TxOutCount];
 			pos += BitCoinConstants.OUTPUT_COUNT_LENGTH;
 
-			for (int i =0; i <txn.TxOutCount; i++)
+			for (int i = 0; i < txn.TxOutCount; i++)
 			{
 				var output = new TxOut();
 
@@ -145,7 +140,7 @@ namespace MultiChainDotNet.Fluent.Base
 
 			txn.LockTime = raw.SafeSubarray(pos, BitCoinConstants.LOCKTIME_LENGTH).Bytes2Hex();
 
-			return (JsonConvert.SerializeObject(txn, Formatting.Indented),txn);
+			return (JsonConvert.SerializeObject(txn, Formatting.Indented), txn);
 
 
 			//------

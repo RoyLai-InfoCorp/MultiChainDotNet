@@ -4,7 +4,6 @@
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainTransaction;
-using MultiChainDotNet.Core.Utils;
 using MultiChainDotNet.Fluent.Base;
 using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
@@ -12,13 +11,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Fluent
 {
-	public class MultiChainFluent : ITransactionBuilder,INormalTransactionBuilder,IMultiSigTransactionBuilder
+	public class MultiChainFluent : ITransactionBuilder, INormalTransactionBuilder, IMultiSigTransactionBuilder
 	{
 		protected ILogger _logger;
 		protected IList<SignerBase> _signers = new List<SignerBase>();
@@ -44,7 +42,7 @@ namespace MultiChainDotNet.Fluent
 		private List<TxIdVoutStruct> _fromUnspent = new List<TxIdVoutStruct>();
 		public ITransactionBuilder From(string txid, ushort vout)
 		{
-			if (_fromUnspent.Any(x=>x.TxId == txid && x.Vout == vout) == false)
+			if (_fromUnspent.Any(x => x.TxId == txid && x.Vout == vout) == false)
 				_fromUnspent.Add(new TxIdVoutStruct { TxId = txid, Vout = vout });
 			return this;
 		}
@@ -618,7 +616,7 @@ namespace MultiChainDotNet.Fluent
 
 		public IMultiSigTransactionBuilder AddMultiSigSigners(IList<SignerBase> signers)
 		{
-			_signers=signers;
+			_signers = signers;
 			return this;
 		}
 

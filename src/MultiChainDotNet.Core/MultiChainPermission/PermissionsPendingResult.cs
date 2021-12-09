@@ -4,14 +4,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainPermission
 {
-    public class PermissionsPendingResult
-    {
+	public class PermissionsPendingResult
+	{
 
 		[JsonProperty("startblock")]
 		public UInt64 StartBlock { get; set; }

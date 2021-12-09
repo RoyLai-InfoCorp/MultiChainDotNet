@@ -4,14 +4,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainTransaction
 {
-    public class ListUnspentResult
-    {
+	public class ListUnspentResult
+	{
 		#region Internal Classes
 		public class ListUnspentAssetResult
 		{
@@ -25,26 +22,26 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		#endregion
 
 		[JsonProperty("txid")]
-        public string TxId { get; set; }
-		
+		public string TxId { get; set; }
+
 		[JsonProperty("vout")]
 		public UInt16 Vout { get; set; }
-		
+
 		[JsonProperty("address")]
 		public string Address { get; set; }
-		
+
 		[JsonProperty("scriptpubkey")]
 		public string ScriptPubKey { get; set; }
-		
+
 		[JsonProperty("amount")]
 		public UInt64 Amount { get; set; }
 
 		[JsonProperty("confirmations")]
 		public UInt64 Confirmations { get; set; }
-		
+
 		[JsonProperty("cansend")]
 		public bool CanSend { get; set; }
-		
+
 		[JsonProperty("spendable")]
 		public bool Spendable { get; set; }
 

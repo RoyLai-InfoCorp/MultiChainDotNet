@@ -1,14 +1,11 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using MultiChainDotNet.Core.Utils;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Math;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 

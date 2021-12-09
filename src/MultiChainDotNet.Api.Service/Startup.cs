@@ -9,7 +9,6 @@ using MultiChainDotNet.Core;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Api.Service
 {

@@ -23,7 +23,7 @@ namespace MultiChainDotNet.Managers
 		Task<MultiChainResult<string>> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string[] keys, object json);
 		Task<MultiChainResult<string>> PublishJsonAsync(string streamName, string key, object json);
 		Task<MultiChainResult<string>> PublishJsonAsync(string streamName, string[] keys, object json);
-		Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose=false);
+		Task<MultiChainResult<IList<StreamItemsResult>>> ListStreamItemsAsync(string selectCmd, bool verbose = false);
 		Task<MultiChainResult<List<T>>> ListStreamItemsAsync<T>(string selectCmd);
 		Task<MultiChainResult<VoidType>> SubscribeAsync(string streamName);
 		Task<MultiChainResult<T>> GetStreamItemAsync<T>(string selectCmd);

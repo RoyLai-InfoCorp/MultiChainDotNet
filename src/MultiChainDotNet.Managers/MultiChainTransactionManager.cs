@@ -11,7 +11,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers
@@ -87,10 +86,10 @@ namespace MultiChainDotNet.Managers
 		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			return await txnCmd.ListAddressTransactions(address,count,skip,verbose);
+			return await txnCmd.ListAddressTransactions(address, count, skip, verbose);
 		}
 
-		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose=false, int count=10, int start=-10, bool localOrdering=false)
+		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			return await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
@@ -209,7 +208,7 @@ namespace MultiChainDotNet.Managers
 
 		private async Task<Dictionary<string, double>> ListUnspentBalances(string address)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>(); 
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			Dictionary<string, double> unspentBal = new Dictionary<string, double>();
 			var unspents = await txnCmd.ListUnspentAsync(address);
 			unspentBal[""] = 0;

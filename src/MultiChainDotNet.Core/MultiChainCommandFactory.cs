@@ -4,21 +4,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Core.MultiChainAddress;
-using MultiChainDotNet.Core.MultiChainAsset;
-using MultiChainDotNet.Core.MultiChainBlockchain;
-using MultiChainDotNet.Core.MultiChainPermission;
-using MultiChainDotNet.Core.MultiChainStream;
-using MultiChainDotNet.Core.MultiChainTransaction;
-using Polly;
-using Polly.Extensions.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core
 {
@@ -40,7 +27,7 @@ namespace MultiChainDotNet.Core
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public T CreateCommand<T>() where T:MultiChainCommandBase
+		public T CreateCommand<T>() where T : MultiChainCommandBase
 		{
 			var logger = _container.GetRequiredService<ILogger<T>>();
 			return (T)Activator.CreateInstance(typeof(T), logger, _mcConfig, _httpClient);

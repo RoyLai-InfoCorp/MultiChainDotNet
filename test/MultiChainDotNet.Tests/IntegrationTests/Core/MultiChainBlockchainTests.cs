@@ -6,17 +6,13 @@ using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.MultiChainBlockchain;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
 	[TestFixture]
-    public class MultiChainBlockchainTests : TestBase
-    {
+	public class MultiChainBlockchainTests : TestBase
+	{
 		ILogger _logger;
 		MultiChainBlockchainCommand _bcCmd;
 		protected override void ConfigureServices(IServiceCollection services)

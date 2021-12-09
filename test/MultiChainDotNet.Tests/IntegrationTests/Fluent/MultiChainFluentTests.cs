@@ -1,25 +1,20 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using NUnit.Framework;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net;
-using MultiChainDotNet.Core;
-using MultiChainDotNet.Core.MultiChainTransaction;
 using Microsoft.Extensions.Logging;
-using MultiChainDotNet.Fluent.Builders;
-using MultiChainDotNet.Fluent.Signers;
-using MultiChainDotNet.Core.MultiChainStream;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAsset;
-using MultiChainDotNet.Core.MultiChainPermission;
-using MultiChainDotNet.Core.MultiChainAddress;
-using System.Linq;
+using MultiChainDotNet.Core.MultiChainStream;
+using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
-using Newtonsoft.Json.Linq;
+using MultiChainDotNet.Fluent.Signers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 {
@@ -385,10 +380,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// ACT
 			await Task.Delay(3000);
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
-			Console.WriteLine("UTXO before:"+JsonConvert.SerializeObject(unspents.Result));
+			Console.WriteLine("UTXO before:" + JsonConvert.SerializeObject(unspents.Result));
 
 			var unspent = unspents.Result.First(x => x.Amount >= 1000);
-			Console.WriteLine("Unspent selected:"+JsonConvert.SerializeObject(unspent));
+			Console.WriteLine("Unspent selected:" + JsonConvert.SerializeObject(unspent));
 
 			var txid = new MultiChainFluent()
 				.AddLogger(_logger)

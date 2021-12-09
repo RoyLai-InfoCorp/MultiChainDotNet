@@ -1,26 +1,21 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using NUnit.Framework;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Logging;
-using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Core.Utils;
-using Newtonsoft.Json;
+using MultiChainDotNet.Core.MultiChainStream;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
 	[TestFixture]
-    public class MultiChainStreamTests : TestBase
+	public class MultiChainStreamTests : TestBase
 	{
 		public class TestState
 		{

@@ -23,7 +23,7 @@ namespace MultiChainDotNet.Core.MultiChainStream
 			_logger.LogTrace($"Initialized MultiChainStreamCommand: {mcConfig.Node.Protocol}://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}");
 		}
 
-		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string streamName, bool rescan=false)
+		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string streamName, bool rescan = false)
 		{
 			if (streamName is null)
 				throw new ArgumentNullException(nameof(streamName));

@@ -5,14 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
-    public class MultiChainVariableManagerTests : TestCommandFactoryBase
+	public class MultiChainVariableManagerTests : TestCommandFactoryBase
 	{
 		IMultiChainVariableManager _varManager;
 

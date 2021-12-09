@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Newtonsoft.Json;
-using System;
 
 namespace MultiChainDotNet.Core.Utils
 {

@@ -15,7 +15,7 @@ namespace MultiChainDotNet.Core.Base
 		{
 			JToken token = JToken.Parse(errorContent);
 			var error = token.SelectToken("error");
-			if ( error is { })
+			if (error is { })
 			{
 				int code;
 				string message;

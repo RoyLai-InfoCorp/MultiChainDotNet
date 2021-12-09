@@ -4,17 +4,11 @@
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
-using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers
 {

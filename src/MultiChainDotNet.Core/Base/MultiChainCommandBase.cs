@@ -44,7 +44,7 @@ namespace MultiChainDotNet.Core.Base
 			_httpClient = httpClient;
 		}
 
-		private string ToCommand(string method,params object[] args)
+		private string ToCommand(string method, params object[] args)
 		{
 			StringBuilder sb = new StringBuilder(method);
 
@@ -95,7 +95,7 @@ namespace MultiChainDotNet.Core.Base
 				var result = MultiChainResultParser.ParseMultiChainResult<T>(content);
 				if (result.IsError)
 					throw result.Exception;
-				_logger.LogTrace($"multichain response {method}: {JsonConvert.SerializeObject(result.Result,Formatting.Indented)}");
+				_logger.LogTrace($"multichain response {method}: {JsonConvert.SerializeObject(result.Result, Formatting.Indented)}");
 				return result;
 			}
 			catch (Exception ex)

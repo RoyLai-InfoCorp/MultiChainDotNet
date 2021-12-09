@@ -2,18 +2,13 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.UnitTests.Core
 {
 	[TestFixture]
-    public class MultiChainInlineMetaDataTests
-    {
+	public class MultiChainInlineMetaDataTests
+	{
 		[Test]
 		public void Should_extract_metadata()
 		{

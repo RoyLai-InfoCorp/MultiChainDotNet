@@ -3,11 +3,8 @@
 
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Core.MultiChainTransaction;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainBlockchain
@@ -31,7 +28,7 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 
 		public async Task<MultiChainResult<GetBlockResult>> GetBlock(string blockHash)
 		{
-			return await JsonRpcRequestAsync<GetBlockResult>("getblock",blockHash);
+			return await JsonRpcRequestAsync<GetBlockResult>("getblock", blockHash);
 		}
 
 		public async Task<MultiChainResult<GetBlockResult>> GetBlock(UInt64 height)

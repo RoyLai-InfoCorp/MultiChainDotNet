@@ -6,16 +6,11 @@ using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainTransaction;
-using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
-using NLog;
-using NLog.Filters;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
@@ -26,7 +21,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 	{
 		public class TestState
 		{
-			public string AssetName {get;set;}
+			public string AssetName { get; set; }
 		}
 
 		Microsoft.Extensions.Logging.ILogger _logger;
@@ -357,7 +352,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
 
-		[Test,Order(120)]
+		[Test, Order(120)]
 		public async Task Should_list_transactions_by_asset()
 		{
 			await _assetCmd.SubscribeAsync("openasset");
@@ -382,7 +377,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine("ListAddressTransactions Default:");
 			Console.WriteLine(JsonConvert.SerializeObject(list1, Formatting.Indented));
 
-			var result2 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet,1);
+			var result2 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet, 1);
 			var list2 = result2.Result.Select(x => x.Confirmations);
 			Console.WriteLine("ListAddressTransactions 1 count:");
 			Console.WriteLine(JsonConvert.SerializeObject(list2, Formatting.Indented));

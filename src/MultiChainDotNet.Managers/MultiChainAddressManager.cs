@@ -6,10 +6,6 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Fluent.Signers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UtilsDotNet;
 
@@ -39,7 +35,8 @@ namespace MultiChainDotNet.Managers
 
 		public MultiChainResult<CreateMultiSigResult> CreateMultiSig(int nRequired, string[] pubkeys)
 		{
-			var result = Task.Run(async () => {
+			var result = Task.Run(async () =>
+			{
 				return await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
 			}).GetAwaiter().GetResult();
 			if (result.IsError)

@@ -7,12 +7,9 @@ using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
-using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers
@@ -76,7 +73,7 @@ namespace MultiChainDotNet.Managers
 
 				return new MultiChainResult<string>(txid);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return new MultiChainResult<string>(ex);
 			}

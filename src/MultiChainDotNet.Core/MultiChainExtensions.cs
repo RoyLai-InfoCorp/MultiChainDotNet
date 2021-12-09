@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainBlockchain;
@@ -10,22 +9,14 @@ using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.MultiChainVariable;
-using Polly;
-using Polly.Extensions.Http;
-using Polly.Timeout;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core
 {
-    public static class MultiChainExtensions
-    {
+	public static class MultiChainExtensions
+	{
 
 		static IServiceCollection AddMultiChainAddress(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
@@ -39,7 +30,8 @@ namespace MultiChainDotNet.Core
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
 					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
-					.ConfigurePrimaryHttpMessageHandler(() => {
+					.ConfigurePrimaryHttpMessageHandler(() =>
+					{
 						return new HttpClientHandler()
 						{
 							Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)

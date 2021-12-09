@@ -9,9 +9,6 @@ using MultiChainDotNet.Core.MultiChainVariable;
 using MultiChainDotNet.Fluent;
 using MultiChainDotNet.Fluent.Signers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Managers

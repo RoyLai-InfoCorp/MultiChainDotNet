@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using MultiChainDotNet.Core.Utils;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -9,17 +8,14 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UtilsDotNet;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Fluent.Signers
 {
-    public sealed class DefaultSigner : SignerBase
-    {
+	public sealed class DefaultSigner : SignerBase
+	{
 		string _privKey = null;
 		public DefaultSigner(string privKey)
 		{

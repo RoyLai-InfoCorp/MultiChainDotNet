@@ -2,32 +2,25 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainTransaction;
-using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
 	[TestFixture]
-    public class MultiChainAssetTests : TestBase
-    {
+	public class MultiChainAssetTests : TestBase
+	{
 		MultiChainAssetCommand _assetCmd;
 		MultiChainTransactionCommand _txnCmd;
 		MultiChainAddressCommand _addrCmd;
@@ -84,9 +77,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				return nativeCurrency.Raw;
 			}
 
-			var  asset = list.FirstOrDefault(x => x.Name == assetName);
+			var asset = list.FirstOrDefault(x => x.Name == assetName);
 			var assetInfo = await _assetCmd.GetAssetInfoAsync(assetName);
-			
+
 			return assetInfo.Result is null || asset is null ? null : Convert.ToUInt64(asset.Qty * assetInfo.Result.Multiple);
 		}
 
@@ -97,7 +90,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// ACT
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
-			var result = await _assetCmd.SendFromAsync(_admin.NodeWallet,_testUser1.NodeWallet, 1_000, "", payload);
+			var result = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 1_000, "", payload);
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
@@ -176,15 +169,15 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test]
-        public async Task Should_be_able_to_issue_asset()
+		public async Task Should_be_able_to_issue_asset()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0,10);
-			var result = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, assetName,10,0.001,true);
+			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var result = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, assetName, 10, 0.001, true);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
 			var bal = await GetRawBalance(_testUser1.NodeWallet, assetName);
 			Assert.That(bal, Is.EqualTo(10_000));
-			
+
 		}
 
 		[Test]
@@ -192,7 +185,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
 			var issueResult = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 10, 0.001, true);
-			
+
 			// ACT
 			var result = await _assetCmd.IssueMoreAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, assetName, 10);
 

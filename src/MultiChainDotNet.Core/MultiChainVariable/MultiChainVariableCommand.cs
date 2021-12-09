@@ -4,16 +4,13 @@
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainVariable
 {
-    public class MultiChainVariableCommand : MultiChainCommandBase
-    {
+	public class MultiChainVariableCommand : MultiChainCommandBase
+	{
 		public MultiChainVariableCommand(ILogger<MultiChainVariableCommand> logger, MultiChainConfiguration mcConfig) : base(logger, mcConfig)
 		{
 			_logger.LogTrace($"Initialized MultiChainVariableCommand: {mcConfig.Node.Protocol}://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}");
@@ -34,7 +31,7 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 			if (variableName is null)
 				throw new ArgumentNullException(nameof(variableName));
 
-			return await JsonRpcRequestAsync<string>("create","variable", variableName);
+			return await JsonRpcRequestAsync<string>("create", "variable", variableName);
 		}
 
 		/// <summary>
@@ -47,7 +44,7 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 			if (variableName is null)
 				throw new ArgumentNullException(nameof(variableName));
 
-			return await JsonRpcRequestAsync<string>("setvariablevalue", variableName,variableValue);
+			return await JsonRpcRequestAsync<string>("setvariablevalue", variableName, variableValue);
 		}
 
 		/// <summary>
@@ -62,5 +59,5 @@ namespace MultiChainDotNet.Core.MultiChainVariable
 
 			return await JsonRpcRequestAsync<T>("getvariablevalue", variableName);
 		}
-    }
+	}
 }

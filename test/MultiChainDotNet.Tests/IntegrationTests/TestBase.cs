@@ -1,22 +1,13 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using LiteDB;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using NLog.Extensions.Logging;
-using Polly;
-using Polly.Extensions.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
 {
@@ -47,7 +38,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		private void Initialize()
 		{
 			var host = Host.CreateDefaultBuilder()
-				.ConfigureLogging(logging => {
+				.ConfigureLogging(logging =>
+				{
 					logging.AddNLog("nlog.config");
 					ConfigureLogging(logging);
 				})

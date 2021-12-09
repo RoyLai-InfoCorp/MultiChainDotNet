@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Api.Service.Controllers
 {
-    public class JsonRpcCommand : MultiChainCommandBase
-    {
+	public class JsonRpcCommand : MultiChainCommandBase
+	{
 		public JsonRpcCommand(ILogger<JsonRpcCommand> logger, MultiChainConfiguration mcConfig, HttpClient httpClient) : base(logger, mcConfig, httpClient)
 		{
 		}
@@ -18,5 +18,5 @@ namespace MultiChainDotNet.Api.Service.Controllers
 			return base.JsonRpcRequestAsync<JToken>(method, args);
 		}
 
-    }
+	}
 }

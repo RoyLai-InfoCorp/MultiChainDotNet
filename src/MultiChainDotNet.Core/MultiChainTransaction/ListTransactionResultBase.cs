@@ -4,14 +4,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Core.MultiChainTransaction
 {
-    public abstract class ListTransactionResultBase
-    {
+	public abstract class ListTransactionResultBase
+	{
 		#region internal class
 		public class ListAddressTransactionBalanceResult
 		{

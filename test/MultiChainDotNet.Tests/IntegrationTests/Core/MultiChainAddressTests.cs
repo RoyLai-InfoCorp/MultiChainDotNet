@@ -2,23 +2,18 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
-using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
 	[TestFixture]
-    public class MultiChainAddressTests : TestBase
-    {
+	public class MultiChainAddressTests : TestBase
+	{
 		MultiChainAddressCommand _addrCmd;
 		protected override void ConfigureServices(IServiceCollection services)
 		{
@@ -34,7 +29,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test]
-        public async Task Should_list_all_addresses()
+		public async Task Should_list_all_addresses()
 		{
 			var result = await _addrCmd.ListAddressesAsync();
 
@@ -59,7 +54,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			var addresses = (await _addrCmd.ListAddressesAsync()).Result.Select(x=>x.Address);
+			var addresses = (await _addrCmd.ListAddressesAsync()).Result.Select(x => x.Address);
 			Assert.That(addresses, Contains.Item("1ZbhobahYUb5TfKXLhfXDE67u4GvTcHUpR6KxU"));
 		}
 
@@ -78,7 +73,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_get_multisig_address()
 		{
-			var result = await _addrCmd.CreateMultiSigAsync(2,new string[] { _relayer1.NodeWallet, _relayer2.NodeWallet, _relayer3.NodeWallet });
+			var result = await _addrCmd.CreateMultiSigAsync(2, new string[] { _relayer1.NodeWallet, _relayer2.NodeWallet, _relayer3.NodeWallet });
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);

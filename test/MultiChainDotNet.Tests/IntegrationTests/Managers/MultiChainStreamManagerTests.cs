@@ -2,24 +2,17 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
-using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-    public class MultiChainStreamManagerTests : TestCommandFactoryBase
-    {
+	public class MultiChainStreamManagerTests : TestCommandFactoryBase
+	{
 		IMultiChainStreamManager _streamManager;
 
 		protected override void ConfigureServices(IServiceCollection services)
@@ -79,7 +72,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			var result2 = _streamManager.CreateStream(streamName);
 			Assert.That(result2.IsError, Is.True);
-			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME),result2.ExceptionMessage);
+			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME), result2.ExceptionMessage);
 		}
 
 

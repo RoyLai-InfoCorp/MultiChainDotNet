@@ -10,7 +10,7 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainTransactionManager
 	{
-		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count=10, int skip=0, bool verbose=false);
+		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count = 10, int skip = 0, bool verbose = false);
 
 		Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false);
 

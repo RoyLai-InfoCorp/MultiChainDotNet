@@ -1,18 +1,14 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
-using MultiChainDotNet.Core.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Fluent.Base
 {
-    public class VarInt
-    {
+	public class VarInt
+	{
 		private byte[] _bytes;
 		public byte[] Bytes { get { return _bytes; } set { _bytes = value; } }
 		public UInt64 Value { get; set; }
@@ -47,7 +43,7 @@ namespace MultiChainDotNet.Fluent.Base
 				_bytes = new byte[] { 0xfe };
 				length = txn.SafeSubarray(pos + 1, 4);
 				_bytes = _bytes.Concat(length).ToArray();
-				Value= BitConverter.ToUInt32(length);
+				Value = BitConverter.ToUInt32(length);
 				return this;
 			}
 
@@ -70,7 +66,7 @@ namespace MultiChainDotNet.Fluent.Base
 			if (length <= 0xffff)
 			{
 				_bytes = new byte[] { 0xfd };
-				_bytes=_bytes.Concat(BitConverter.GetBytes((UInt16)length)).ToArray();
+				_bytes = _bytes.Concat(BitConverter.GetBytes((UInt16)length)).ToArray();
 				return this;
 			}
 			if (length <= 0xffffffff)

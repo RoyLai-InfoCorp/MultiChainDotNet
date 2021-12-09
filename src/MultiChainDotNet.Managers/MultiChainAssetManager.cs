@@ -7,15 +7,10 @@ using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
-using MultiChainDotNet.Fluent.Builders;
 using MultiChainDotNet.Fluent.Signers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
 using UtilsDotNet;
 
@@ -101,7 +96,7 @@ namespace MultiChainDotNet.Managers
 		{
 			return PayAnnotate(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, units, annotation);
 		}
-		public MultiChainResult<string> PayAnnotate(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object annotation )
+		public MultiChainResult<string> PayAnnotate(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing PayAsync");
 
@@ -187,7 +182,7 @@ namespace MultiChainDotNet.Managers
 		public async Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing SendAssetAsync");
-			Exception ex_=new Exception();
+			Exception ex_ = new Exception();
 			try
 			{
 
@@ -220,8 +215,8 @@ namespace MultiChainDotNet.Managers
 			// Exception message ambiguous. Determine if its wallet has insufficient asset or insufficient native currency
 			var balance = await GetAssetBalanceByAddressAsync(fromAddress, assetName);
 			if (balance.IsError) throw balance.Exception;
-				if (balance.Result.Raw < units)
-					return new MultiChainResult<string>(new MultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_ASSET));
+			if (balance.Result.Raw < units)
+				return new MultiChainResult<string>(new MultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_ASSET));
 			return new MultiChainResult<string>(ex_);
 		}
 
@@ -371,7 +366,7 @@ namespace MultiChainDotNet.Managers
 			return await _assetCmd.GetAssetInfoAsync(assetName);
 		}
 
-		public async Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName=null)
+		public async Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName = null)
 		{
 			_logger.LogDebug($"Executing GetAssetBalanceByAddressAsync");
 

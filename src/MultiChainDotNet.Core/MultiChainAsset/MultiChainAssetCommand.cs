@@ -135,7 +135,7 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 			if (address is null)
 				throw new ArgumentNullException(nameof(address));
 
-			return await JsonRpcRequestAsync<string>("sendwithdata", address, amt, new { json = data } );
+			return await JsonRpcRequestAsync<string>("sendwithdata", address, amt, new { json = data });
 		}
 
 		public async Task<MultiChainResult<string>> SendWithDataFromAsync(string from, string to, double amt, object data)

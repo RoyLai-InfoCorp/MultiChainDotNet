@@ -2,25 +2,17 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
-using MultiChainDotNet.Core;
-using MultiChainDotNet.Core.Base;
-using MultiChainDotNet.Core.MultiChainAddress;
-using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-    public class MultiChainAssetManagerTests: TestCommandFactoryBase
+	public class MultiChainAssetManagerTests : TestCommandFactoryBase
 	{
 		IMultiChainAssetManager _assetManager;
 		IMultiChainTransactionManager _txnManager;
@@ -73,12 +65,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var receiverBalAfter = _assetManager.GetAssetBalanceByAddressAsync(_testUser1.NodeWallet).Result.Result.Raw;
 			Assert.That(receiverBalAfter, Is.EqualTo(receiverBalBefore + 1_000_000), "Receiver balance doesn't match");
 			var senderBalAfter = _assetManager.GetAssetBalanceByAddressAsync(_admin.NodeWallet).Result.Result.Raw;
-			Assert.That(senderBalAfter, 
+			Assert.That(senderBalAfter,
 				Is
 				.AtLeast(senderBalBefore - 1_000_000 - SEND_TXN_FEE_AT_MOST)
 				.And
-				.AtMost(senderBalBefore - 1_000_000 - SEND_TXN_FEE_AT_LEAST), 
-				$"sender paid extra for fee {senderBalBefore-senderBalAfter - 1_000_000}");
+				.AtMost(senderBalBefore - 1_000_000 - SEND_TXN_FEE_AT_LEAST),
+				$"sender paid extra for fee {senderBalBefore - senderBalAfter - 1_000_000}");
 
 			// Assert payload
 			var metadata = await _txnManager.GetDeclarationAsync(txid);
@@ -123,7 +115,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			// Assert payload
 			var metadata = await _txnManager.GetDeclarationAsync(txid);
 			Assert.That(metadata.Result, Is.EqualTo(JsonConvert.SerializeObject(payload)));
-			
+
 		}
 
 		[Test, Order(40)]
@@ -224,7 +216,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var result = await _assetManager.SendAnnotateAssetAsync(_testUser1.NodeWallet, assetName, 1, payload);
 
 			// ASSERT
-			Assert.That(result.IsError, Is.False,result.ExceptionMessage);
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
 			var comment = await _txnManager.GetAnnotationAsync(assetName, result.Result);
 			Assert.That(comment.Result, Is.EqualTo(JsonConvert.SerializeObject(payload)));
