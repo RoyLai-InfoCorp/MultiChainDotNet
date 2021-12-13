@@ -37,10 +37,9 @@ https://github.com/RoyLai-InfoCorp/MultiChainDotNet
 
 ### 3. Startup 1 seednode and 3 test nodes
 
-Go to /build/multichain directory
+Go to /build/docker-compose directory
 
 ```bash
-sh$ ./multichain/create-base-image.sh
 sh$ docker-compose up
 ```
 
@@ -54,9 +53,9 @@ If nodes doesn't start up, press CTRL-C, enter `docker-compose down` and try aga
 Each node should be connected to 3 other nodes.
 
 ```bash
-sh$ docker exec -it multichain-node1 multichain-cli sennet getpeerinfo
-sh$ docker exec -it multichain-node2 multichain-cli sennet getpeerinfo
-sh$ docker exec -it multichain-node3 multichain-cli sennet getpeerinfo
+sh$ docker exec -it mcdotnet-seednode multichain-cli chain1 getpeerinfo
+sh$ docker exec -it mcdotnet-relayer1 multichain-cli chain1 getpeerinfo
+sh$ docker exec -it mcdotnet-relayer2 multichain-cli chain1 getpeerinfo
 ```
 
 
@@ -108,8 +107,6 @@ Add the configuration to appSettings.json and replace the relevant configuration
         "PrivateKeyVersion": "80b3eab4",
         "AddressChecksumValue": "7cb412e3",
         "Multiple": 1,
-        "MinimumTxnFee": 1000,
-        "MinimumStorageFee": 100000,
         "Node": {
             "Protocol": "http",
             "NodeName": "seednode",
@@ -119,7 +116,7 @@ Add the configuration to appSettings.json and replace the relevant configuration
             "Ptekey": "45dea220005d271b35edaf08b84e3e505ebb41886a19980fd585d137be693738",
             "NetworkAddress": "localhost",
             "NetworkPort": 12021,
-            "ChainName": "sennet",
+            "ChainName": "chain1",
             "RpcUserName": "multichainrpc",
             "RpcPassword": "C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq"
         }
@@ -307,7 +304,57 @@ The library has also made some changes to the MultiChain terminologies to lend c
 
 ```
 
+### Issue non-fungible asset
 
+**Code**:
+
+```C#
+new MultiChainFluent()
+    .From(_admin.NodeWallet)
+    .To(_admin.NodeWallet)
+        .IssueAsset(0)
+    .With()
+        .IssueNonFungibleAsset(nfaName)
+    .CreateNormalTransaction(_txnCmd)
+        .AddSigner(new DefaultSigner(_admin.Ptekey))
+        .Sign()
+        .Send()
+    ;
+```
+
+### Issue non-fungible token
+
+**Code**:
+
+```C#
+new MultiChainFluent()
+    .From(_admin.NodeWallet)
+    .To(_admin.NodeWallet)
+        .IssueToken(nfaName,"nft1",1)
+    .With()
+    .CreateNormalTransaction(_txnCmd)
+        .AddSigner(new DefaultSigner(_admin.Ptekey))
+        .Sign()
+        .Send()
+        ;
+```
+
+### Send non-fungible token
+
+**Code**:
+
+```C#
+new MultiChainFluent()
+    .From(_admin.NodeWallet)
+    .To(_testUser1.NodeWallet)
+        .SendToken(nfaName, "nft1", 1)
+    .With()
+    .CreateNormalTransaction(_txnCmd)
+        .AddSigner(new DefaultSigner(_admin.Ptekey))
+        .Sign()
+        .Send()
+        ;
+```
 
 ## Using Stream Query
 
@@ -357,3 +404,38 @@ FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [(DESC|ASC)] 
 7. Get item by publisher wallet address
 
    ```FROM <streamName> WHERE publisher='...'```
+
+
+## Using API Listener
+
+The API Listener is designed to broadcast new transaction to web socket subscribers when the node's wallet is notified of a new transaction. 
+
+### Enabling the API Listener
+
+To enable the API listener, uncomment the container service in the docker-compose file.
+
+```yml
+mcdotnet-api:
+     image: mcdotnet-api:2.2
+     build:
+         context: ../../
+         dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
+     container_name: mcdotnet-api
+     environment:
+     - ASPNETCORE_ENVIRONMENT=Development
+     - ASPNETCORE_URLS=http://+:12028
+     ports:
+     - '12028:12028'
+     depends_on:
+     - mcdotnet-seednode
+```
+
+### Testing the API Listener
+
+To test the connection, run the console apps /test/Client1, /test/Client2 and /test/Client3 simultaneously. Use Client1 to send a transaction and decoded raw transaction output should show in Client2 and Client3.
+
+### Connecting to the websocket using client-side Javascript
+
+ The service uses SignalR for its transport. To connect to the socket using javascript, refer https://docs.microsoft.com/en-us/aspnet/core/signalr/javascript-client?view=aspnetcore-6.0
+ 
+
