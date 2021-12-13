@@ -83,6 +83,16 @@ namespace MultiChainDotNet.Managers
 			return new MultiChainResult<string>();
 		}
 
+		public async Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionAsync(string txid)
+		{
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
+			var txnResult = await txnCmd.GetRawTransaction(txid);
+			if (txnResult.IsError)
+				return new MultiChainResult<DecodeRawTransactionResult>(txnResult.Exception);
+
+			return await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+		}
+
 		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
