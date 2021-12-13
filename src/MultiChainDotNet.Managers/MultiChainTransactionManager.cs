@@ -237,5 +237,15 @@ namespace MultiChainDotNet.Managers
 			return unspentBal;
 		}
 
+		public async Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionAsync(string txid)
+		{
+			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
+			var txnResult = await txnCmd.GetRawTransaction(txid);
+			if (txnResult.IsError)
+				return new MultiChainResult<DecodeRawTransactionResult>(txnResult.Exception);
+
+			return await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+
+		}
 	}
 }

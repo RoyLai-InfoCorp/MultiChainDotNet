@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainToken;
 using Newtonsoft.Json;
@@ -57,14 +58,31 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_be_able_to_issue_nfa_from()
 		{
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
-			Console.WriteLine("Issuer:"+ _testUser2.NodeWallet);
+			Console.WriteLine("Issuer:"+ _testUser1.NodeWallet);
 			Console.WriteLine("NFA:"+nfaName);
-
+			var addressCmd = _container.GetRequiredService<MultiChainAddressCommand>();
+			var newIssuer = await addressCmd.GetNewAddressAsync();
+			var newIssuerAddr = newIssuer.Result;
+			var permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
+			var grant = await permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newIssuerAddr, "issue");
+			if (grant.IsError) throw grant.Exception;
+			grant = await permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newIssuerAddr, "issue");
+			if (grant.IsError) throw grant.Exception;
+			var perm = await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue");
+			while (!perm.Result)
+			{
+				await Task.Delay(500);
+				perm = await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue");
+			}
 
 			// ACT
-			var result = await _tokenCmd.IssueNonFungibleAssetFromAsync(_admin.NodeWallet, _testUser2.NodeWallet, nfaName);
-			result.IsError.Should().BeFalse();
+			var result = await _tokenCmd.IssueNonFungibleAssetFromAsync(newIssuerAddr, _testUser2.NodeWallet, nfaName);
+			if (result.IsError)
+				throw result.Exception;
 
+			result.IsError.Should().BeFalse();
+			var _permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
+			await _permCmd.GrantPermissionAsync(_testUser2.NodeWallet, $"{nfaName}.issue");
 
 			// Cna be found on blockchain
 			var info = await _tokenCmd.GetNonfungibleAssetInfo(nfaName);
@@ -72,7 +90,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var balance = await _tokenCmd.GetAddressBalancesAsync(_testUser1.NodeWallet);
+			var balance = await _tokenCmd.GetAddressBalancesAsync(_testUser2.NodeWallet);
 			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
 
