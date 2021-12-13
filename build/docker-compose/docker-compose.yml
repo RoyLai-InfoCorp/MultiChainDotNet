@@ -3,7 +3,7 @@ version: '3.4'
 services:
 
   #mcdotnet-api:
-  #    image: mcdotnet-api:2.1.2
+  #    image: mcdotnet-api:2.2
   #    build:
   #        context: ../../
   #        dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
@@ -17,7 +17,7 @@ services:
   #    - mcdotnet-seednode
 
   mcdotnet-seednode:
-      image: mcdotnet-seednode:2.1.2
+      image: mcdotnet-seednode:2.2
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-seednode
@@ -30,7 +30,7 @@ services:
       - '12021:12021'
 
   mcdotnet-relayer1:
-      image: mcdotnet-relaynode:2.1.2
+      image: mcdotnet-relaynode:2.2
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-relaynode
@@ -46,7 +46,7 @@ services:
       - mcdotnet-seednode
 
   mcdotnet-relayer2:
-      image: mcdotnet-relaynode:2.1.2
+      image: mcdotnet-relaynode:2.2
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-relaynode
@@ -62,7 +62,7 @@ services:
       - mcdotnet-seednode
 
   mcdotnet-relayer3:
-    image: mcdotnet-relaynode:2.1.2
+    image: mcdotnet-relaynode:2.2
     build:
       context: .
       dockerfile: Dockerfile.mcdotnet-relaynode

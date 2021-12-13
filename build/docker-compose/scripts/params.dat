@@ -5,7 +5,7 @@ chain-description = chain1              # Chain description, embedded in genesis
 root-stream-name = root                 
 root-stream-open = false                # Allow anyone to publish in root stream
 chain-is-testnet = false                
-target-block-time = 2                   
+target-block-time = 2                   # Target time between blocks (transaction confirmation delay), seconds. (2 - 86400)
 maximum-block-size = 8388608            
 maximum-chunk-size = 1048576            
 maximum-chunk-count = 1024              
@@ -21,7 +21,7 @@ anyone-can-issue = false
 anyone-can-mine = false                 
 anyone-can-activate = false             
 anyone-can-admin = false                
-support-miner-precheck = true           # Require special metadata output with cached scriptPubKey for input, to support advanced miner checks.
+support-miner-precheck = true           
 allow-arbitrary-outputs = true          # Allow arbitrary (without clear destination) scripts.
 allow-p2sh-outputs = true               
 allow-multisig-outputs = true           
@@ -30,43 +30,44 @@ allow-multisig-outputs = true
 
 setup-first-blocks = 60                 
 mining-diversity = 0.5                  # Ensure that network can still operate even if 50% of miners are down.
-admin-consensus-upgrade = 0.5           # 
-admin-consensus-txfilter = 0.5          # 
-admin-consensus-admin = 0.5             # 
-admin-consensus-activate = 0.5          # 
-admin-consensus-mine = 0.5              # 
-admin-consensus-create = 0.5            # Controlled
-admin-consensus-issue = 0.5             # Controlled
+admin-consensus-upgrade = 0.5           
+admin-consensus-txfilter = 0.5          
+admin-consensus-admin = 0.5             
+admin-consensus-activate = 0.5          
+admin-consensus-mine = 0.5              
+admin-consensus-create = 0.5           # controlled
+admin-consensus-issue = 0.5            # controlled
 
 # Defaults for node runtime parameters
 
-lock-admin-mine-rounds = 10             # Ignore forks that reverse changes in admin or mine permissions after this many mining rounds have passed. Integer only. (0 - 10000)
-mining-requires-peers = true            # Nodes only mine blocks if connected to other nodes (ignored if only one permitted miner).
-mine-empty-rounds = 10                  # Mine this many rounds of empty blocks before pausing to wait for new transactions. If negative, continue indefinitely (ignored if target-adjust-freq>0). Non-integer allowed. (-1 - 1000)
-mining-turnover = 0.5                   # Prefer pure round robin between a subset of active miners to minimize forks (0.0) or random equal participation for all permitted miners (1.0). (0 - 1)
+lock-admin-mine-rounds = 10             
+mining-requires-peers = true            
+mine-empty-rounds = 10                  
+mining-turnover = 0.5                   
 
 # Native blockchain currency (likely not required)
 
-initial-block-reward = 0					 # Fixed and no block reward.
-first-block-reward = 1000000000000000000     # Max 10^18 SENI. Mint all from the start.
-reward-halving-interval = 52560000			 
-reward-spendable-delay = 1					 
-minimum-per-output = 0						 
-maximum-per-output = 1000000000000000000  	 # Max 10^18 SENI. Match first-block-reward.
-minimum-offchain-fee = 1000000		         # Min. 100,000 SENI per 1kb for publishing off-chain data items.
-minimum-relay-fee = 1000			         # Min. 1000 SENI per 1 kb of transaction. Normal send txn is around 230 bytes.
-native-currency-multiple = 1                 # 1 SENI = 10^15 wei = 1 Finney
+initial-block-reward = 0                # Initial block mining reward in raw native currency units. (0 - 1000000000000000000)
+first-block-reward = -1                 # Different mining reward for first block only, ignored if negative. (-1 - 1000000000000000000)
+reward-halving-interval = 52560000      # Interval for halving of mining rewards, in blocks. (60 - 1000000000)
+reward-spendable-delay = 1              # Delay before mining reward can be spent, in blocks. (1 - 100000)
+minimum-per-output = 0                  # Minimum native currency per output (anti-dust), in raw units.
+                                        # If set to -1, this is calculated from minimum-relay-fee. (-1 - 1000000000)
+maximum-per-output = 100000000000000    # Maximum native currency per output, in raw units. (0 - 1000000000000000000)
+minimum-offchain-fee = 0                # Minimum fee for publishing off-chain data items, per 1000 bytes, in raw units of native currency. (0 - 1000000000)
+minimum-relay-fee = 0                   # Minimum transaction fee, per 1000 bytes, in raw units of native currency. (0 - 1000000000)
+native-currency-multiple = 100000000    # Number of raw units of native currency per display unit. (0 - 1000000000)
 
 # Advanced mining parameters
 
-skip-pow-check = false                  # Skip checking whether block hashes demonstrate proof of work.
-pow-minimum-bits = 8                    # Initial and minimum proof of work difficulty, in leading zero bits. (1 - 32)
-target-adjust-freq = -1                 # Interval between proof of work difficulty adjustments, in seconds, if negative - never adjusted. (-1 - 4294967295)
-allow-min-difficulty-blocks = false     # Allow lower difficulty blocks if none after 2*<target-block-time>.
+skip-pow-check = false                  
+pow-minimum-bits = 8                    
+target-adjust-freq = -1                 
+allow-min-difficulty-blocks = false     
 
 # Standard transaction definitions
 
-only-accept-std-txs = false             # Allow special multisig combination
+only-accept-std-txs = false              # Allow special multisig combination
 max-std-tx-size = 4194304               
 max-std-op-returns-count = 32           
 max-std-op-return-size = 2097152        
@@ -76,15 +77,15 @@ max-std-element-size = 40000
 # The following parameters were generated by multichain-util.
 # They SHOULD ONLY BE EDITED IF YOU KNOW WHAT YOU ARE DOING. 
 
-default-network-port = 12020            # Default TCP/IP port for peer-to-peer connection with other nodes.
-default-rpc-port = 12021                # Default TCP/IP port for incoming JSON-RPC API requests.
-chain-name = chain1                     # Chain name, used as first argument for multichaind and multichain-cli.
-protocol-version = 20012                # Protocol version at the moment of blockchain genesis.
-network-message-start = ffd0e1f4        # Magic value sent as the first 4 bytes of every peer-to-peer message.
-address-pubkeyhash-version = 000d5fec   # Version bytes used for pay-to-pubkeyhash addresses.
-address-scripthash-version = 058a97f8   # Version bytes used for pay-to-scripthash addresses.
-private-key-version = 80b3eab4          # Version bytes used for exporting private keys.
-address-checksum-value = 7cb412e3       # Bytes used for XOR in address checksum calculation.
+default-network-port = 12020             # Default TCP/IP port for peer-to-peer connection with other nodes.
+default-rpc-port = 12021                 # Default TCP/IP port for incoming JSON-RPC API requests.
+chain-name = chain1                      # Chain name, used as first argument for multichaind and multichain-cli.
+protocol-version = 20013                 
+network-message-start = ffd0e1f4         # Magic value sent as the first 4 bytes of every peer-to-peer message.
+address-pubkeyhash-version = 000d5fec    # Version bytes used for pay-to-pubkeyhash addresses.
+address-scripthash-version = 058a97f8    # Version bytes used for pay-to-scripthash addresses.
+private-key-version = 80b3eab4           # Version bytes used for exporting private keys.
+address-checksum-value = 7cb412e3        # Bytes used for XOR in address checksum calculation.
 
 # The following parameters were generated by multichaind.
 # They SHOULD NOT BE EDITED. 
