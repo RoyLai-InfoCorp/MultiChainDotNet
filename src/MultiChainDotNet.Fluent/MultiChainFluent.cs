@@ -82,9 +82,34 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
+		public ITransactionBuilder IssueToken(string nfaName, string tokenId, int qty)
+		{
+			_toBuilders[_to]["issuetoken"] =
+				new
+				{
+					asset = nfaName,
+					token = tokenId,
+					qty = qty
+				};
+			return this;
+
+		}
+
+
 		public ITransactionBuilder SendAsset(string assetName, double qty)
 		{
 			_toBuilders[_to][assetName] = qty;
+			return this;
+		}
+
+		public ITransactionBuilder SendToken(string nfaName, string tokenId, int qty)
+		{
+			_toBuilders[_to][nfaName] =
+				new
+				{
+					token = tokenId,
+					qty = qty
+				};
 			return this;
 		}
 
@@ -221,6 +246,20 @@ namespace MultiChainDotNet.Fluent
 					details = details
 				});
 			return this;
+		}
+
+		public ITransactionBuilder IssueNonFungibleAsset(string nfaName)
+		{
+			_withData.Add(
+				new
+				{
+					create = "asset",
+					name = nfaName,
+					fungible = false,
+					open = true
+				});
+			return this;
+
 		}
 
 		public ITransactionBuilder CreateStream(string streamName, bool publicWritable, Dictionary<string, object> details)
@@ -833,7 +872,6 @@ namespace MultiChainDotNet.Fluent
 				return result.Result;
 			}).GetAwaiter().GetResult();
 		}
-
 		#endregion
 
 	}

@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
+using MultiChainDotNet.Core.MultiChainToken;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Fluent;
 using MultiChainDotNet.Fluent.Signers;
@@ -15,6 +18,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 {
@@ -102,32 +106,100 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			_stateDb.SaveState(new TestState { AssetName = assetName });
 		}
 
-		//[Test, Order(22)]
-		//public void Should_issue_non_fungible_asset()
-		//{
-		//	//Prepare
-		//	var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+		[Test, Order(22)]
+		public async Task Should_issue_non_fungible_asset()
+		{
+			//Prepare
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
 
-		//	// ACT
-		//	var txid = new MultiChainFluent()
-		//		.AddLogger(_logger)
-		//		.From(_admin.NodeWallet)
-		//		.To(_admin.NodeWallet)
-		//			.IssueNonfungibleAsset(1000)
-		//		.With()
-		//			.IssueNonfungibleDetails(assetName)
-		//		.CreateNormalTransaction(_txnCmd)
-		//			.AddSigner(new DefaultSigner(_admin.Ptekey))
-		//			.Sign()
-		//			.Send()
-		//		;
+			// ACT
+			var txid = new MultiChainFluent()
+				.AddLogger(_logger)
+				.From(_admin.NodeWallet)
+				.To(_admin.NodeWallet)
+					.IssueAsset(0)
+				.With()
+					.IssueNonFungibleAsset(nfaName)
+				.CreateNormalTransaction(_txnCmd)
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
+				;
 
-		//	// ASSERT
-		//	Assert.IsNotNull(txid);
+			// ASSERT
 
-		//	// STATE
-		//	_stateDb.SaveState(new TestState { AssetName = assetName });
-		//}
+			// Can be found on blockchain
+			var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
+			Console.WriteLine("Info:" + info.Result.ToJson());
+			info.IsError.Should().BeFalse();
+
+			// Can be found in wallet
+			var balance = await tokenCmd.GetAddressBalancesAsync(_admin.NodeWallet);
+			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+
+		}
+
+		[Test, Order(22)]
+		public async Task Should_issue_token()
+		{
+			//Prepare
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
+			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
+			await permCmd.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
+
+			// ACT
+			var txid = new MultiChainFluent()
+				.AddLogger(_logger)
+				.From(_admin.NodeWallet)
+				.To(_admin.NodeWallet)
+					.IssueToken(nfaName,"nft1",1)
+				.With()
+				.CreateNormalTransaction(_txnCmd)
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
+				;
+
+			// ASSERT
+			var bal = await tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
+			bal.Result[_admin.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
+			bal.Result[_admin.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
+		}
+
+		[Test, Order(24)]
+		public async Task Should_send_token()
+		{
+			//Prepare
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
+			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
+			await permCmd.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
+			await tokenCmd.IssueTokenAsync(_admin.NodeWallet, nfaName, "nft1");
+
+			// ACT
+			var txid = new MultiChainFluent()
+				.AddLogger(_logger)
+				.From(_admin.NodeWallet)
+				.To(_testUser1.NodeWallet)
+					.SendToken(nfaName, "nft1", 1)
+				.With()
+				.CreateNormalTransaction(_txnCmd)
+					.AddSigner(new DefaultSigner(_admin.Ptekey))
+					.Sign()
+					.Send()
+				;
+
+			// ASSERT
+			var bal = await tokenCmd.GetTokenBalancesAsync(_testUser1.NodeWallet);
+			bal.Result[_testUser1.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
+			bal.Result[_testUser1.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
+		}
+
+
 
 
 		private async Task<string> GetAnnotationAsync(string assetName, string txid)

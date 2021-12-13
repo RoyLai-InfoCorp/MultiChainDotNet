@@ -245,6 +245,48 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			bal.Result[_admin.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
 		}
 
+		[Test, Order(46)]
+		public async Task Should_send_token_with_createrawsendfrom()
+		{
+			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			Console.WriteLine(nfaName);
+			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
+			await perm.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
+			await tokenCmd.IssueTokenAsync(_admin.NodeWallet, nfaName, "nft1");
+
+			// ACT
+			var raw = await _txnCmd.CreateRawSendFromAsync(
+				_admin.NodeWallet,
+				new Dictionary<string, object>
+				{
+					{
+						_testUser1.NodeWallet,
+						new Dictionary<string,object>
+						{
+							{
+								nfaName,
+								new {
+									token = "nft1",
+									qty = 1
+								}
+							}
+						}
+					}
+				},
+				new object[] { },
+				"send");
+			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
+
+			// ASSERT
+
+			var bal = await tokenCmd.GetTokenBalancesAsync(_testUser1.NodeWallet);
+			bal.Result[_testUser1.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
+			bal.Result[_testUser1.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
+		}
+
+
 
 
 		[Test, Order(50)]
