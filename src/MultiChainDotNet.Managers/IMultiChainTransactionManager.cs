@@ -18,6 +18,8 @@ namespace MultiChainDotNet.Managers
 
 		Task<MultiChainResult<string>> GetDeclarationAsync(string txid);
 
+		Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionAsync(string txid);
+
 		Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAllTransactionsByAsset(string assetName);
 		Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAllTransactionsByAddress(string address, string assetName = null);
 	}
