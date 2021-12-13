@@ -1,10 +1,13 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainPermission;
+using MultiChainDotNet.Core.MultiChainToken;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -39,12 +42,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		protected override void ConfigureLogging(ILoggingBuilder logging)
 		{
 			base.ConfigureLogging(logging);
-			logging.AddFilter((provider, category, logLevel) =>
-			{
-				if (logLevel < Microsoft.Extensions.Logging.LogLevel.Warning && category.Contains("MultiChainDotNet.Core.MultiChainTransaction.MultiChainTransactionCommand"))
-					return false;
-				return true;
-			});
+			//logging.AddFilter((provider, category, logLevel) =>
+			//{
+			//	if (logLevel < LogLevel.Warning && category.Contains("MultiChainDotNet.Core.MultiChainTransaction.MultiChainTransactionCommand"))
+			//		return false;
+			//	return true;
+			//});
 		}
 
 		[SetUp]
@@ -56,8 +59,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
-
-
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
 
 		}
@@ -151,13 +152,100 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						multiple = 1,
 						open = true
 					}
-				});
+				}, 
+				"send");
 			Assert.That(raw.IsError, Is.False, raw.ExceptionMessage);
-			var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
-			Assert.That(signed.IsError, Is.False, signed.ExceptionMessage);
-			var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+			//var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
+			//Assert.That(signed.IsError, Is.False, signed.ExceptionMessage);
+			//var result = await _txnCmd.SendRawTransactionAsync(signed.Result.Hex);
+			//Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
+
+		[Test, Order(43)]
+		public async Task Should_issue_non_fungible_asset_with_createrawsendfrom()
+		{
+			// ACT
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			Console.WriteLine(nfaName);
+			var raw = await _txnCmd.CreateRawSendFromAsync(_admin.NodeWallet,
+				new Dictionary<string, object>
+				{
+					{
+						_admin.NodeWallet, 
+						new 
+						{
+							issue = new { raw = 0 }
+						}
+					}
+				},
+				new object[] {
+					new
+					{
+						create = "asset",
+						name = nfaName,
+						fungible = false,
+						open = true
+					}
+				},
+				"send");
+			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
+
+			// ASSERT
+
+			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
+
+			// Cna be found on blockchain
+			var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
+			Console.WriteLine("Info:" + info.Result.ToJson());
+			info.IsError.Should().BeFalse();
+
+			// Can be found in wallet
+			var balance = await tokenCmd.GetAddressBalancesAsync(_admin.NodeWallet);
+			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+
+		}
+
+		[Test, Order(46)]
+		public async Task Should_issue_token_with_createrawsendfrom()
+		{
+			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			Console.WriteLine(nfaName);
+			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet,nfaName);
+			await Task.Delay(2000);
+
+			// ACT
+			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
+			await perm.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
+			var raw = await _txnCmd.CreateRawSendFromAsync(
+				_admin.NodeWallet,
+				new Dictionary<string, object>
+				{
+					{
+						_admin.NodeWallet, 
+						new 
+						{
+							issuetoken = new 
+							{ 
+								asset = nfaName,
+								token = "nft1",
+								qty = 1
+							}
+						}
+					}
+				},
+				new object[] { },
+				"send");
+			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
+
+			// ASSERT
+
+			var bal = await tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
+			bal.Result[_admin.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
+			bal.Result[_admin.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
+		}
+
+
 
 		[Test, Order(50)]
 		public async Task Should_throw_insufficient_priority_when_using_unspent_with_sufficient_balance()

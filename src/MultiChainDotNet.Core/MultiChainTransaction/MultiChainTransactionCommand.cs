@@ -55,7 +55,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return $"createrawsendfrom {from} '{JsonConvert.SerializeObject(to)}' '{JsonConvert.SerializeObject(with)}'";
 		}
 
-		public async Task<MultiChainResult<string>> CreateRawSendFromAsync(string from, object to, object with = null)
+		public async Task<MultiChainResult<string>> CreateRawSendFromAsync(string from, object to, object with = null, string action = null)
 		{
 			if (from is null)
 				throw new ArgumentNullException(nameof(from));
@@ -64,7 +64,9 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 				with = new object[] { };
 
 			_logger.LogTrace("===>" + DescribeCreateRawSendFromAsync(from, to, with));
-			return await JsonRpcRequestAsync<string>("createrawsendfrom", from, to, with);
+			if (string.IsNullOrEmpty(action))
+				return await JsonRpcRequestAsync<string>("createrawsendfrom", from, to, with);
+			return await JsonRpcRequestAsync<string>("createrawsendfrom", from, to, with, action);
 		}
 
 		public async Task<MultiChainResult<string>> GetRawTransaction(string txid)

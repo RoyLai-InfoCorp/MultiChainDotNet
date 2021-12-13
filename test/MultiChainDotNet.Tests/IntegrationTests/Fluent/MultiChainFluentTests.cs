@@ -102,6 +102,34 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			_stateDb.SaveState(new TestState { AssetName = assetName });
 		}
 
+		//[Test, Order(22)]
+		//public void Should_issue_non_fungible_asset()
+		//{
+		//	//Prepare
+		//	var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+
+		//	// ACT
+		//	var txid = new MultiChainFluent()
+		//		.AddLogger(_logger)
+		//		.From(_admin.NodeWallet)
+		//		.To(_admin.NodeWallet)
+		//			.IssueNonfungibleAsset(1000)
+		//		.With()
+		//			.IssueNonfungibleDetails(assetName)
+		//		.CreateNormalTransaction(_txnCmd)
+		//			.AddSigner(new DefaultSigner(_admin.Ptekey))
+		//			.Sign()
+		//			.Send()
+		//		;
+
+		//	// ASSERT
+		//	Assert.IsNotNull(txid);
+
+		//	// STATE
+		//	_stateDb.SaveState(new TestState { AssetName = assetName });
+		//}
+
+
 		private async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
 			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
