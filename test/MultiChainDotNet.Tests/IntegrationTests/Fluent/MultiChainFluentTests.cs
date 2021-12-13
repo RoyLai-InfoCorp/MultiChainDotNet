@@ -482,7 +482,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
 			Console.WriteLine("UTXO before:" + JsonConvert.SerializeObject(unspents.Result));
 
-			var unspent = unspents.Result.First(x => x.Amount >= 1000);
+			//var unspent = unspents.Result.First(x => x.Amount >= 1000);
+			var unspent = unspents.Result.First();
 			Console.WriteLine("Unspent selected:" + JsonConvert.SerializeObject(unspent));
 
 			var txid = new MultiChainFluent()
