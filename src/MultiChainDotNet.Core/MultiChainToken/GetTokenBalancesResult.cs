@@ -8,7 +8,7 @@ using static MultiChainDotNet.Core.MultiChainToken.GetTokenBalancesResult;
 
 namespace MultiChainDotNet.Core.MultiChainToken
 {
-
+	// first type argumen is balance owner address
     public class GetTokenBalancesResult : Dictionary<string, List<GetTokenBalanceItem>>
 	{
 		public class GetTokenBalanceItem

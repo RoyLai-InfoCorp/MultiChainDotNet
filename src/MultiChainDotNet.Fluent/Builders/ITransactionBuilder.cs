@@ -50,7 +50,7 @@ namespace MultiChainDotNet.Fluent.Builders
 		ITransactionBuilder IssueMoreDetails(string assetName);
 		ITransactionBuilder IssueMoreDetails(string assetName, Dictionary<string, object> details);
 		ITransactionBuilder IssueNonFungibleAsset(string nfa);
-		ITransactionBuilder IssueToken(string nftaName, string tokenId, int qty);
+		ITransactionBuilder IssueToken(string nfaName, string tokenId, int qty);
 		ITransactionBuilder SendToken(string nfaName, string tokenId, int qty);
 		ITransactionBuilder CreateStream(string streamName, bool anyoneCanWrite);
 		ITransactionBuilder CreateStream(string streamName, bool publicWritable, Dictionary<string, object> details);

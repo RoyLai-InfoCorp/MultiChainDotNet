@@ -13,6 +13,7 @@ namespace MultiChainDotNet.Managers.Extensions
 				.AddScoped<IMultiChainStreamManager, MultiChainStreamManager>()
 				.AddScoped<IMultiChainPermissionsManager, MultiChainPermissionsManager>()
 				.AddScoped<IMultiChainAssetManager, MultiChainAssetManager>()
+				.AddScoped<IMultiChainTokenManager, MultiChainTokenManager>()
 				.AddScoped<IMultiChainTransactionManager, MultiChainTransactionManager>()
 				.AddScoped<IMultiChainAddressManager, MultiChainAddressManager>()
 				.AddScoped<IMultiChainBlockchainManager, MultiChainBlockchainManager>()
