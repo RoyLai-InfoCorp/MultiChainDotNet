@@ -7,6 +7,7 @@ using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainBlockchain;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
+using MultiChainDotNet.Core.MultiChainToken;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.MultiChainVariable;
 using System;
@@ -50,6 +51,29 @@ namespace MultiChainDotNet.Core
 				services
 					.AddScoped<MultiChainTransactionCommand>()
 				.AddHttpClient<MultiChainTransactionCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
+					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
+					.ConfigurePrimaryHttpMessageHandler(() =>
+					{
+						return new HttpClientHandler()
+						{
+							Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)
+						};
+					});
+
+			return services;
+		}
+
+		static IServiceCollection AddMultiChainToken(this IServiceCollection services, MultiChainConfiguration mcConfig)
+		{
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+
+				services
+					.AddScoped<MultiChainTokenCommand>()
+				.AddHttpClient<MultiChainTokenCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
 					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
 					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
 					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
@@ -205,14 +229,16 @@ namespace MultiChainDotNet.Core
 		public static IServiceCollection AddMultiChain(this IServiceCollection services)
 		{
 			var mcConfig = services.BuildServiceProvider().GetRequiredService<MultiChainConfiguration>();
-			services.AddMultiChainAddress(mcConfig);
-			services.AddMultiChainTransaction(mcConfig);
-			services.AddMultiChainAsset(mcConfig);
-			services.AddMultiChainStream(mcConfig);
-			services.AddMultiChainPermission(mcConfig);
-			services.AddMultiChainBlockchain(mcConfig);
-			services.AddMultiChainVariable(mcConfig);
-			services.AddMultiChainCommandFactory(mcConfig);
+			services.AddMultiChainAddress(mcConfig)
+				.AddMultiChainTransaction(mcConfig)
+				.AddMultiChainAsset(mcConfig)
+				.AddMultiChainStream(mcConfig)
+				.AddMultiChainToken(mcConfig)
+				.AddMultiChainPermission(mcConfig)
+				.AddMultiChainBlockchain(mcConfig)
+				.AddMultiChainVariable(mcConfig)
+				.AddMultiChainCommandFactory(mcConfig)
+				;
 			return services;
 		}
 

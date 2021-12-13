@@ -1,0 +1,1 @@
+docker build -f ../../src/MultiChainDotNet.Api.Service/Dockerfile -t mcdotnet-api:2.2 ../../

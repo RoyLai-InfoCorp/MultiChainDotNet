@@ -8,9 +8,9 @@ RUN apt update && apt upgrade
 RUN apt install wget curl -y
 FROM base AS build
 SHELL ["/bin/bash","-c"]
-RUN wget -q -O - https://www.multichain.com/download/multichain-2.1.2.tar.gz | tar -xzf - -C /tmp
+RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar -xzf - -C /tmp
 FROM base AS app
-COPY --from=build /tmp/multichain-2.1.2 /usr/local/bin
+COPY --from=build /tmp/multichain-2.2 /usr/local/bin
 
 FROM app AS final
 SHELL ["/bin/bash","-c"]
