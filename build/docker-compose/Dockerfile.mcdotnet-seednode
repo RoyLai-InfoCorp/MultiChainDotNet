@@ -6,9 +6,11 @@ EXPOSE 12021
 
 RUN apt update && apt upgrade
 RUN apt install wget curl -y
+
 FROM base AS build
 SHELL ["/bin/bash","-c"]
 RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar -xzf - -C /tmp
+
 FROM base AS app
 COPY --from=build /tmp/multichain-2.2 /usr/local/bin
 
@@ -25,4 +27,18 @@ RUN chmod 755 /root/notify.sh
 COPY /scripts/mc-seednode.sh /root
 RUN /root/mc-seednode.sh
 
-ENTRYPOINT ["multichaind","chain1"]
+FROM final as python
+RUN apt update
+RUN apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+RUN wget -q -O - https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tgz | tar -xzf - -C /tmp
+WORKDIR /tmp/Python-3.8.10
+RUN ./configure --enable-optimizations
+RUN make install
+COPY /multichain-explorer-2 /root/multichain-explorer-2
+WORKDIR /root/multichain-explorer-2
+RUN python3 -m explorer config.ini daemon
+
+RUN echo python3 -m explorer config.ini daemon >> /root/start.sh
+RUN echo multichaind chain1 >> /root/start.sh
+
+ENTRYPOINT ["bash","/root/start.sh"]

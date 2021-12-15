@@ -28,6 +28,7 @@ services:
       ports:
       - '12020:12020'
       - '12021:12021'
+      - '12029:12022'
 
   mcdotnet-relayer1:
       image: mcdotnet-relaynode:2.2
