@@ -35,16 +35,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_list_all_asset_transactions()
 		{
 			var assetName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var issue = _mcAssetMgr.Issue(_admin.NodeWallet, assetName, 1000, true);
-			var txid = issue.Result;
+			var txid = _mcAssetMgr.Issue(_admin.NodeWallet, assetName, 1000, true);
 
 			// ACT
 			var result = await _mcTxnMgr.ListAllTransactionsByAsset(assetName);
 
 			//ASSERT
-			Assert.That(result.IsError, Is.EqualTo(false), result.ExceptionMessage);
-			Assert.That(result.Result.Count, Is.EqualTo(1));
-			Assert.That(result.Result[0].TxId, Is.EqualTo(txid));
+			Assert.That(result.Count, Is.EqualTo(1));
+			Assert.That(result[0].TxId, Is.EqualTo(txid));
 
 			// PREPARE
 			for (int i = 0; i < 10; i++)
@@ -57,8 +55,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var result1 = await _mcTxnMgr.ListAllTransactionsByAsset(assetName);
 
 			//ASSERT
-			Assert.That(result1.IsError, Is.EqualTo(false), result1.ExceptionMessage);
-			Assert.That(result1.Result.Count, Is.EqualTo(11));
+			Assert.That(result1.Count, Is.EqualTo(11));
 		}
 
 
@@ -77,8 +74,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var result1 = await _mcTxnMgr.ListAllTransactionsByAddress(_testUser1.NodeWallet, assetName);
 
 			//ASSERT
-			Assert.That(result1.IsError, Is.EqualTo(false), result1.ExceptionMessage);
-			Assert.That(result1.Result.Count(), Is.EqualTo(5));
+			Assert.That(result1.Count(), Is.EqualTo(5));
 		}
 
 	}

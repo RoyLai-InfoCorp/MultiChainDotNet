@@ -13,31 +13,39 @@ RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar
 
 FROM base AS app
 COPY --from=build /tmp/multichain-2.2 /usr/local/bin
-
-FROM app AS final
 SHELL ["/bin/bash","-c"]
 RUN multichain-util create chain1
-WORKDIR /root/.multichain/chain1
-COPY /scripts/multichain.conf multichain.conf
-COPY /scripts/params.dat params.dat
 
-COPY /scripts/notify.sh /root
-RUN chmod 755 /root/notify.sh
-
-COPY /scripts/mc-seednode.sh /root
-RUN /root/mc-seednode.sh
-
-FROM final as python
+FROM app as python
 RUN apt update
 RUN apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 RUN wget -q -O - https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tgz | tar -xzf - -C /tmp
 WORKDIR /tmp/Python-3.8.10
 RUN ./configure --enable-optimizations
 RUN make install
+
+FROM python as explorer
+
 COPY /multichain-explorer-2 /root/multichain-explorer-2
 WORKDIR /root/multichain-explorer-2
 RUN python3 -m explorer config.ini daemon
 
+FROM explorer as final
+
+# copy chain configuration files
+WORKDIR /root/.multichain/chain1
+COPY /scripts/multichain.conf multichain.conf
+COPY /scripts/params.dat params.dat
+
+# copy wallet notification script
+COPY /scripts/notify.sh /root
+RUN chmod 755 /root/notify.sh
+
+# copy seed data generation script
+COPY /scripts/mc-seednode.sh /root
+RUN /root/mc-seednode.sh
+
+# create start script
 RUN echo python3 -m explorer config.ini daemon >> /root/start.sh
 RUN echo multichaind chain1 >> /root/start.sh
 

@@ -28,31 +28,32 @@ namespace MultiChainDotNet.Managers
 			_addressCmd = commandFactory.CreateCommand<MultiChainAddressCommand>();
 		}
 
-		public async Task<MultiChainResult<VoidType>> ImportAddressAsync(string address)
+		public async Task ImportAddressAsync(string address)
 		{
-			return await _addressCmd.ImportAddressAsync(address);
+			var result = await _addressCmd.ImportAddressAsync(address);
+			if (result.IsError)
+				throw result.Exception;
 		}
 
-		public MultiChainResult<CreateMultiSigResult> CreateMultiSig(int nRequired, string[] pubkeys)
+		public CreateMultiSigResult CreateMultiSig(int nRequired, string[] pubkeys)
 		{
 			var result = Task.Run(async () =>
 			{
-				return await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+				var addr = await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+				await ImportAddressAsync(addr.Result.Address);
+				return addr;
 			}).GetAwaiter().GetResult();
 			if (result.IsError)
-				return result;
-
-			Task.Run(async () =>
-			{
-				await ImportAddressAsync(result.Result.Address);
-			}).GetAwaiter().GetResult();
-
-			return result;
+				throw result.Exception;
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<bool>> IsExistAsync(string address)
+		public async Task<bool> IsExistAsync(string address)
 		{
-			return await _addressCmd.CheckAddressImportedAsync(address);
+			var result = await _addressCmd.CheckAddressImportedAsync(address);
+			if (result.IsError)
+				throw result.Exception;
+			return result.Result;
 		}
 
 	}

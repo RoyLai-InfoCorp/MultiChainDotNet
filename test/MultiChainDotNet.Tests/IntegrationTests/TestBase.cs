@@ -6,8 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.MultiChainAsset;
 using NLog.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
 {
@@ -24,6 +26,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		protected MultiChainNode _relayer3;
 		protected MultiChainConfiguration _mcConfig;
 		protected TestStateDb _stateDb = new TestStateDb();
+
+		protected async Task FundWallet(string address)
+		{
+			var assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
+			await assetCmd.SendFromAsync(_admin.NodeWallet, address, 2000);
+		}
 
 		protected virtual void ConfigureServices(IServiceCollection services)
 		{

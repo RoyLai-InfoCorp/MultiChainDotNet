@@ -48,14 +48,14 @@ mining-turnover = 0.5                   # Prefer pure round robin between a subs
 # Native blockchain currency (likely not required)
 
 initial-block-reward = 0					 # Fixed and no block reward.
-first-block-reward = 1000000000000000000     # Max 10^18 SENI. Mint all from the start.
+first-block-reward = 1000000000000000000     # Max 10^18 native. Mint all from the start.
 reward-halving-interval = 52560000			 
 reward-spendable-delay = 1					 
 minimum-per-output = 0						 
-maximum-per-output = 1000000000000000000  	 # Max 10^18 SENI. Match first-block-reward.
-minimum-offchain-fee = 1000000		         # Min. 100,000 SENI per 1kb for publishing off-chain data items.
-minimum-relay-fee = 1000			         # Min. 1000 SENI per 1 kb of transaction. Normal send txn is around 230 bytes.
-native-currency-multiple = 1                 # 1 SENI = 10^15 wei = 1 Finney
+maximum-per-output = 1000000000000000000  	 # Max 10^18 native. Match first-block-reward.
+minimum-offchain-fee = 1000000		         # Min. 100,000 native per 1kb for publishing off-chain data items.
+minimum-relay-fee = 1000			         # Min. 1000 native per 1 kb of transaction. Normal send txn is around 230 bytes.
+native-currency-multiple = 1                 # 1 native = 10^15 wei = 1 Finney
 
 # Advanced mining parameters
 

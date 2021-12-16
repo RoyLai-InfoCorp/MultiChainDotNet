@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -119,14 +121,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
 			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
-			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
-			Assert.That(checkPermission.Result, Is.True);
+			var wait = await TaskHelper.WaitUntilTrue(async () =>
+				(await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue")).Result == true
+			, 5, 500);
+			wait.Should().BeTrue();
 
 			// ACT
 			await _permCmd.RevokePermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
 
 			// ASSERT
-			checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
+			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
 			Assert.That(checkPermission.Result, Is.True);
 		}
 

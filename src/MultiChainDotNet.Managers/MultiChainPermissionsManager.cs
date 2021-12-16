@@ -51,12 +51,12 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public MultiChainResult<string> GrantPermission(string toAddress, string permissions, string entityName = null)
+		public string GrantPermission(string toAddress, string permissions, string entityName = null)
 		{
 			return GrantPermission(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, permissions, entityName);
 		}
 
-		public MultiChainResult<string> GrantPermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
+		public string GrantPermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
 		{
 			try
 			{
@@ -71,20 +71,21 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
-				return new MultiChainResult<string>(ex);
+				_logger.LogWarning(ex.ToString());
+				throw;
 			}
 		}
 
-		public MultiChainResult<string> RevokePermission(string toAddress, string permissions, string entityName = null)
+		public string RevokePermission(string toAddress, string permissions, string entityName = null)
 		{
 			return RevokePermission(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, permissions, entityName);
 		}
 
-		public MultiChainResult<string> RevokePermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
+		public string RevokePermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null)
 		{
 			try
 			{
@@ -99,41 +100,61 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
-				return new MultiChainResult<string>(ex);
+				_logger.LogWarning(ex.ToString());
+				throw;
 			}
 		}
 
-		public async Task<MultiChainResult<List<PermissionsResult>>> ListPermissionsAsync(string address, string permissionType)
+		public async Task<List<PermissionsResult>> ListPermissionsAsync(string address, string permissionType)
 		{
-			return await _permCmd.ListPermissionsAsync(address, permissionType);
+			var result = await _permCmd.ListPermissionsAsync(address, permissionType);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<List<PermissionsResult>>> ListPermissionsByAddressAsync(string address)
+		public async Task<List<PermissionsResult>> ListPermissionsByAddressAsync(string address)
 		{
-			return await _permCmd.ListPermissionsByAddressAsync(address);
+			var result = await _permCmd.ListPermissionsByAddressAsync(address);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<List<PermissionsResult>>> ListPermissionsByTypeAsync(string permissionType)
+		public async Task<List<PermissionsResult>> ListPermissionsByTypeAsync(string permissionType)
 		{
-			return await _permCmd.ListPermissionsByTypeAsync(permissionType);
+			var result = await _permCmd.ListPermissionsByTypeAsync(permissionType);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<bool>> CheckPermissionGrantedAsync(string address, string permission, string entityName = null)
+		public async Task<bool> CheckPermissionGrantedAsync(string address, string permission, string entityName = null)
 		{
 			var permissions = permission.Split(',');
 			foreach (var perm in permissions)
 			{
 				var result = await _permCmd.CheckPermissionGrantedAsync(address, perm, entityName);
 				if (result.IsError)
-					return result;
+					throw result.Exception;
+
 				if (!result.Result)
-					return new MultiChainResult<bool>(false);
+					return false;
 			}
-			return new MultiChainResult<bool>(true);
+			return true;
 		}
 	}
 }

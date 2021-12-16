@@ -40,18 +40,11 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public async Task<MultiChainResult<string>> GetAnnotationAsync(string assetName, string txid)
+		public async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			var txnResult = await txnCmd.GetRawTransaction(txid);
-			if (txnResult.IsError)
-				return new MultiChainResult<string>(txnResult.Exception);
+			var decoded = await DecodeRawTransactionAsync(txid);
 
-			var decodedResult = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
-			if (decodedResult.IsError)
-				return new MultiChainResult<string>(decodedResult.Exception);
-
-			var firstData = decodedResult.Result.Vout
+			var firstData = decoded.Vout
 				.Where(x => x.Assets is { } && x.Assets.Any(y => y.Name == assetName) && x.Data is { })?
 				.FirstOrDefault()?.Data?[0];
 			if (firstData is { })
@@ -59,53 +52,72 @@ namespace MultiChainDotNet.Managers
 				var json = JToken.FromObject(firstData);
 				var found = json.SelectToken("json");
 				if (found is { })
-					return new MultiChainResult<string>(found.ToString(Formatting.None));
+					return found.ToString(Formatting.None);
 			}
-			return new MultiChainResult<string>();
+			return null;
 		}
 
-		public async Task<MultiChainResult<string>> GetDeclarationAsync(string txid)
+		public async Task<string> GetDeclarationAsync(string txid)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			var txnResult = await txnCmd.GetRawTransaction(txid);
-			if (txnResult.IsError)
-				return new MultiChainResult<string>(txnResult.Exception);
+			var decoded = await DecodeRawTransactionAsync(txid);
 
-			var decodedResult = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
-			var firstData = decodedResult.Result.Vout.Where(x => x.Assets is null && x.Data is { }).FirstOrDefault()?.Data?[0];
+			var firstData = decoded.Vout.Where(x => x.Assets is null && x.Data is { }).FirstOrDefault()?.Data?[0];
 			if (firstData is { })
 			{
 				var json = JToken.FromObject(firstData);
 				var found = json.SelectToken("json");
 				if (found is { })
-					return new MultiChainResult<string>(found.ToString(Formatting.None));
+					return found.ToString(Formatting.None);
 			}
-			return new MultiChainResult<string>();
+			return null;
 		}
 
-		public async Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionAsync(string txid)
+		public async Task<DecodeRawTransactionResult> DecodeRawTransactionAsync(string txid)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
 			if (txnResult.IsError)
-				return new MultiChainResult<DecodeRawTransactionResult>(txnResult.Exception);
+			{
+				_logger.LogWarning(txnResult.Exception.ToString());
+				throw txnResult.Exception;
+			}
 
-			return await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+			var result = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
+
 		}
 
-		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
+		public async Task<List<ListAddressTransactionResult>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			return await txnCmd.ListAddressTransactions(address, count, skip, verbose);
+			var result = await txnCmd.ListAddressTransactions(address, count, skip, verbose);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
+		public async Task<List<ListAssetTransactionResult>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			return await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
+			var result = await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAllTransactionsByAsset(string assetName)
+		public async Task<List<ListAssetTransactionResult>> ListAllTransactionsByAsset(string assetName)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			int page = 0;
@@ -128,10 +140,10 @@ namespace MultiChainDotNet.Managers
 				page++;
 			}
 
-			return new MultiChainResult<List<ListAssetTransactionResult>>(list);
+			return list;
 		}
 
-		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAllTransactionsByAddress(string address, string assetName = null)
+		public async Task<List<ListAddressTransactionResult>> ListAllTransactionsByAddress(string address, string assetName = null)
 		{
 			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
 			int page = 0;
@@ -157,10 +169,10 @@ namespace MultiChainDotNet.Managers
 			if (!string.IsNullOrEmpty(assetName))
 			{
 				var filteredList = list.Where(x => x.Balance.Assets.Any(x => x.Name == assetName)).ToList();
-				return new MultiChainResult<List<ListAddressTransactionResult>>(filteredList);
+				return filteredList;
 			}
 
-			return new MultiChainResult<List<ListAddressTransactionResult>>(list);
+			return list;
 		}
 
 

@@ -163,7 +163,7 @@ namespace MultiChainDotNet.Managers
 						throw exist.Exception;
 					}
 					return true;
-				},5,500);
+				}, 5, 500);
 
 				txid = new MultiChainFluent()
 					.AddLogger(_logger)
@@ -231,7 +231,7 @@ namespace MultiChainDotNet.Managers
 			var bal = await _tokenCmd.GetTokenBalancesAsync(address);
 			if (bal.IsError)
 				throw bal.Exception;
-			return bal.Result?[address].Where(x=>x.NfaName==nfaName).ToList();
+			return bal.Result?[address].Where(x => x.NfaName == nfaName).ToList();
 		}
 
 		public Task SubscribeAsync(string assetName)

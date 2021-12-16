@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
+using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainToken;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -63,17 +65,17 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var addressCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			var newIssuer = await addressCmd.GetNewAddressAsync();
 			var newIssuerAddr = newIssuer.Result;
+			await FundWallet(newIssuerAddr);
 			var permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 			var grant = await permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newIssuerAddr, "issue");
 			if (grant.IsError) throw grant.Exception;
 			grant = await permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newIssuerAddr, "issue");
 			if (grant.IsError) throw grant.Exception;
-			var perm = await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue");
-			while (!perm.Result)
-			{
-				await Task.Delay(500);
-				perm = await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue");
-			}
+
+			var wait = await TaskHelper.WaitUntilTrue(async () =>
+				(await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue")).Result == true
+			, 5, 500);
+			wait.Should().BeTrue();
 
 			// ACT
 			var result = await _tokenCmd.IssueNonFungibleAssetFromAsync(newIssuerAddr, _testUser2.NodeWallet, nfaName);
@@ -146,6 +148,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _tokenCmd.IssueNonFungibleAssetAsync(_testUser1.NodeWallet, nfaName);
 			var _permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await _permCmd.GrantPermissionAsync(_testUser1.NodeWallet, $"{nfaName}.issue");
+			await FundWallet(_testUser1.NodeWallet);
 
 			// ACT
 			var tokenId = "nft1";
@@ -190,6 +193,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
 			var tokenId = "nft1";
 			await _tokenCmd.IssueTokenAsync(_testUser1.NodeWallet, nfaName, tokenId);
+			await FundWallet(_testUser1.NodeWallet);
 
 			// ACT
 			var send = await _tokenCmd.SendTokenFromAsync(_testUser1.NodeWallet, _testUser2.NodeWallet, nfaName, tokenId);

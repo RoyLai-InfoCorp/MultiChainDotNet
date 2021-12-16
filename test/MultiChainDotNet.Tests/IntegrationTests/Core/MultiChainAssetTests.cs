@@ -222,12 +222,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_not_be_able_to_send_asset_with_insufficient_funds()
 		{
 			var newSender = (await _addrCmd.GetNewAddressAsync()).Result;
+			Console.WriteLine("sender:" + newSender);
 			await _permCmd.GrantPermissionAsync(newSender, "send");
 			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			Console.WriteLine("assetName:"+assetName);
 			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 0.001, true);
+			var balances = await _assetCmd.GetAddressBalancesAsync(newSender);
+			Console.WriteLine("balance:"+JsonConvert.SerializeObject(balances));
 
 			// ACT			
-			var result = await _assetCmd.SendAssetFromAsync(newSender, _testUser1.NodeWallet, assetName, 10);
+			var result = await _assetCmd.SendAssetFromAsync(newSender, _testUser1.NodeWallet, assetName, 11);
 			Assert.That(result.IsError, Is.True, result.ExceptionMessage);
 			Assert.That(result.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS));
 			Assert.That(result.ExceptionMessage, Contains.Substring("Insufficient funds"));

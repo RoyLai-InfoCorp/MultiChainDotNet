@@ -31,7 +31,7 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainResult<string> SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, UInt64 qty, string redeemScript)
+		public string SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, UInt64 qty, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 
@@ -48,18 +48,18 @@ namespace MultiChainDotNet.Managers
 					.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 
 		}
 
-		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
+		public string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -73,18 +73,18 @@ namespace MultiChainDotNet.Managers
 					.CreateRawTransaction(_txnCmd)
 					;
 
-				return new MultiChainResult<string>(raw);
+				return raw;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}
 
 
-		public MultiChainResult<string> CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
+		public string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -100,17 +100,17 @@ namespace MultiChainDotNet.Managers
 					.CreateRawTransaction(_txnCmd)
 					;
 
-				return new MultiChainResult<string>(raw);
+				return raw;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}
 
-		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
+		public string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -124,18 +124,18 @@ namespace MultiChainDotNet.Managers
 					.CreateRawTransaction(_txnCmd)
 					;
 
-				return new MultiChainResult<string>(raw);
+				return raw;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}
 
 
-		public MultiChainResult<string> CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
+		public string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 
@@ -151,22 +151,22 @@ namespace MultiChainDotNet.Managers
 					.CreateRawTransaction(_txnCmd)
 					;
 
-				return new MultiChainResult<string>(raw);
+				return raw;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}
 
-		public MultiChainResult<string[]> SignMultiSig(string signatureSlip, string redeemScript)
+		public string[] SignMultiSig(string signatureSlip, string redeemScript)
 		{
 			return SignMultiSig(_defaultSigner, signatureSlip, redeemScript);
 		}
 
-		public MultiChainResult<string[]> SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript)
+		public string[] SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SignMultiSig");
 
@@ -179,16 +179,16 @@ namespace MultiChainDotNet.Managers
 						.MultiSignPartial(signatureSlip, redeemScript)
 					;
 
-				return new MultiChainResult<string[]>(signatures);
+				return signatures;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string[]>(ex);
+				throw;
 			}
 		}
 
-		public MultiChainResult<string> SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript)
+		public string SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 			try
@@ -201,12 +201,12 @@ namespace MultiChainDotNet.Managers
 						.MultiSign(redeemScript)
 						.Send()
 						;
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}

@@ -47,16 +47,16 @@ mining-turnover = 0.5
 
 # Native blockchain currency (likely not required)
 
-initial-block-reward = 0                # Initial block mining reward in raw native currency units. (0 - 1000000000000000000)
-first-block-reward = -1                 # Different mining reward for first block only, ignored if negative. (-1 - 1000000000000000000)
-reward-halving-interval = 52560000      # Interval for halving of mining rewards, in blocks. (60 - 1000000000)
-reward-spendable-delay = 1              # Delay before mining reward can be spent, in blocks. (1 - 100000)
-minimum-per-output = 0                  # Minimum native currency per output (anti-dust), in raw units.
-                                        # If set to -1, this is calculated from minimum-relay-fee. (-1 - 1000000000)
-maximum-per-output = 100000000000000    # Maximum native currency per output, in raw units. (0 - 1000000000000000000)
-minimum-offchain-fee = 0                # Minimum fee for publishing off-chain data items, per 1000 bytes, in raw units of native currency. (0 - 1000000000)
-minimum-relay-fee = 0                   # Minimum transaction fee, per 1000 bytes, in raw units of native currency. (0 - 1000000000)
-native-currency-multiple = 100000000    # Number of raw units of native currency per display unit. (0 - 1000000000)
+initial-block-reward = 0                
+first-block-reward = 100000000000000    # Different mining reward for first block only, ignored if negative. (-1 - 1000000000000000000)
+reward-halving-interval = 52560000      
+reward-spendable-delay = 1              
+minimum-per-output = 0                  
+                                      
+maximum-per-output = 100000000000000    
+minimum-offchain-fee = 0                
+minimum-relay-fee = 1000			    # Min. 1000 native crypto per 1 kb of transaction. Normal send txn is around 230 bytes.
+native-currency-multiple = 1            # Number of raw units of native currency per display unit. (0 - 1000000000)
 
 # Advanced mining parameters
 

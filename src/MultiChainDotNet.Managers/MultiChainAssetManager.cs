@@ -49,24 +49,29 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<bool> IsExist(string assetName)
 		{
-			var subscribe = await SubscribeAsync(assetName);
-			if (subscribe.IsError)
+			try
 			{
-				if (!subscribe.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
-					throw subscribe.Exception;
+				await SubscribeAsync(assetName);
+			}
+			catch (Exception e)
+			{
+				if (!e.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+				{
+					_logger.LogWarning(e.ToString());
+					throw;
+				}
 				return false;
 			}
 			return true;
 		}
 
-		public MultiChainResult<string> Pay(string toAddress, UInt64 units, object data = null)
+		public string Pay(string toAddress, UInt64 units, object data = null)
 		{
 			return Pay(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, units, data);
 		}
-		public MultiChainResult<string> Pay(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object data = null)
+		public string Pay(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object data = null)
 		{
 			_logger.LogDebug($"Executing PayAsync");
-
 			double qty = units / _mcConfig.Multiple;
 			try
 			{
@@ -82,21 +87,21 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
 
-		public MultiChainResult<string> PayAnnotate(string toAddress, UInt64 units, object annotation)
+		public string PayAnnotate(string toAddress, UInt64 units, object annotation)
 		{
 			return PayAnnotate(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, units, annotation);
 		}
-		public MultiChainResult<string> PayAnnotate(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object annotation)
+		public string PayAnnotate(SignerBase signer, string fromAddress, string toAddress, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing PayAsync");
 
@@ -114,13 +119,12 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
-
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
@@ -138,11 +142,11 @@ namespace MultiChainDotNet.Managers
 			return multiple;
 		}
 
-		public MultiChainResult<string> SendAsset(string toAddress, string assetName, UInt64 units, object data = null)
+		public string SendAsset(string toAddress, string assetName, UInt64 units, object data = null)
 		{
 			return SendAsset(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, data);
 		}
-		public MultiChainResult<string> SendAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object data = null)
+		public string SendAsset(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object data = null)
 		{
 			_logger.LogDebug($"Executing SendAssetAsync");
 
@@ -164,22 +168,22 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 
 		}
 
 
-		public Task<MultiChainResult<string>> SendAnnotateAssetAsync(string toAddress, string assetName, UInt64 units, object annotation)
+		public Task<string> SendAnnotateAssetAsync(string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			return SendAnnotateAssetAsync(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, annotation);
 		}
-		public async Task<MultiChainResult<string>> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
+		public async Task<string> SendAnnotateAssetAsync(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing SendAssetAsync");
 			Exception ex_ = new Exception();
@@ -202,30 +206,38 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
 				if (!ex.IsMultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS))
-					return new MultiChainResult<string>(ex);
+					throw;
 				ex_ = ex;
 			}
 
 			// Exception message ambiguous. Determine if its wallet has insufficient asset or insufficient native currency
-			var balance = await GetAssetBalanceByAddressAsync(fromAddress, assetName);
-			if (balance.IsError) throw balance.Exception;
-			if (balance.Result.Raw < units)
-				return new MultiChainResult<string>(new MultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_ASSET));
-			return new MultiChainResult<string>(ex_);
+			try
+			{
+				var balance = await GetAssetBalanceByAddressAsync(fromAddress, assetName);
+				if (balance.Raw < units)
+					throw new MultiChainException(MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_ASSET);
+				throw ex_;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.ToString());
+				throw;
+			}
+
 		}
 
 
-		public MultiChainResult<string> Issue(string toAddress, string assetName, UInt64 units, bool canIssueMore = true, object data = null)
+		public string Issue(string toAddress, string assetName, UInt64 units, bool canIssueMore = true, object data = null)
 		{
 			return Issue(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, canIssueMore, data);
 		}
-		public MultiChainResult<string> Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, bool canIssueMore = true, object data = null)
+		public string Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, bool canIssueMore = true, object data = null)
 		{
 			_logger.LogDebug($"Executing IssueAsync");
 
@@ -248,23 +260,23 @@ namespace MultiChainDotNet.Managers
 				Task.Run(async () =>
 				{
 					await SubscribeAsync(assetName);
-				});
+				}).GetAwaiter().GetResult();
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
 
-		public MultiChainResult<string> IssueAnnotate(string toAddress, string assetName, UInt64 units, bool canIssueMore, object annotation)
+		public string IssueAnnotate(string toAddress, string assetName, UInt64 units, bool canIssueMore, object annotation)
 		{
 			return IssueAnnotate(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, canIssueMore, annotation);
 		}
-		public MultiChainResult<string> IssueAnnotate(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, bool canIssueMore, object annotation)
+		public string IssueAnnotate(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, bool canIssueMore, object annotation)
 		{
 			_logger.LogDebug($"Executing IssueAsync");
 
@@ -284,21 +296,21 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
 
-		public MultiChainResult<string> IssueMore(string toAddress, string assetName, UInt64 units, object data = null)
+		public string IssueMore(string toAddress, string assetName, UInt64 units, object data = null)
 		{
 			return IssueMore(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, data);
 		}
-		public MultiChainResult<string> IssueMore(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object data = null)
+		public string IssueMore(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object data = null)
 		{
 			_logger.LogDebug($"Executing IssueMoreAsync");
 
@@ -317,20 +329,20 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
-		public MultiChainResult<string> IssueMoreAnnotated(string toAddress, string assetName, UInt64 units, object annotation)
+		public string IssueMoreAnnotated(string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			return IssueMoreAnnotated(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, assetName, units, annotation);
 		}
-		public MultiChainResult<string> IssueMoreAnnotated(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
+		public string IssueMoreAnnotated(SignerBase signer, string fromAddress, string toAddress, string assetName, UInt64 units, object annotation)
 		{
 			_logger.LogDebug($"Executing IssueMoreAnnotatedAsync");
 
@@ -348,31 +360,40 @@ namespace MultiChainDotNet.Managers
 						.Send()
 					;
 
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
-		public async Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName)
+		public async Task<GetAssetInfoResult> GetAssetInfoAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing GetAssetInfoAsync");
 
 			if (String.IsNullOrEmpty(assetName))
-				return new MultiChainResult<GetAssetInfoResult>();
-			return await _assetCmd.GetAssetInfoAsync(assetName);
+				return null;
+			var result = await _assetCmd.GetAssetInfoAsync(assetName);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
-		public async Task<MultiChainResult<GetAddressBalancesResult>> GetAssetBalanceByAddressAsync(string address, string assetName = null)
+		public async Task<GetAddressBalancesResult> GetAssetBalanceByAddressAsync(string address, string assetName = null)
 		{
 			_logger.LogDebug($"Executing GetAssetBalanceByAddressAsync");
 
 			var result = await _assetCmd.GetAddressBalancesAsync(address);
 			if (result.IsError)
-				return new MultiChainResult<GetAddressBalancesResult>(result.Exception);
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
 
 			try
 			{
@@ -380,39 +401,43 @@ namespace MultiChainDotNet.Managers
 				{
 					var nativeCurrency = result.Result.FirstOrDefault(x => String.IsNullOrEmpty(x.Name));
 					if (nativeCurrency is null)
-						return new MultiChainResult<GetAddressBalancesResult>();
-					return new MultiChainResult<GetAddressBalancesResult>(nativeCurrency);
+						return null;
+					return nativeCurrency;
 				}
 
 				GetAddressBalancesResult single = result.Result.FirstOrDefault(x => x.Name == assetName);
 				if (single is null)
 				{
-					return new MultiChainResult<GetAddressBalancesResult>(new GetAddressBalancesResult
+					return new GetAddressBalancesResult
 					{
 						Qty = 0,
 						AssetRef = "",
 						Name = assetName,
 						Raw = 0
-					});
+					};
 				}
 
 				var assetInfo = await GetAssetInfoAsync(assetName);
-				single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Result.Multiple);
-				return new MultiChainResult<GetAddressBalancesResult>(single);
+				single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
+				return single;
 			}
 			catch (Exception ex)
 			{
-				return new MultiChainResult<GetAddressBalancesResult>(ex);
+				_logger.LogWarning(ex.ToString());
+				throw;
 			}
 		}
 
-		public async Task<MultiChainResult<List<GetAddressBalancesResult>>> ListAssetBalancesByAddressAsync(string address)
+		public async Task<List<GetAddressBalancesResult>> ListAssetBalancesByAddressAsync(string address)
 		{
 			_logger.LogDebug($"Executing ListAssetBalancesByAddressAsync");
 
 			var assetsResult = await _assetCmd.GetAddressBalancesAsync(address);
 			if (assetsResult.IsError)
-				return assetsResult;
+			{
+				_logger.LogWarning(assetsResult.Exception.ToString());
+				throw assetsResult.Exception;
+			}
 			try
 			{
 				foreach (GetAddressBalancesResult single in assetsResult.Result)
@@ -420,34 +445,53 @@ namespace MultiChainDotNet.Managers
 					if (!String.IsNullOrEmpty(single.Name))
 					{
 						var assetInfo = await GetAssetInfoAsync(single.Name);
-						single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Result.Multiple);
+						single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
 					}
 				}
-				return assetsResult;
+				return assetsResult.Result;
 			}
 			catch (Exception ex)
 			{
-				return new MultiChainResult<List<GetAddressBalancesResult>>(ex);
+				_logger.LogWarning(ex.ToString());
+				throw;
 			}
 		}
 
-		public async Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false)
+		public async Task<List<ListAssetsResult>> ListAssetsAsync(string assetName = "*", bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListAssetsAsync");
 
-			return await _assetCmd.ListAssetsAsync(assetName, verbose);
+			var result = await _assetCmd.ListAssetsAsync(assetName, verbose);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
-		public async Task<MultiChainResult<List<AssetTransactionsResult>>> ListAssetTransactionsAsync(string assetName)
+		public async Task<List<AssetTransactionsResult>> ListAssetTransactionsAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing ListAssetTransactionsAsync");
 
-			return await _assetCmd.ListAssetTransactionsAsync(assetName);
+			var result = await _assetCmd.ListAssetTransactionsAsync(assetName);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
-		public async Task<MultiChainResult<VoidType>> SubscribeAsync(string assetName)
+
+		public async Task SubscribeAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing SubscribeAsync");
-
-			return await _assetCmd.SubscribeAsync(assetName);
+			var result = await _assetCmd.SubscribeAsync(assetName);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			throw result.Exception;
 		}
 
 	}

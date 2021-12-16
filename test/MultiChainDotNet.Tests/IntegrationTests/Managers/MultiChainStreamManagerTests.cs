@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Managers;
@@ -32,14 +33,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_create_new_stream()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = _streamManager.CreateStream(streamName);
+			var txid = _streamManager.CreateStream(streamName);
 
 			// ASSERT
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			var txid = result.Result;
 			var found = await _streamManager.GetStreamAsync(streamName);
-			Assert.That(found.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(found.Result.Name, Is.EqualTo(streamName));
+			Assert.That(found.Name, Is.EqualTo(streamName));
 		}
 
 		public class JsonStreamItem
@@ -54,13 +52,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			_streamManager.CreateStream(streamName);
 
 			// ACT
-			var result = await _streamManager.PublishJsonAsync(streamName, "1", new JsonStreamItem { Counter = 1 });
+			await _streamManager.PublishJsonAsync(streamName, "1", new JsonStreamItem { Counter = 1 });
 
 			// ASSERT
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 			var found = await _streamManager.GetStreamItemAsync<JsonStreamItem>($"FROM {streamName} WHERE key='1'");
-			Assert.That(found.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(found.Result.Counter, Is.EqualTo(1));
+			Assert.That(found.Counter, Is.EqualTo(1));
 		}
 
 		[Test, Order(50)]
@@ -68,14 +64,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
 			var result = _streamManager.CreateStream(streamName);
-			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
-			var result2 = _streamManager.CreateStream(streamName);
-			Assert.That(result2.IsError, Is.True);
-			Assert.That(result2.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_DUPLICATE_NAME), result2.ExceptionMessage);
+			Action action = ()=>_streamManager.CreateStream(streamName);
+			action.Should().Throw<MultiChainException>().WithMessage($"*RPC DUPLICATE NAME*");
 		}
-
-
 
 		private async Task<string> CreateNewStream()
 		{
@@ -97,11 +89,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			// Get first item
 			var result1 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC");
-			Assert.That(result1.Result[0].Counter, Is.EqualTo(0));
+			Assert.That(result1[0].Counter, Is.EqualTo(0));
 
 			// Get last item
 			var result2 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream}");
-			Assert.That(result2.Result[0].Counter, Is.EqualTo(9));
+			Assert.That(result2[0].Counter, Is.EqualTo(9));
 
 		}
 
@@ -112,21 +104,21 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 
 			// FROM <newStream> DESC PAGE 0 SIZE 2
 			var result7 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 0 SIZE 2");
-			Assert.That(result7.Result[0].Counter, Is.EqualTo(9));
-			Assert.That(result7.Result[1].Counter, Is.EqualTo(8));
+			Assert.That(result7[0].Counter, Is.EqualTo(9));
+			Assert.That(result7[1].Counter, Is.EqualTo(8));
 			// FROM <newStream> DESC PAGE 1 SIZE 2
 			var result8 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 1 SIZE 2");
-			Assert.That(result8.Result[0].Counter, Is.EqualTo(7));
-			Assert.That(result8.Result[1].Counter, Is.EqualTo(6));
+			Assert.That(result8[0].Counter, Is.EqualTo(7));
+			Assert.That(result8[1].Counter, Is.EqualTo(6));
 			// FROM <newStream> DESC PAGE 2 SIZE 2
 			var result9 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} PAGE 2 SIZE 2");
-			Assert.That(result9.Result[0].Counter, Is.EqualTo(5));
-			Assert.That(result9.Result[1].Counter, Is.EqualTo(4));
+			Assert.That(result9[0].Counter, Is.EqualTo(5));
+			Assert.That(result9[1].Counter, Is.EqualTo(4));
 
 			// FROM <newStream> DESC PAGE 0 SIZE 2
 			var result10 = await _streamManager.ListStreamItemsAsync<JsonStreamItem>($"FROM {newStream} ASC PAGE 0 SIZE 2");
-			Assert.That(result10.Result[0].Counter, Is.EqualTo(0));
-			Assert.That(result10.Result[1].Counter, Is.EqualTo(1));
+			Assert.That(result10[0].Counter, Is.EqualTo(0));
+			Assert.That(result10[1].Counter, Is.EqualTo(1));
 		}
 
 		class TestClassA

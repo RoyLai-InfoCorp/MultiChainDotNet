@@ -8,7 +8,7 @@ namespace MultiChainDotNet.Core.Utils
 {
     public class TaskHelper
     {
-		public static async Task WaitUntilTrue(Func<Task<bool>> func, int retries, int delay)
+		public static async Task<bool> WaitUntilTrue(Func<Task<bool>> func, int retries, int delay)
 		{
 			var isTrue = await func();
 			for (int i = 0; i < retries; i++)
@@ -16,9 +16,9 @@ namespace MultiChainDotNet.Core.Utils
 				await Task.Delay(delay);
 				isTrue = await func();
 				if (isTrue)
-					return;
+					return true;
 			}
-			throw new Exception($"Wait for true timeout: {nameof(func)}");
+			return false;
 		}
 
 	}

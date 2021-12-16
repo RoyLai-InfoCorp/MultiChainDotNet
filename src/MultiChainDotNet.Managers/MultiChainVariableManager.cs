@@ -49,12 +49,12 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public MultiChainResult<string> CreateVariable(string variableName)
+		public string CreateVariable(string variableName)
 		{
 			return CreateVariable(_defaultSigner, variableName);
 		}
 
-		public MultiChainResult<string> CreateVariable(SignerBase signer, string variableName)
+		public string CreateVariable(SignerBase signer, string variableName)
 		{
 			_logger.LogDebug($"Executing CreateVariableAsync");
 			signer = signer ?? _defaultSigner;
@@ -71,33 +71,44 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
-		public MultiChainResult<string> SetVariableValue<T>(string variableName, T variableValue)
+		public string SetVariableValue<T>(string variableName, T variableValue)
 		{
 			return SetVariableValue(_defaultSigner, variableName, variableValue);
 		}
-		public MultiChainResult<string> SetVariableValue<T>(SignerBase signer, string variableName, T variableValue)
+		public string SetVariableValue<T>(SignerBase signer, string variableName, T variableValue)
 		{
 			_logger.LogDebug($"Executing SetVariableAsync");
 
-			var query = Task.Run(async () => await GetVariableValueAsync<T>(variableName)).GetAwaiter().GetResult();
-			if (query.IsError)
+			// If variable is not found, then create variable.
+			try
 			{
-				if (query.ErrorCode != MultiChainErrorCode.RPC_ENTITY_NOT_FOUND)
-					return new MultiChainResult<string>(query.Exception);
-				var create = CreateVariable(variableName);
-				if (create.IsError)
-					return new MultiChainResult<string>(create.Exception);
+				var query = Task.Run(async () => await GetVariableValueAsync<T>(variableName)).GetAwaiter().GetResult();
+			}
+			catch (Exception ex)
+			{
+				if (!ex.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+					throw;
+				try
+				{
+					CreateVariable(variableName);
+				}
+				catch (Exception ex2)
+				{
+					_logger.LogWarning(ex2.ToString());
+					throw;
+				}
 			}
 
+			// Update variable
 			try
 			{
 				var fromAddress = _mcConfig.Node.NodeWallet;
@@ -111,18 +122,24 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
-				return new MultiChainResult<string>(txid);
+				return txid;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex.ToString());
-				return new MultiChainResult<string>(ex);
+				throw;
 			}
 		}
 
-		public async Task<MultiChainResult<T>> GetVariableValueAsync<T>(string variableName)
+		public async Task<T> GetVariableValueAsync<T>(string variableName)
 		{
-			return await _varCmd.GetVariableValueAsync<T>(variableName);
+			var result = await _varCmd.GetVariableValueAsync<T>(variableName);
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
+			return result.Result;
 		}
 
 	}

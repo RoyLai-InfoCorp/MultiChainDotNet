@@ -20,7 +20,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			[JsonProperty("token")]
 			public string Token { get; set; }
 			[JsonProperty("qty")]
-			public int Qty { get; set; }
+			public double Qty { get; set; }
 		}
 		
     }

@@ -5,10 +5,12 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainToken;
 using MultiChainDotNet.Core.MultiChainTransaction;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -28,6 +30,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		Microsoft.Extensions.Logging.ILogger _logger;
+		private MultiChainPermissionCommand _permCmd;
+		private MultiChainAddressCommand _addrCmd;
 		MultiChainTransactionCommand _txnCmd;
 		MultiChainAssetCommand _assetCmd;
 
@@ -60,7 +64,28 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
+			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
+			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 
+		}
+
+		[Test, Order(5)]
+		public async Task should_send_payment()
+		{
+			var txid = await _txnCmd.CreateRawSendFromAsync(
+			  _admin.NodeWallet,
+			  new Dictionary<string, object>
+			  {
+				  {
+					_testUser1.NodeWallet,
+					new Dictionary<string, object>{ { "", 1000 } }
+				  }
+			  },
+			  new object[] { },
+			  "send");
+
+			txid.IsError.Should().BeFalse(txid.ExceptionMessage);
+			txid.Result.Should().NotBeNullOrEmpty();
 		}
 
 		[Test, Order(10)]
@@ -93,31 +118,37 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test, Order(20)]
 		public async Task should_list_address_transaction_for_assets()
 		{
-			var sendResult = await _assetCmd.SendAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, "openasset", 1);
+			var newSender = (await _addrCmd.GetNewAddressAsync()).Result;
+			var newRecipient = (await _addrCmd.GetNewAddressAsync()).Result;
+			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 1, true);
+			await _permCmd.GrantPermissionAsync(newSender, "send");
+			await _permCmd.GrantPermissionAsync(newRecipient, "receive");
+			await FundWallet(newSender);
+			var sendResult = await _assetCmd.SendAssetFromAsync(newSender, newRecipient, assetName, 1);
 
 			// ACT
-			var result1 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
-			var result2 = await _txnCmd.ListAddressTransactions(_testUser1.NodeWallet);
+			var result1 = await _txnCmd.ListAddressTransactions(newSender);
+			var result2 = await _txnCmd.ListAddressTransactions(newRecipient);
 
 			// ASSERT
 
 			// paid 1 asset + fee
 			Assert.That(result1.IsError, Is.False, result1.ExceptionMessage);
 			var lastResult1 = result1.Result.Last();
-			Assert.That(lastResult1.TxId, Is.EqualTo(sendResult.Result));
-			Assert.That(lastResult1.Balance.Amount, Is.LessThan(0));
-			Assert.That(lastResult1.Balance.Assets[0].Name, Is.EqualTo("openasset"));
-			Assert.That(lastResult1.Balance.Assets[0].Qty, Is.EqualTo(-1));
 			_logger.LogInformation(lastResult1.ToJson());
+			Assert.That(lastResult1.TxId, Is.EqualTo(sendResult.Result));
+			Assert.That(lastResult1.Balance.Assets[0].Name, Is.EqualTo(assetName));
+			Assert.That(lastResult1.Balance.Assets[0].Qty, Is.EqualTo(-1));
 
 			// received 1 asset
 			Assert.That(result2.IsError, Is.False, result2.ExceptionMessage);
 			var lastResult2 = result2.Result.Last();
+			_logger.LogInformation(lastResult2.ToJson());
 			Assert.That(lastResult2.TxId, Is.EqualTo(sendResult.Result));
 			Assert.That(lastResult2.Balance.Amount, Is.EqualTo(0));
-			Assert.That(lastResult2.Balance.Assets[0].Name, Is.EqualTo("openasset"));
+			Assert.That(lastResult2.Balance.Assets[0].Name, Is.EqualTo(assetName));
 			Assert.That(lastResult2.Balance.Assets[0].Qty, Is.EqualTo(1));
-			_logger.LogInformation(lastResult2.ToJson());
 
 		}
 
@@ -212,24 +243,37 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
 			Console.WriteLine(nfaName);
 			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet,nfaName);
-			await Task.Delay(2000);
 
-			// ACT
+			// WAIT
+			await TaskHelper.WaitUntilTrue(async () => {
+				var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
+				return info is { };
+			}
+			, 5, 500);
+
 			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await perm.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
+
+			// WAIT
+			await TaskHelper.WaitUntilTrue( async () => 
+				(await perm.CheckPermissionGrantedAsync(_admin.NodeWallet, $"{nfaName}.issue")).Result
+			, 5, 500);
+
+			// ACT
 			var raw = await _txnCmd.CreateRawSendFromAsync(
 				_admin.NodeWallet,
 				new Dictionary<string, object>
 				{
 					{
 						_admin.NodeWallet, 
-						new 
+						new Dictionary<string,object>
 						{
-							issuetoken = new 
-							{ 
-								asset = nfaName,
-								token = "nft1",
-								qty = 1
+							{ "issuetoken",new
+								{
+									asset = nfaName,
+									token = "nft1",
+									qty = 1
+								}
 							}
 						}
 					}
@@ -238,8 +282,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				"send");
 			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
 
-			// ASSERT
+			// WAIT
+			var wait = await TaskHelper.WaitUntilTrue(async () => {
+				var bal = await tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
+				if (bal.IsError)
+					throw bal.Exception;
+				return bal.Result[_admin.NodeWallet].Any(x => x.NfaName == nfaName);
+			}
+			, 5, 500);
 
+			// ASSERT
 			var bal = await tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
 			bal.Result[_admin.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
 			bal.Result[_admin.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");

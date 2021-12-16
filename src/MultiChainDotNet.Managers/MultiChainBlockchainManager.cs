@@ -40,14 +40,23 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public async Task<MultiChainResult<GetBlockResult>> GetCurrentBlock()
+		public async Task<GetBlockResult> GetCurrentBlock()
 		{
-			var infoResult = await _bcCommand.GetInfoAsync();
-			if (infoResult.IsError)
-				return new MultiChainResult<GetBlockResult>(infoResult.Exception);
+			var result = await _bcCommand.GetInfoAsync();
+			if (result.IsError)
+			{
+				_logger.LogWarning(result.Exception.ToString());
+				throw result.Exception;
+			}
 
-			var blockHeight = infoResult.Result.Blocks;
-			return await _bcCommand.GetBlock(blockHeight);
+			var blockHeight = result.Result.Blocks;
+			var result2 = await _bcCommand.GetBlock(blockHeight);
+			if (result2.IsError)
+			{
+				_logger.LogWarning(result2.Exception.ToString());
+				throw result2.Exception;
+			}
+			return result2.Result;
 		}
 
 	}
