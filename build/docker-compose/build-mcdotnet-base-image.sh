@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo '
+FROM python:3.8-slim-buster AS base
+SHELL ["/bin/bash","-c"]
+RUN apt update
+RUN apt install wget curl -y
+FROM base AS build
+SHELL ["/bin/bash","-c"]
+RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar -xzf - -C /tmp
+FROM base AS app
+COPY --from=build /tmp/multichain-2.2 /usr/local/bin
+' | docker build -t multichain-base:2.2 -

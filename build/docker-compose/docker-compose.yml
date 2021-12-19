@@ -7,6 +7,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-seednode
+        args:
+          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
       container_name: mcdotnet-seednode
       environment:
       - ReceivingHost=http://host.docker.internal:12028/transaction
@@ -21,6 +23,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-relaynode
+        args:
+          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
       container_name: mcdotnet-relayer1
       ports:
       - '12022:12020'
@@ -37,6 +41,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile.mcdotnet-relaynode
+        args:
+          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
       container_name: mcdotnet-relayer2
       ports:
       - '12024:12020'
@@ -53,6 +59,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mcdotnet-relaynode
+      args:
+          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
     container_name: mcdotnet-relayer3
     ports:
     - '12026:12020'

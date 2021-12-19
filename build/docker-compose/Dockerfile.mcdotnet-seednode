@@ -1,39 +1,18 @@
-#FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
-FROM ubuntu AS base
+FROM multichain-base:2.2 AS base
 
 EXPOSE 12020
 EXPOSE 12021
 
-RUN apt update && apt upgrade
-RUN apt install wget curl -y
+# create chain
+ARG BUILD_CHAIN_NAME="chain1"
+ENV chain_name=$BUILD_CHAIN_NAME
+RUN multichain-util create ${BUILD_CHAIN_NAME}
+WORKDIR /root/.multichain/${BUILD_CHAIN_NAME}
 
-FROM base AS build
-SHELL ["/bin/bash","-c"]
-RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar -xzf - -C /tmp
-
-FROM base AS app
-COPY --from=build /tmp/multichain-2.2 /usr/local/bin
-SHELL ["/bin/bash","-c"]
-RUN multichain-util create chain1
-
-FROM app as python
-RUN apt update
-RUN apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
-RUN wget -q -O - https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tgz | tar -xzf - -C /tmp
-WORKDIR /tmp/Python-3.8.10
-RUN ./configure --enable-optimizations
-RUN make install
-
-FROM python as explorer
-
+# copy explorer 2
 COPY /multichain-explorer-2 /root/multichain-explorer-2
-WORKDIR /root/multichain-explorer-2
-RUN python3 -m explorer config.ini daemon
-
-FROM explorer as final
 
 # copy chain configuration files
-WORKDIR /root/.multichain/chain1
 COPY /scripts/multichain.conf multichain.conf
 COPY /scripts/params.dat params.dat
 
@@ -41,14 +20,13 @@ COPY /scripts/params.dat params.dat
 COPY /scripts/notify.sh /root
 RUN chmod 755 /root/notify.sh
 
-# copy seed data generation script
+# copy init script
 COPY /scripts/mc-seednode.sh /root
 RUN /root/mc-seednode.sh
 
-# create start script
-RUN echo cd /root/multichain-explorer-2 >> /root/start.sh
-RUN echo python3 -m explorer config.ini daemon >> /root/start.sh
-RUN echo cd /root/.multichain/chronnet
-RUN echo multichaind chain1 --explorersupport=2 -rescan >> /root/start.sh
+# create startup script
+RUN echo cd /root/multichain-explorer-2 > /root/startup.sh
+RUN echo python3 -m explorer config.ini daemon >> /root/startup.sh
+RUN echo 'multichaind "$chain_name"' >> /root/startup.sh
 
-ENTRYPOINT ["bash","/root/start.sh"]
+ENTRYPOINT ["bash","/root/startup.sh"]

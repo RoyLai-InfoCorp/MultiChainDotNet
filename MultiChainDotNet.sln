@@ -27,7 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker-compose", "docker-co
 		build\docker-compose\docker-compose.yml = build\docker-compose\docker-compose.yml
 		build\docker-compose\Dockerfile.mcdotnet-relaynode = build\docker-compose\Dockerfile.mcdotnet-relaynode
 		build\docker-compose\Dockerfile.mcdotnet-seednode = build\docker-compose\Dockerfile.mcdotnet-seednode
-		build\docker-compose\scripts\mc-seednode.sh = build\docker-compose\scripts\mc-seednode.sh
 		build\docker-compose\scripts\multichain.conf = build\docker-compose\scripts\multichain.conf
 		build\docker-compose\scripts\params.dat = build\docker-compose\scripts\params.dat
 	EndProjectSection
@@ -41,6 +40,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client3", "test\Client3\Client3.csproj", "{486885D5-81DF-4271-8E66-4546B280E240}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Abstractions", "src\MultiChainDotNet.Api.Abstractions\MultiChainDotNet.Api.Abstractions.csproj", "{81888DD1-3E48-476D-8CF4-DE6F705522A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0EF9E1E7-69EF-481B-B42F-7143E3559B41}"
+	ProjectSection(SolutionItems) = preProject
+		build\docker-compose\scripts\create-base-image.sh = build\docker-compose\scripts\create-base-image.sh
+		build\docker-compose\scripts\mc-seednode.sh = build\docker-compose\scripts\mc-seednode.sh
+		build\docker-compose\scripts\multichain.conf = build\docker-compose\scripts\multichain.conf
+		build\docker-compose\scripts\notify.sh = build\docker-compose\scripts\notify.sh
+		build\docker-compose\scripts\params-2-1-2.dat = build\docker-compose\scripts\params-2-1-2.dat
+		build\docker-compose\scripts\params-2-2.dat = build\docker-compose\scripts\params-2-2.dat
+		build\docker-compose\scripts\params.dat = build\docker-compose\scripts\params.dat
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +109,7 @@ Global
 		{D73F6821-27FB-4C6F-BA83-ABA3D9A95B27} = {BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}
 		{486885D5-81DF-4271-8E66-4546B280E240} = {BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}
 		{81888DD1-3E48-476D-8CF4-DE6F705522A2} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
+		{0EF9E1E7-69EF-481B-B42F-7143E3559B41} = {83C27AFD-FE8E-4798-9084-14FC0B85FD53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EFC47B3-88A4-4AA8-944E-200D97EC87C1}

@@ -1,32 +1,29 @@
-FROM ubuntu AS base
+FROM multichain-base:2.2 AS base
 
 EXPOSE 12020
 EXPOSE 12021
 
-RUN apt update && apt upgrade
-RUN apt install wget -y
-FROM base AS build
-SHELL ["/bin/bash","-c"]
-RUN wget -q -O - https://www.multichain.com/download/multichain-2.2.tar.gz | tar -xzf - -C /tmp
-FROM base AS final
-COPY --from=build /tmp/multichain-2.2 /usr/local/bin
+ARG BUILD_CHAIN_NAME="chain1"
+ENV chain_name=$BUILD_CHAIN_NAME
 
 ENV seed_ip $seed_ip
 ENV ptekey $ptekey
 ENV rpcpassword $rpcpassword
 
+RUN apt-get install procps -y
+
 WORKDIR /
 SHELL ["/bin/bash","-c"]
 RUN echo '#!/bin/bash' >> init.sh
-RUN echo 'multichaind -initprivkey=${ptekey} chain1@${seed_ip}:12020 -daemon' >> init.sh
+RUN echo 'multichaind -initprivkey=${ptekey} ${chain_name}@${seed_ip}:12020 -daemon' >> init.sh
 RUN echo 'sleep 1' >> init.sh
 RUN echo 'pkill multichaind' >> init.sh
 RUN echo 'sleep 1' >> init.sh
-RUN echo 'cd /root/.multichain/chain1' >> init.sh
+RUN echo 'cd /root/.multichain/"${chain_name}"' >> init.sh
 RUN echo 'replace="rpcpassword=${rpcpassword}"' >> init.sh
 RUN echo 'sed -i "s/rpcpassword.*$/${replace}/" multichain.conf' >> init.sh
 RUN echo 'echo 'rpcallowip=0.0.0.0/0' >> multichain.conf' >> init.sh
-RUN echo 'multichaind chain1 -reindex -rescan -lockinlinemetadata=0' >> init.sh
+RUN echo 'multichaind ${chain_name} -reindex -rescan -lockinlinemetadata=0' >> init.sh
 RUN chmod +x init.sh
 
 ENTRYPOINT [ "bash","/init.sh" ]
