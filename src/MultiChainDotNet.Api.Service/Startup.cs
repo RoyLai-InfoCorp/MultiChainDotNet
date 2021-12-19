@@ -14,7 +14,7 @@ namespace MultiChainDotNet.Api.Service
 {
 	public class Startup
 	{
-		readonly string AllowAllOrigins = "_allowAllOrigins";
+		readonly string AllowedOrigins = "_allowedOrigins";
 
 		public Startup(IConfiguration configuration)
 		{
@@ -33,7 +33,7 @@ namespace MultiChainDotNet.Api.Service
 
 			services.AddCors(options =>
 			{
-				options.AddPolicy(name: AllowAllOrigins,
+				options.AddPolicy(name: AllowedOrigins,
 					builder =>
 					{
 						builder
@@ -80,7 +80,7 @@ namespace MultiChainDotNet.Api.Service
 			}
 
 			app.UseRouting();
-			app.UseCors(AllowAllOrigins);
+			app.UseCors(AllowedOrigins);
 			app.UseAuthorization();
 			app.UseEndpoints(endpoints =>
 			{

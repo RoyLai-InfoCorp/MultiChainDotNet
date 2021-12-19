@@ -46,7 +46,9 @@ COPY /scripts/mc-seednode.sh /root
 RUN /root/mc-seednode.sh
 
 # create start script
+RUN echo cd /root/multichain-explorer-2 >> /root/start.sh
 RUN echo python3 -m explorer config.ini daemon >> /root/start.sh
-RUN echo multichaind chain1 >> /root/start.sh
+RUN echo cd /root/.multichain/chronnet
+RUN echo multichaind chain1 --explorersupport=2 -rescan >> /root/start.sh
 
 ENTRYPOINT ["bash","/root/start.sh"]

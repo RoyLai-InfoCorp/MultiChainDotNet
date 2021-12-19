@@ -22,21 +22,18 @@ MultiChainDotNet is a cross-Platform development library for integrating with [M
 
 ## Getting Started
 
-
-
 ### 1. Install Docker for Windows Desktop with WSL2
 
 https://docs.docker.com/docker-for-windows/wsl/
-
-
 
 ### 2. Clone this repo
 
 https://github.com/RoyLai-InfoCorp/MultiChainDotNet
 
 
+## Setup Local Test Network
 
-### 3. Startup 1 seednode and 3 test nodes
+### 1. Startup 1 seednode and 3 test nodes
 
 Go to /build/docker-compose directory
 
@@ -44,12 +41,15 @@ Go to /build/docker-compose directory
 sh$ docker-compose up
 ```
 
+NOTE: 
+
 The output should show `Node ready.` for all 4 nodes.
+
 If nodes doesn't start up, press CTRL-C, enter `docker-compose down` and try again.
 
+The test network will take up 12020 to 12029 on the same machine. Make sure these ports are available or change the docker-compose file.
 
-
-### 4. Test the connection
+### 2. Test the connection
 
 Each node should be connected to 3 other nodes.
 
@@ -59,9 +59,13 @@ sh$ docker exec -it mcdotnet-relayer1 multichain-cli chain1 getpeerinfo
 sh$ docker exec -it mcdotnet-relayer2 multichain-cli chain1 getpeerinfo
 ```
 
+### 3. Test Explorer
+
+Open browser at localhost:12029. It should show the MultiChain Explorer.
 
 
-### 5. Compile and Test
+
+## Compile MultiChainDotNet and Test
 
 1. Install dotnet sdk
 
@@ -91,11 +95,7 @@ sh$ docker exec -it mcdotnet-relayer2 multichain-cli chain1 getpeerinfo
    sh$ dotnet test
    ```
 
-
-
 ## Developing with MultiChainDotNet
-
-
 
 ### 1. Using MultiChainConfiguration
 
@@ -407,36 +407,61 @@ FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [(DESC|ASC)] 
    ```FROM <streamName> WHERE publisher='...'```
 
 
-## Using API Listener
+## Using API Web Socket Listener
 
 The API Listener is designed to broadcast new transaction to web socket subscribers when the node's wallet is notified of a new transaction. 
 
-### Enabling the API Listener
+### Connect using Javascript
 
-To enable the API listener, uncomment the container service in the docker-compose file.
+```js
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:12028/transaction")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
-```yml
-mcdotnet-api:
-     image: mcdotnet-api:2.2
-     build:
-         context: ../../
-         dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
-     container_name: mcdotnet-api
-     environment:
-     - ASPNETCORE_ENVIRONMENT=Development
-     - ASPNETCORE_URLS=http://+:12028
-     ports:
-     - '12028:12028'
-     depends_on:
-     - mcdotnet-seednode
+        if (connection.state !== 'Connected')
+            await connection.start();
+
+        connection.on("Publish", (raw) =>
+        {
+            // use the decoded raw transaction
+            console.log(raw);
+        });
+
+    </script>
 ```
+
+### Connect using C#
+
+```cs
+using Microsoft.AspNetCore.SignalR.Client;
+
+var connection = new HubConnectionBuilder()
+    .WithUrl("http://localhost:12028/transaction")
+    .WithAutomaticReconnect()
+    .Build();
+...
+
+connection.On<string>("Publish", (raw) =>
+{
+    // Use the decoded raw transaction
+    Console.WriteLine(raw);
+});
+...
+
+```
+
 
 ### Testing the API Listener
 
-To test the connection, run the console apps /test/Client1, /test/Client2 and /test/Client3 simultaneously. Use Client1 to send a transaction and decoded raw transaction output should show in Client2 and Client3.
+1. Go to the folder /test/MultiChainDotNet.SocketTest. 
+2. In the same folder, start a web server running at port:3000 or port:8080, eg. From 'visual Code', click on index.html and run `Live Preview` or `live-server` from node.
+3. Open a browser at the server location.
+4. Go to the same folder, open a termainl and run `dotnet run` to start a listener console.
+4. Go to the same folder, open another terminal and run `./mc.sh` to send a test transaction to multichain.
 
-### Connecting to the websocket using client-side Javascript
+The result of the decoded raw transaction should be displayed on both the listener console and browser.
 
- The service uses SignalR for its transport. To connect to the socket using javascript, refer https://docs.microsoft.com/en-us/aspnet/core/signalr/javascript-client?view=aspnetcore-6.0
- 
-
+![demo](./img/socket-demo.gif)

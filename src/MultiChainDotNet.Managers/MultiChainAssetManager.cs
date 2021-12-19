@@ -491,7 +491,6 @@ namespace MultiChainDotNet.Managers
 				_logger.LogWarning(result.Exception.ToString());
 				throw result.Exception;
 			}
-			throw result.Exception;
 		}
 
 	}
