@@ -5,30 +5,38 @@ echo initialising ${chain_name}
 # Start multichaind in background
 multichaind ${chain_name} -initprivkey=V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff --explorersupport=2 -daemon
 
+sleep 5
+
 # Adding 1 test admin, 5 test users
 create_address() {
+	multichain-cli ${chain_name} grant $address $permission
+	multichain-cli ${chain_name} send $address 0
+}
+
+create_address_with_key() {
 	multichain-cli ${chain_name} importprivkey $wif
 	multichain-cli ${chain_name} grant $address $permission
 	multichain-cli ${chain_name} send $address 0
 }
 
+
 # Admin
 wif="V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff"
 permission="admin,connect,mine,receive,send,create,issue"
 address="12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB"
-create_address
+create_address_with_key
 
 # TestUser1
 wif="V6D72NoKndZGSopS1n3qHLFqsV9H4CqZ2HU17HDiJmMvvRubmdkZAR4K"
 permission="receive,send"
 address="1Unpjzmh9TsuRZvVKCQNpqx1eDFkaGC215fpj6"
-create_address
+create_address_with_key
 
 # TestUser2
 wif="VBHjPn95taPpaPH6eLW6UWcbC6Ku2y6a7EoKWy1oQemJkGqqJhDa3o6c"
 permission="receive,send"
 address="1RE72u8HPMBWwYFDLyjoNJHUQwyPkpwk3fc2QN"
-create_address
+create_address_with_key
 
 # Relayer1
 wif="VAHJarN329oHzL5fJjEJMSWoMLXdtfBXyu62D74JaKXtt77Ypc9PNaFz"

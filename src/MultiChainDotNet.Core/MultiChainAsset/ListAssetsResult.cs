@@ -41,5 +41,8 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 		[JsonProperty("subscribed")]
 		public bool Subscribed { get; set; }
 
+		[JsonProperty("fungible")]
+		public bool Fungible { get; set; }
+
 	}
 }

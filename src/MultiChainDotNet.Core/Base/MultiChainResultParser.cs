@@ -62,24 +62,22 @@ namespace MultiChainDotNet.Core.Base
 
 			if (result is JValue)
 			{
-
+				// If expecting object
 				if (typeof(T) == typeof(JToken))
 					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(JToken)));
-
-				// If expecting bool
-				if (typeof(T) == typeof(bool) && result.Value is bool)
-					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(bool)));
-
-				// If expecting string
-				if (typeof(T) == typeof(string) && result.Value is string)
-					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(string)));
 
 				// If expecting no return type
 				if (typeof(T) == typeof(VoidType))
 					return new MultiChainResult<T>();
 
+				// If expecting return type but returned nothing
 				if (String.IsNullOrEmpty(result.ToString()))
 					return new MultiChainResult<T>();
+
+				// fallback for the rest of types
+				if (result.Value.GetType() == typeof(T))
+					return new MultiChainResult<T>((T)Convert.ChangeType(result, typeof(T)));
+
 			}
 
 			return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, "Expected and return type mistmatch."));

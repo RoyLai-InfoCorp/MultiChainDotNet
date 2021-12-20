@@ -84,11 +84,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			  new object[] { },
 			  "send");
 
-			txid.IsError.Should().BeFalse(txid.ExceptionMessage);
+			if (txid.IsError) throw txid.Exception;
 			txid.Result.Should().NotBeNullOrEmpty();
 		}
 
-		[Test, Order(10)]
+		[Test, Order(10),Ignore("")]
 		public async Task should_list_address_transaction_for_payment()
 		{
 			var sendResult = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 100);
@@ -198,14 +198,15 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// ACT
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
 			Console.WriteLine(nfaName);
-			var raw = await _txnCmd.CreateRawSendFromAsync(_admin.NodeWallet,
+			var raw = await _txnCmd.CreateRawSendFromAsync(
+				_admin.NodeWallet,
 				new Dictionary<string, object>
 				{
 					{
-						_admin.NodeWallet, 
-						new 
-						{
-							issue = new { raw = 0 }
+						_admin.NodeWallet,
+						new Dictionary<string, object>{ 
+							{ "", 6000 },
+							{ "issue", new { raw = 0} }
 						}
 					}
 				},
@@ -226,14 +227,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 
 			// Cna be found on blockchain
-			var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
+			var info = await tokenCmd.GetNfaInfo(nfaName);
 			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var balance = await tokenCmd.GetAddressBalancesAsync(_admin.NodeWallet);
-			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
-
+			var nfas = await tokenCmd.ListNfa(_admin.NodeWallet);
+			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
 
 		[Test, Order(46)]
@@ -242,22 +242,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
 			Console.WriteLine(nfaName);
-			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet,nfaName);
-
-			// WAIT
-			await TaskHelper.WaitUntilTrue(async () => {
-				var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
-				return info is { };
-			}
-			, 5, 500);
+			var result = await tokenCmd.IssueNfaAsync(_admin.NodeWallet,nfaName);
+			if (result.IsError) throw result.Exception;
+			var issued = await tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfaName);
+			issued.Should().BeTrue();
 
 			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await perm.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
-
-			// WAIT
-			await TaskHelper.WaitUntilTrue( async () => 
-				(await perm.CheckPermissionGrantedAsync(_admin.NodeWallet, $"{nfaName}.issue")).Result
-			, 5, 500);
+			await perm.WaitUntilPermissionGranted(_admin.NodeWallet, $"{nfaName}.issue");
 
 			// ACT
 			var raw = await _txnCmd.CreateRawSendFromAsync(
@@ -268,6 +260,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						_admin.NodeWallet, 
 						new Dictionary<string,object>
 						{
+							{ "", 6000 },
 							{ "issuetoken",new
 								{
 									asset = nfaName,
@@ -280,7 +273,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				},
 				new object[] { },
 				"send");
-			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
+
+			if (raw.IsError) throw raw.Exception;
 
 			// WAIT
 			var wait = await TaskHelper.WaitUntilTrue(async () => {
@@ -303,10 +297,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
 			Console.WriteLine(nfaName);
-			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await perm.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
-			await tokenCmd.IssueTokenAsync(_admin.NodeWallet, nfaName, "nft1");
+			await tokenCmd.IssueNftAsync(_admin.NodeWallet, nfaName, "nft1");
 
 			// ACT
 			var raw = await _txnCmd.CreateRawSendFromAsync(
@@ -329,7 +323,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				},
 				new object[] { },
 				"send");
-			raw.IsError.Should().BeFalse(raw.ExceptionMessage);
+			if (raw.IsError)
+				throw raw.Exception;
 
 			// ASSERT
 
@@ -367,7 +362,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		/// AppendRawChangeAsync doesn't work with Issue Asset
 		/// </summary>
 		/// <returns></returns>
-		[Test, Order(70)]
+		[Test, Order(70), Ignore("")]
 		public async Task Should_throw_unconfirmed_issue_transaction_in_input_using_appendrawchange()
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
@@ -570,7 +565,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(JsonConvert.SerializeObject(list3, Formatting.Indented));
 		}
 
-		[Test, Order(160)]
+		[Test, Order(160),Ignore("")]
 		public async Task Should_throw_insane_fees_when_pay_without_change()
 		{
 			//var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);

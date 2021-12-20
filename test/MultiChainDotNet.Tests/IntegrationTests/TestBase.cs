@@ -6,9 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainPermission;
 using NLog.Extensions.Logging;
 using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
@@ -27,12 +31,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		protected MultiChainConfiguration _mcConfig;
 		protected TestStateDb _stateDb = new TestStateDb();
 
-		protected async Task FundWallet(string address)
-		{
-			var assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
-			await assetCmd.SendFromAsync(_admin.NodeWallet, address, 2000);
-		}
-
 		protected virtual void ConfigureServices(IServiceCollection services)
 		{
 
@@ -41,6 +39,26 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		protected virtual void ConfigureLogging(ILoggingBuilder logging)
 		{
 
+		}
+
+		private IServiceCollection AddNamedHttpClient(IServiceCollection services, MultiChainNode node)
+		{
+			services
+				.AddHttpClient(node.NodeName, c => {
+					c.BaseAddress = new Uri($"http://{node.NetworkAddress}:{node.NetworkPort}/");
+				})
+				.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
+				.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+				.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
+				.ConfigurePrimaryHttpMessageHandler(() =>
+				{
+					return new HttpClientHandler()
+					{
+						Credentials = new NetworkCredential(node.RpcUserName, node.RpcPassword)
+					};
+				})
+				;
+			return services;
 		}
 
 		private void Initialize()
@@ -67,11 +85,43 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 					services
 						.AddSingleton(_mcConfig)
 						;
+					AddNamedHttpClient(services, _admin);
+					AddNamedHttpClient(services, _relayer1);
+					AddNamedHttpClient(services, _relayer2);
+					AddNamedHttpClient(services, _relayer3);
 					ConfigureServices(services);
 				});
 
 			_container = host.Build().Services;
 			_loggerFactory = _container.GetRequiredService<ILoggerFactory>();
+		}
+
+		protected async Task FundWallet(string address)
+		{
+			var assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
+			await assetCmd.SendFromAsync(_admin.NodeWallet, address, 2000);
+		}
+
+		protected async Task GrantPermissionFromNode(MultiChainNode node, string newAddr, string permission)
+		{
+			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(node.NodeName);
+			var addr = new MultiChainAddressCommand( _loggerFactory.CreateLogger<MultiChainAddressCommand>(), _mcConfig, http);
+			await addr.ImportAddressAsync(newAddr);
+			var perm1 = new MultiChainPermissionCommand(_loggerFactory.CreateLogger<MultiChainPermissionCommand>(), _mcConfig, http);
+			var grant = await perm1.GrantPermissionFromAsync(node.NodeWallet, newAddr, permission);
+			await Task.Delay(1000);
+			if (grant.IsError) throw grant.Exception;
+		}
+
+		protected async Task RevokePermissionFromNode(MultiChainNode node, string newAddr, string permission)
+		{
+			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(node.NodeName);
+			var addr = new MultiChainAddressCommand(_loggerFactory.CreateLogger<MultiChainAddressCommand>(), _mcConfig, http);
+			await addr.ImportAddressAsync(newAddr);
+			var perm1 = new MultiChainPermissionCommand(_loggerFactory.CreateLogger<MultiChainPermissionCommand>(), _mcConfig, http);
+			var grant = await perm1.RevokePermissionFromAsync(node.NodeWallet, newAddr, permission);
+			await Task.Delay(1000);
+			if (grant.IsError) throw grant.Exception;
 		}
 
 		public TestBase()

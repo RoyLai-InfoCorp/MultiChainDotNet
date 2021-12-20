@@ -4,6 +4,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
@@ -12,6 +13,8 @@ using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 
@@ -97,6 +100,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(checkPermission.Result, Is.False);
 		}
 
+
+
+
 		[Test, Order(30)]
 		public async Task Should_be_able_to_grant_issue_permission_by_2_admins()
 		{
@@ -104,30 +110,32 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 
-			// ACT
-			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
-			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
+			// ACT: Relayer1 grant permission
+			await GrantPermissionFromNode(_relayer1,newAddr,"issue");
+
+			// ACT: Relayer2 grant permission
+			await GrantPermissionFromNode(_relayer2, newAddr, "issue");
 
 			// ASSERT
+			await _permCmd.WaitUntilPermissionGranted(newAddr, "issue");
 			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
 			Assert.That(checkPermission.Result, Is.True);
 		}
 
 		[Test, Order(40)]
-		public async Task Should_not_be_able_to_revoke_issue_permission_by_one_admin()
+		public async Task Should_not_be_able_to_revoke_issue_permission_by_1_admin()
 		{
 			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
 			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
-			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
-			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
-			var wait = await TaskHelper.WaitUntilTrue(async () =>
-				(await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue")).Result == true
-			, 5, 500);
+			await GrantPermissionFromNode(_admin, newAddr, "issue");
+			await GrantPermissionFromNode(_relayer1, newAddr, "issue");
+			await GrantPermissionFromNode(_relayer2, newAddr, "issue");
+			var wait = await _permCmd.WaitUntilPermissionGranted(newAddr, "issue");
 			wait.Should().BeTrue();
 
 			// ACT
-			await _permCmd.RevokePermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
+			await RevokePermissionFromNode(_relayer1, newAddr, "issue");
 
 			// ASSERT
 			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
@@ -140,17 +148,19 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _mcAssetCmd.SendAsync(_relayer1.NodeWallet, 1000);
 			await _mcAssetCmd.SendAsync(_relayer2.NodeWallet, 1000);
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
-			await _permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
-			await _permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
-			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
-			Assert.That(checkPermission.Result, Is.True);
+			await GrantPermissionFromNode(_admin, newAddr, "issue");
+			await GrantPermissionFromNode(_relayer1, newAddr, "issue");
+			await GrantPermissionFromNode(_relayer2, newAddr, "issue");
+			var wait = await _permCmd.WaitUntilPermissionGranted(newAddr, "issue");
+			wait.Should().BeTrue();
 
 			// ACT
-			await _permCmd.RevokePermissionFromAsync(_relayer1.NodeWallet, newAddr, "issue");
-			await _permCmd.RevokePermissionFromAsync(_relayer2.NodeWallet, newAddr, "issue");
+			await RevokePermissionFromNode(_relayer1, newAddr, "issue");
+			await RevokePermissionFromNode(_relayer2, newAddr, "issue");
 
 			// ASSERT
-			checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
+			await _permCmd.WaitUntilPermissionRevoked(newAddr, "issue");
+			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
 			Assert.That(checkPermission.Result, Is.False);
 		}
 

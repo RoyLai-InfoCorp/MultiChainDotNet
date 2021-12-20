@@ -44,7 +44,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(result.Result.Count, Is.GreaterThan(5));
+			Assert.That(result.Result.Count, Is.GreaterThan(2));
 		}
 
 		[Test]
@@ -73,12 +73,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_get_multisig_address()
 		{
-			var result = await _addrCmd.CreateMultiSigAsync(2, new string[] { _relayer1.NodeWallet, _relayer2.NodeWallet, _relayer3.NodeWallet });
+			var result = await _addrCmd.CreateMultiSigAsync(2, new string[] { _admin.NodeWallet, _testUser1.NodeWallet, _testUser2.NodeWallet });
 
 			// ASSERT
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
-			Assert.That(result.Result.Address, Is.EqualTo("4JwrgyiN5SoWHRRpvxhwFd1cDRTd8tRyhEV6TW"));
-			Assert.That(result.Result.RedeemScript, Is.EqualTo("522103cbb355bd0f558b892113dff5f45c847ef948219673f784970beb5fc532effe8021039b3e46c0d89ae930bcc8d7b45c7e149d14bd69e45cfaec84baf328779d3813612102ba5946e3e0fa9c1da6ba38bdc9f12c75d7c36572bcda80db6feca1b302671f0853ae"));
+			Assert.That(result.Result.Address, Is.EqualTo("4GKcwh98aehAmS4WECmfm288xQsiziVvXBZpVg"));
+			Assert.That(result.Result.RedeemScript, Is.EqualTo("522103013ffb59769ea760da19bcc6a22bcb7b0e4a4a1ff64e862916af2703758b8fa021035014ec0528333a9c90b62393e14fa43808d74726f365394150b898ef84c3da8221038d35e81f60acd6d1d89ac29db000445e0fdf42b5bccb8d5ba1234d6d2add3fe853ae"));
 		}
 
 	}

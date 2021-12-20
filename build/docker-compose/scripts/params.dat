@@ -55,7 +55,7 @@ minimum-per-output = 0
                                       
 maximum-per-output = 100000000000000    
 minimum-offchain-fee = 0                
-minimum-relay-fee = 1000			    # Min. 1000 native crypto per 1 kb of transaction. Normal send txn is around 230 bytes.
+minimum-relay-fee = 0					
 native-currency-multiple = 1            # Number of raw units of native currency per display unit. (0 - 1000000000)
 
 # Advanced mining parameters

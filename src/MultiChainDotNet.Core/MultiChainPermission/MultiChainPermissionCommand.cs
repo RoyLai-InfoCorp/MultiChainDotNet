@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,6 +23,19 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		public MultiChainPermissionCommand(ILogger<MultiChainPermissionCommand> logger, MultiChainConfiguration mcConfig, HttpClient httpClient) : base(logger, mcConfig, httpClient)
 		{
 			_logger.LogTrace($"Initialized MultiChainPermissionCommand: {mcConfig.Node.Protocol}://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}");
+		}
+		public Task<bool> WaitUntilPermissionGranted(string subject, string permission, int retries=5, int delay=500)
+		{
+			return TaskHelper.WaitUntilTrue(async () =>
+			  (await CheckPermissionGrantedAsync(subject, permission)).Result == true
+		  , retries, delay);
+		}
+
+		public Task<bool> WaitUntilPermissionRevoked(string subject, string permission, int retries = 5, int delay = 500)
+		{
+			return TaskHelper.WaitUntilTrue(async () =>
+			  (await CheckPermissionGrantedAsync(subject, permission)).Result == false
+		  , retries, delay);
 		}
 
 		public async Task<MultiChainResult<List<PermissionsResult>>> ListPermissionsAsync(string address, string permissionType)

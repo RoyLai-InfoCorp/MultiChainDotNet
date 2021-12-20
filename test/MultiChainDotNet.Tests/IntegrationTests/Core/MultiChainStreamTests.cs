@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainStream;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
@@ -45,7 +46,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(10)]
-		public async Task Should_be_able_to_create_new_stream_and_get_by_name()
+		public async Task T0610_should_be_able_to_create_new_stream_and_get_by_name()
 		{
 			_stateDb.ClearState<TestState>();
 
@@ -65,8 +66,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_stateDb.SaveState(new TestState { StreamName = randomName, Txid = txid.Result });
 		}
 
-		[Test, Order(20)]
-		public async Task Should_throw_error_if_not_subscribed_to_stream()
+		[Test, Order(20),Ignore("")]
+		public async Task T0620_should_throw_error_if_not_subscribed_to_stream()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -81,7 +82,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(30)]
-		public async Task Should_not_throw_error_after_subscribed_to_stream()
+		public async Task T0630_should_not_throw_error_after_subscribed_to_stream()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -95,7 +96,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(40)]
-		public async Task Should_throw_error_stream_with_this_name_not_found()
+		public async Task T0640_throw_error_stream_with_this_name_not_found()
 		{
 			var state = _stateDb.GetState<TestState>();
 			var randomName = Guid.NewGuid().ToString("N").Substring(20);
@@ -106,7 +107,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(50)]
-		public async Task Should_throw_error_stream_already_exists()
+		public async Task T0650_throw_error_stream_already_exists()
 		{
 			var state = _stateDb.GetState<TestState>();
 			var result = await _streamCmd.CreateStreamAsync(state.StreamName);
@@ -116,9 +117,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 		//--------- streamitems
 		[Test, Order(60)]
-		public async Task Should_be_able_to_publish_hexadecimal_streamitem()
+		public async Task T0660_be_able_to_publish_hexadecimal_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
+			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
 			// ACT
 			var key1 = Guid.NewGuid().ToString("N").Substring(20);
@@ -145,7 +147,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(70)]
-		public async Task Should_list_all_streamitems()
+		public async Task T0670_list_all_streamitems()
 		{
 			var state = _stateDb.GetState<TestState>();
 
@@ -155,9 +157,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 		[Test, Order(80)]
-		public async Task Should_publish_text_streamitem()
+		public async Task T0680_publish_text_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
+			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
 			var key1 = Guid.NewGuid().ToString("N").Substring(20);
 			var key2 = Guid.NewGuid().ToString("N").Substring(20);
@@ -172,9 +175,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(90)]
-		public async Task Should_publish_Json_streamitem()
+		public async Task T0690_publish_Json_streamitem()
 		{
 			var state = _stateDb.GetState<TestState>();
+			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
 			var key1 = Guid.NewGuid().ToString("N").Substring(20);
 			var key2 = Guid.NewGuid().ToString("N").Substring(20);

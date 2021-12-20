@@ -3,8 +3,10 @@
 
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UtilsDotNet;
@@ -30,6 +32,14 @@ namespace MultiChainDotNet.Core.MultiChainStream
 
 			return await JsonRpcRequestAsync<VoidType>("subscribe", streamName, rescan);
 		}
+
+		public Task<bool> WaitUntilStreamExists(string streamName)
+		{
+			return TaskHelper.WaitUntilTrue(async () => (await ListStreamsAsync()).Result.Any(x => x.Name == streamName), 
+			5, 
+			500);
+		}
+
 
 		#region streams
 		public async Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool isOpen = true)

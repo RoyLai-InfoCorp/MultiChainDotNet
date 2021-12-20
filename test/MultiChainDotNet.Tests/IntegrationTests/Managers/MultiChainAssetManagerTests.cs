@@ -45,7 +45,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		}
 
 		const UInt64 SEND_TXN_FEE_AT_LEAST = 0;
-		const UInt64 SEND_TXN_FEE_AT_MOST = 1000;
+		const UInt64 SEND_TXN_FEE_AT_MOST = 3000;
 
 		[Test, Order(20)]
 		public async Task Should_be_able_to_pay_with_metadata()
@@ -79,7 +79,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		}
 
 		const UInt64 SENDASSET_TXN_FEE_AT_LEAST = 0;
-		const UInt64 SENDASSET_TXN_FEE_AT_MOST = 1000;
+		const UInt64 SENDASSET_TXN_FEE_AT_MOST = 3000;
 		[Test, Order(30)]
 		public async Task Should_be_able_to_sendasset_with_metadata()
 		{

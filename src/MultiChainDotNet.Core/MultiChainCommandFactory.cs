@@ -4,6 +4,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
+using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 
@@ -32,5 +33,6 @@ namespace MultiChainDotNet.Core
 			var logger = _container.GetRequiredService<ILogger<T>>();
 			return (T)Activator.CreateInstance(typeof(T), logger, _mcConfig, _httpClient);
 		}
+
 	}
 }

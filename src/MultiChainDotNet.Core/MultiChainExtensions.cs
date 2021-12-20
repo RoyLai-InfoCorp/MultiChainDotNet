@@ -4,6 +4,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
+using MultiChainDotNet.Core.MultiChainBinary;
 using MultiChainDotNet.Core.MultiChainBlockchain;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainStream;
@@ -87,6 +88,29 @@ namespace MultiChainDotNet.Core
 
 			return services;
 		}
+
+		static IServiceCollection AddMultiChainBinary(this IServiceCollection services, MultiChainConfiguration mcConfig)
+		{
+			var container = services.BuildServiceProvider();
+			var service = container.GetService<IMultiChainCommandFactory>();
+			if (service is null)
+				services
+					.AddScoped<MultiChainBinaryCommand>()
+				.AddHttpClient<MultiChainBinaryCommand>(c => c.BaseAddress = new Uri($"http://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}"))
+					.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
+					.AddPolicyHandler(ExceptionPolicyHandler.RetryPolicy())
+					.AddPolicyHandler(ExceptionPolicyHandler.TimeoutPolicy())
+					.ConfigurePrimaryHttpMessageHandler(() =>
+					{
+						return new HttpClientHandler()
+						{
+							Credentials = new NetworkCredential(mcConfig.Node.RpcUserName, mcConfig.Node.RpcPassword)
+						};
+					});
+
+			return services;
+		}
+
 
 		static IServiceCollection AddMultiChainAsset(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
@@ -234,6 +258,7 @@ namespace MultiChainDotNet.Core
 				.AddMultiChainAsset(mcConfig)
 				.AddMultiChainStream(mcConfig)
 				.AddMultiChainToken(mcConfig)
+				.AddMultiChainBinary(mcConfig)
 				.AddMultiChainPermission(mcConfig)
 				.AddMultiChainBlockchain(mcConfig)
 				.AddMultiChainVariable(mcConfig)

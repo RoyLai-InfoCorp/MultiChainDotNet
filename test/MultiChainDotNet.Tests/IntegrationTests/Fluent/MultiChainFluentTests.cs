@@ -130,13 +130,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// ASSERT
 
 			// Can be found on blockchain
-			var info = await tokenCmd.GetNonfungibleAssetInfo(nfaName);
+			var info = await tokenCmd.GetNfaInfo(nfaName);
 			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var balance = await tokenCmd.GetAddressBalancesAsync(_admin.NodeWallet);
-			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+			var nfas = await tokenCmd.ListNfa(_admin.NodeWallet);
+			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 
 		}
 
@@ -146,7 +146,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			//Prepare
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
 			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
-			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
 			await permCmd.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
 
@@ -175,10 +175,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			//Prepare
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
 			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
-			await tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
 			await permCmd.GrantPermissionAsync(_admin.NodeWallet, $"{nfaName}.issue");
-			await tokenCmd.IssueTokenAsync(_admin.NodeWallet, nfaName, "nft1");
+			await tokenCmd.IssueNftAsync(_admin.NodeWallet, nfaName, "nft1");
 
 			// ACT
 			var txid = new MultiChainFluent()

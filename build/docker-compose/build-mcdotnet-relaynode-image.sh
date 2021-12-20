@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -f Dockerfile.mcdotnet-relaynode -t mcdotnet-relaynode:2.2 .
+docker build -f Dockerfile.mcdotnet-relaynode -t mcdotnet-relaynode:2.2 . --no-cache

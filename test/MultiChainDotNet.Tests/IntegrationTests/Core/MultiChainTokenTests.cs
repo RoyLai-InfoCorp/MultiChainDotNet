@@ -34,6 +34,23 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 		}
 
+		private async Task<string> CreateMockTokenIssuer()
+		{
+			var addressCmd = _container.GetRequiredService<MultiChainAddressCommand>();
+			var newIssuer = await addressCmd.GetNewAddressAsync();
+			var newIssuerAddr = newIssuer.Result;
+
+			await FundWallet(newIssuerAddr);
+
+			var permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
+			await GrantPermissionFromNode(_relayer1, newIssuerAddr, "issue");
+			await GrantPermissionFromNode(_relayer2, newIssuerAddr, "issue");
+			await permCmd.WaitUntilPermissionGranted(newIssuerAddr, "issue");
+
+			return newIssuerAddr;
+		}
+
+
 		[Test]
 		public async Task Should_be_able_to_issue_nfa()
 		{
@@ -43,42 +60,39 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 			// ACT
-			var result = await _tokenCmd.IssueNonFungibleAssetAsync(_testUser1.NodeWallet, nfaName);
+			var result = await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
 			result.IsError.Should().BeFalse();
 
 			// Cna be found on blockchain
-			var info = await _tokenCmd.GetNonfungibleAssetInfo(nfaName);
-			Console.WriteLine("Info:"+info.Result.ToJson());
+			var info = await _tokenCmd.GetNfaInfo(nfaName);
+			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var balance = await _tokenCmd.GetAddressBalancesAsync(_testUser1.NodeWallet);
-			balance.Result.Any(x=>x.Name == nfaName).Should().BeTrue();
+			var nfas = await _tokenCmd.ListNfa(_testUser1.NodeWallet);
+			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+		}
+
+		[Test]
+		public async Task Should_be_able_to_list_nfa()
+		{
+			var result = await _tokenCmd.ListNfa();
+			Console.WriteLine(result.Result.ToJson());
+
+			result = await _tokenCmd.ListNfa(_testUser1.NodeWallet);
+			Console.WriteLine(result.Result.ToJson());
 		}
 
 		[Test]
 		public async Task Should_be_able_to_issue_nfa_from()
 		{
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
-			Console.WriteLine("Issuer:"+ _testUser1.NodeWallet);
-			Console.WriteLine("NFA:"+nfaName);
-			var addressCmd = _container.GetRequiredService<MultiChainAddressCommand>();
-			var newIssuer = await addressCmd.GetNewAddressAsync();
-			var newIssuerAddr = newIssuer.Result;
-			await FundWallet(newIssuerAddr);
-			var permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
-			var grant = await permCmd.GrantPermissionFromAsync(_relayer1.NodeWallet, newIssuerAddr, "issue");
-			if (grant.IsError) throw grant.Exception;
-			grant = await permCmd.GrantPermissionFromAsync(_relayer2.NodeWallet, newIssuerAddr, "issue");
-			if (grant.IsError) throw grant.Exception;
-
-			var wait = await TaskHelper.WaitUntilTrue(async () =>
-				(await permCmd.CheckPermissionGrantedAsync(newIssuerAddr, "issue")).Result == true
-			, 5, 500);
-			wait.Should().BeTrue();
+			var newIssuerAddr = await CreateMockTokenIssuer();
+			Console.WriteLine("Issuer:" + newIssuerAddr);
+			Console.WriteLine("NFA:" + nfaName);
 
 			// ACT
-			var result = await _tokenCmd.IssueNonFungibleAssetFromAsync(newIssuerAddr, _testUser2.NodeWallet, nfaName);
+			var result = await _tokenCmd.IssueNfaFromAsync(newIssuerAddr, _testUser2.NodeWallet, nfaName);
 			if (result.IsError)
 				throw result.Exception;
 
@@ -87,15 +101,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _permCmd.GrantPermissionAsync(_testUser2.NodeWallet, $"{nfaName}.issue");
 
 			// Cna be found on blockchain
-			var info = await _tokenCmd.GetNonfungibleAssetInfo(nfaName);
+			var info = await _tokenCmd.GetNfaInfo(nfaName);
 			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var balance = await _tokenCmd.GetAddressBalancesAsync(_testUser2.NodeWallet);
-			balance.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+			var nfas = await _tokenCmd.ListNfa(_testUser2.NodeWallet);
+			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
-
 
 		[Test]
 		public async Task Should_not_be_able_to_issue_duplicate_nfa()
@@ -104,8 +117,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(nfaName);
 
 			// ACT
-			await _tokenCmd.IssueNonFungibleAssetAsync(_testUser1.NodeWallet, nfaName);
-			var result2 = await _tokenCmd.IssueNonFungibleAssetAsync(_testUser1.NodeWallet, nfaName);
+			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
+			var result2 = await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
 
 			// ASSERT
 			result2.ErrorCode.Should().Be(MultiChainDotNet.Core.Base.MultiChainErrorCode.RPC_DUPLICATE_NAME);
@@ -115,7 +128,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_throw_error_if_nfa_not_found()
 		{
 			// ACT
-			var info2 = await _tokenCmd.GetNonfungibleAssetInfo("AAA");
+			var info2 = await _tokenCmd.GetNfaInfo("AAA");
 
 			// ASSERT
 			info2.ErrorCode.Should().Be(MultiChainDotNet.Core.Base.MultiChainErrorCode.RPC_ENTITY_NOT_FOUND);
@@ -127,17 +140,49 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
-			await _tokenCmd.IssueNonFungibleAssetAsync( _testUser1.NodeWallet, nfaName);
+			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
+			var wait = await _tokenCmd.WaitUntilNfaIssued(_testUser1.NodeWallet, nfaName);
 
 			// ACT
 			var tokenId = "nft1";
-			await _tokenCmd.IssueTokenAsync(_testUser1.NodeWallet, nfaName, tokenId);
+			var result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, tokenId);
 
 			// ASSERT
-			var bal = await _tokenCmd.GetTokenBalancesAsync(_testUser1.NodeWallet);
-			bal.Result[_testUser1.NodeWallet].Where(x => x.NfaName == nfaName).Count().Should().Be(1);
-			bal.Result[_testUser1.NodeWallet].SingleOrDefault(x => x.NfaName == nfaName).Token.Should().Be("nft1");
+			result.IsError.Should().BeFalse();
+			var nft = await _tokenCmd.ListNft(_testUser1.NodeWallet, nfaName, tokenId);
+			nft.Result[0].NfaName.Should().Be(nfaName);
+			nft.Result[0].Token.Should().Be(tokenId);
 		}
+
+		[Test]
+		public async Task Should_be_able_to_list_tokens()
+		{
+			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
+			Console.WriteLine("NFA:" + nfaName);
+			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
+			var wait = await _tokenCmd.WaitUntilNfaIssued(_testUser1.NodeWallet, nfaName);
+
+			// ACT
+			var result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftA");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftA");
+
+			if (result.IsError) throw result.Exception;
+			result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftB");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftB");
+
+			if (result.IsError) throw result.Exception;
+			result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftC");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftC");
+
+			if (result.IsError) throw result.Exception;
+			var nfts = await _tokenCmd.ListNft(_testUser1.NodeWallet, nfaName);
+
+			// ASSERT
+			nfts.IsError.Should().BeFalse();
+			nfts.Result.Count.Should().Be(3);
+		}
+
 
 		[Test]
 		public async Task Should_be_able_to_issue_token_from()
@@ -145,16 +190,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
-			await _tokenCmd.IssueNonFungibleAssetAsync(_testUser1.NodeWallet, nfaName);
+			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
 			var _permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await _permCmd.GrantPermissionAsync(_testUser1.NodeWallet, $"{nfaName}.issue");
 			await FundWallet(_testUser1.NodeWallet);
 
 			// ACT
 			var tokenId = "nft1";
-			var issue = await _tokenCmd.IssueTokenFromAsync(_testUser1.NodeWallet, _testUser1.NodeWallet, nfaName, tokenId);
+			var issue = await _tokenCmd.IssueNftFromAsync(_testUser1.NodeWallet, _testUser1.NodeWallet, nfaName, tokenId);
 			if (issue.IsError)
 				throw issue.Exception;
+			var wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, tokenId);
+			wait.Should().BeTrue();
 
 			// ASSERT
 			var bal = await _tokenCmd.GetTokenBalancesAsync(_testUser1.NodeWallet);
@@ -169,12 +216,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
-			await _tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
+			await _tokenCmd.WaitUntilNfaIssued(_testUser1.NodeWallet, nfaName);
 			var tokenId = "nft1";
-			await _tokenCmd.IssueTokenAsync(_admin.NodeWallet, nfaName, tokenId);
+			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfaName, tokenId);
+			await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName,tokenId);
 
 			// ACT
-			var send = await _tokenCmd.SendTokenAsync(_testUser1.NodeWallet, nfaName, tokenId);
+			var send = await _tokenCmd.SendNftAsync(_testUser1.NodeWallet, nfaName, tokenId);
 			if (send.IsError)
 				throw send.Exception;
 
@@ -190,13 +239,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
-			await _tokenCmd.IssueNonFungibleAssetAsync(_admin.NodeWallet, nfaName);
+			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var tokenId = "nft1";
-			await _tokenCmd.IssueTokenAsync(_testUser1.NodeWallet, nfaName, tokenId);
+			await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, tokenId);
 			await FundWallet(_testUser1.NodeWallet);
 
 			// ACT
-			var send = await _tokenCmd.SendTokenFromAsync(_testUser1.NodeWallet, _testUser2.NodeWallet, nfaName, tokenId);
+			var send = await _tokenCmd.SendNftFromAsync(_testUser1.NodeWallet, _testUser2.NodeWallet, nfaName, tokenId);
 			if (send.IsError)
 				throw send.Exception;
 

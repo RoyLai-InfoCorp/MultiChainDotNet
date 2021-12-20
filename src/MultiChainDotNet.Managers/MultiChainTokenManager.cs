@@ -155,7 +155,7 @@ namespace MultiChainDotNet.Managers
 					;
 				await TaskHelper.WaitUntilTrue(async () =>
 				{
-					var exist = await _tokenCmd.GetNonfungibleAssetInfo(nfaName);
+					var exist = await _tokenCmd.GetNfaInfo(nfaName);
 					if (exist.IsError)
 					{
 						if (exist.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
