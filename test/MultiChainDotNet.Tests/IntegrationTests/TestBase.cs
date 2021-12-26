@@ -9,11 +9,13 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
+using MultiChainDotNet.Core.MultiChainTransaction;
 using NLog.Extensions.Logging;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests
 {
@@ -60,6 +62,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 				;
 			return services;
 		}
+
+		protected async Task<string> ShowDecodedTransaction(string txid)
+		{
+			var txCmd = _container.GetService<MultiChainTransactionCommand>();
+			var result = await txCmd.GetRawTransaction(txid);
+			var result2 = await txCmd.DecodeRawTransactionAsync(result.Result);
+			return result2.Result.ToJson();
+		}
+
+		protected string RandomName() => Guid.NewGuid().ToString("N").Substring(20);
 
 		private void Initialize()
 		{

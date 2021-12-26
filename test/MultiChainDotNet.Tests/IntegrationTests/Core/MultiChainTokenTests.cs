@@ -5,6 +5,7 @@ using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
 using MultiChainDotNet.Core.MultiChainToken;
+using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -20,6 +21,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
     public class MultiChainTokenTests : TestBase
     {
 		MultiChainTokenCommand _tokenCmd;
+		MultiChainTransactionCommand _txCmd;
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
@@ -50,11 +52,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			return newIssuerAddr;
 		}
 
-
 		[Test]
 		public async Task Should_be_able_to_issue_nfa()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 
@@ -62,6 +63,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// ACT
 			var result = await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
 			result.IsError.Should().BeFalse();
+			await ShowDecodedTransaction(result.Result);
 
 			// Cna be found on blockchain
 			var info = await _tokenCmd.GetNfaInfo(nfaName);
@@ -86,7 +88,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_issue_nfa_from()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			var newIssuerAddr = await CreateMockTokenIssuer();
 			Console.WriteLine("Issuer:" + newIssuerAddr);
 			Console.WriteLine("NFA:" + nfaName);
@@ -113,7 +115,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_not_be_able_to_issue_duplicate_nfa()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
 
 			// ACT
@@ -135,9 +137,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test]
-		public async Task Should_be_able_to_issue_token()
+		public async Task Should_be_able_to_issue_nft()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
@@ -146,6 +148,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// ACT
 			var tokenId = "nft1";
 			var result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, tokenId);
+			Console.WriteLine(await ShowDecodedTransaction(result.Result));
 
 			// ASSERT
 			result.IsError.Should().BeFalse();
@@ -157,7 +160,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_list_tokens()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
@@ -187,7 +190,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_issue_token_from()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
@@ -213,7 +216,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_send_token()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
@@ -236,7 +239,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_send_token_from()
 		{
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
 			Console.WriteLine("NFA:" + nfaName);
 			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);

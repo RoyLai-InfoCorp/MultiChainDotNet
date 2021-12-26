@@ -108,7 +108,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_send_asset_with_inline_metadata()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 0.01, true);
 
 			// ACT
@@ -133,7 +133,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_have_permission_to_send_asset_by_default()
 		{
 			var newSender = await _addrCmd.GetNewAddressAsync();
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName(); 
 
 			await _assetCmd.IssueAssetAsync(newSender.Result, assetName, 10, 0.001, true);
 
@@ -171,7 +171,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_issue_asset()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			var result = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, assetName, 10, 0.001, true);
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
@@ -183,7 +183,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_issue_more_asset()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			var issueResult = await _assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 10, 0.001, true);
 
 			// ACT
@@ -207,7 +207,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_subscribe()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName, 10, 0.001, true);
 
 			// ACT			
@@ -224,7 +224,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var newSender = (await _addrCmd.GetNewAddressAsync()).Result;
 			Console.WriteLine("sender:" + newSender);
 			await _permCmd.GrantPermissionAsync(newSender, "send");
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			Console.WriteLine("assetName:"+assetName);
 			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 0.001, true);
 			var balances = await _assetCmd.GetAddressBalancesAsync(newSender);
@@ -242,7 +242,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var newSender = (await _addrCmd.GetNewAddressAsync()).Result;
 			await _permCmd.GrantPermissionAsync(newSender, "send");
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 0.001, true);
 			await _assetCmd.SendAsync(newSender, 1_000);
 			var senderBalanceBefore = await GetRawBalance(newSender);
@@ -266,11 +266,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_list_assets()
 		{
-			var assetName1 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName1 = RandomName();
 			var txid1 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName1, 10, 0.001, true);
-			var assetName2 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName2 = RandomName();
 			var txid2 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName2, 10, 0.001, true);
-			var assetName3 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName3 = RandomName();
 			var txid3 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName3, 10, 0.001, true);
 
 			// ACT			
@@ -287,11 +287,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_get_asset_by_name()
 		{
-			var assetName1 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName1 = RandomName();
 			var txid1 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName1, 10, 0.001, true);
-			var assetName2 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName2 = RandomName();
 			var txid2 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName2, 10, 0.001, true);
-			var assetName3 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName3 = RandomName();
 			var txid3 = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName3, 10, 0.001, true);
 
 			// ACT			
@@ -306,7 +306,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_get_balances_by_address()
 		{
-			var assetName1 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName1 = RandomName();
 			await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName1, 10, 0.001, true);
 
 			// ACT			
@@ -320,7 +320,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_list_transactions_of_an_asset()
 		{
-			var assetName1 = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName1 = RandomName();
 			await _assetCmd.IssueAssetAsync(_admin.NodeWallet, assetName1, 10, 0.001, true);
 			await _assetCmd.SubscribeAsync(assetName1);
 

@@ -50,7 +50,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			_stateDb.ClearState<TestState>();
 
-			var randomName = Guid.NewGuid().ToString("N").Substring(20);
+			var randomName = RandomName();
 
 			// ACT
 			var txid = await _streamCmd.CreateStreamAsync(randomName);
@@ -99,7 +99,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task T0640_throw_error_stream_with_this_name_not_found()
 		{
 			var state = _stateDb.GetState<TestState>();
-			var randomName = Guid.NewGuid().ToString("N").Substring(20);
+			var randomName = RandomName();
 			var result = await _streamCmd.ListStreamsAsync(randomName);
 			Assert.That(result.IsError, Is.True);
 			Assert.That(result.ErrorCode, Is.EqualTo(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND));
@@ -123,8 +123,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
 			// ACT
-			var key1 = Guid.NewGuid().ToString("N").Substring(20);
-			var key2 = Guid.NewGuid().ToString("N").Substring(20);
+			var key1 = RandomName();
+			var key2 = RandomName();
 			var result = await _streamCmd.PublishHexadecimalStreamItemAsync(state.StreamName, new string[] { key1, key2 }, "a1b2c3d4");
 
 			// ASWSERT
@@ -162,8 +162,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var state = _stateDb.GetState<TestState>();
 			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
-			var key1 = Guid.NewGuid().ToString("N").Substring(20);
-			var key2 = Guid.NewGuid().ToString("N").Substring(20);
+			var key1 = RandomName();
+			var key2 = RandomName();
 
 			// ACT
 			var result = await _streamCmd.PublishTextStreamItemAsync(state.StreamName, new string[] { key1, key2 }, "Hello World");
@@ -180,8 +180,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var state = _stateDb.GetState<TestState>();
 			await _streamCmd.WaitUntilStreamExists(state.StreamName);
 
-			var key1 = Guid.NewGuid().ToString("N").Substring(20);
-			var key2 = Guid.NewGuid().ToString("N").Substring(20);
+			var key1 = RandomName();
+			var key2 = RandomName();
 
 			// ACT
 			var result = await _streamCmd.PublishJsonStreamItemAsync(state.StreamName, new string[] { key1, key2 }, new { Id = Guid.NewGuid(), Greetings = "Hello World" });

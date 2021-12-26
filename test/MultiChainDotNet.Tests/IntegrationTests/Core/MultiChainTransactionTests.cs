@@ -12,12 +12,14 @@ using MultiChainDotNet.Core.MultiChainToken;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
+using static MultiChainDotNet.Core.MultiChainTransaction.GetTxOutResult;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
@@ -34,6 +36,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		private MultiChainAddressCommand _addrCmd;
 		MultiChainTransactionCommand _txnCmd;
 		MultiChainAssetCommand _assetCmd;
+		private MultiChainTokenCommand _tokenCmd;
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
@@ -66,6 +69,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_logger = _container.GetRequiredService<ILogger<MultiChainTransactionTests>>();
 			_permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 			_addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
+			_assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
+			_tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 
 		}
 
@@ -120,7 +125,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var newSender = (await _addrCmd.GetNewAddressAsync()).Result;
 			var newRecipient = (await _addrCmd.GetNewAddressAsync()).Result;
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 10);
+			var assetName = RandomName();
 			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 1, true);
 			await _permCmd.GrantPermissionAsync(newSender, "send");
 			await _permCmd.GrantPermissionAsync(newRecipient, "receive");
@@ -163,7 +168,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test, Order(40)]
 		public async Task Should_issue_asset_with_createrawsendfrom()
 		{
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			var raw = await _txnCmd.CreateRawSendFromAsync(_admin.NodeWallet,
 				new Dictionary<string, object>
 				{
@@ -196,7 +201,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_issue_non_fungible_asset_with_createrawsendfrom()
 		{
 			// ACT
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
 			var raw = await _txnCmd.CreateRawSendFromAsync(
 				_admin.NodeWallet,
@@ -240,7 +245,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_issue_token_with_createrawsendfrom()
 		{
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
 			var result = await tokenCmd.IssueNfaAsync(_admin.NodeWallet,nfaName);
 			if (result.IsError) throw result.Exception;
@@ -295,7 +300,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_send_token_with_createrawsendfrom()
 		{
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
 			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
@@ -334,8 +339,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 
-
-
 		[Test, Order(50)]
 		public async Task Should_throw_insufficient_priority_when_using_unspent_with_sufficient_balance()
 		{
@@ -367,7 +370,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
 			var unspent = unspents.Result.First(x => x.Amount > 0);
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			var raw = await _txnCmd.CreateRawTransactionAsync(
 				new List<TxIdVoutStruct> { new TxIdVoutStruct { TxId = unspent.TxId, Vout = unspent.Vout } },
 				new Dictionary<string, object>
@@ -395,6 +398,85 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _txnCmd.LockUnspentAsync(true, unspent.TxId, unspent.Vout);
 			Assert.That(withrawchange.IsError, Is.True);
 			Assert.That(withrawchange.ExceptionMessage, Contains.Substring("Unconfirmed issue transaction in input"));
+		}
+
+		[Test, Order(72)]
+		public async Task Should_preparelockunspent_asset()
+		{
+			var asset1 = RandomName();
+			Console.WriteLine(asset1);
+			var result = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, asset1, 10, 1, true);
+			if (result.IsError) throw result.Exception;
+			var success = await TaskHelper.WaitUntilTrue(async () => (await _assetCmd.GetAssetInfoAsync(asset1)).Result is { });
+			if (!success) throw new Exception("Not successful");
+			
+			// ACT
+			await _txnCmd.PrepareLockUnspentAsync(asset1, 10);
+
+			//ASSERT
+			var unspents = await _txnCmd.ListUnspentAsync();
+			var asset1Unspent = unspents.Result.Where(x=>x.Assets.Any(y=>y.Name==asset1));
+			Console.WriteLine(asset1Unspent.ToJson());
+		}
+
+		[Test, Order(72)]
+		public async Task Should_preparelockunspent_token()
+		{
+			var nfa = RandomName();
+			Console.WriteLine(nfa);
+			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfa);
+			await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfa);
+			var nft = RandomName();
+			Console.WriteLine(nft);
+			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, nft);
+			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, nft);
+
+			// ACT
+			var lockUnspentResult = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = nft, qty = 1 } } });
+
+			//ASSERT
+			if (lockUnspentResult.IsError) throw lockUnspentResult.Exception;
+			var list = await _txnCmd.ListLockUnspent();
+			AssetDecodeResult found = null;
+			foreach (var item in list.Result){
+				var txOutResult = await _txnCmd.GetTxOutAsync(item.TxId, item.Vout);
+				var txout = txOutResult.Result?.Assets?.SingleOrDefault(x => x.Token == nft);
+				if (txout is { })
+					found = txout;
+			}
+			found.Should().NotBeNull();
+		}
+
+		[Test, Order(170)]
+		public async Task Should_createrawexchange_token()
+		{
+			var nfa = RandomName();
+			Console.WriteLine(nfa);
+			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfa);
+			await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfa);
+
+			// NFT 1
+			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, "Nft1");
+			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, "Nft1");
+			var lockUnspentResult = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = "Nft1", qty = 1 } } });
+			var txid = lockUnspentResult.Result.TxId;
+			var vout = lockUnspentResult.Result.Vout;
+
+			// ACT 1: CreateRawExchange
+			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, "Nft2");
+			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, "Nft2");
+			var exchangeResult = await _txnCmd.CreateRawExchange(txid, vout, new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
+
+			// ACT 2: AppendRawExchange
+			var lockUnspentResult2 = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
+			var txid2 = lockUnspentResult2.Result.TxId;
+			var vout2 = lockUnspentResult2.Result.Vout;
+			var completeResult = await _txnCmd.AppendRawExchange(exchangeResult.Result, txid2, vout2, new Dictionary<string, object> { { nfa, new { token = "Nft1", qty = 1 } } });
+
+			// ASSERT
+			completeResult.Result.Complete.Should().BeTrue();
+			var decoded= await _txnCmd.DecodeRawTransactionAsync(completeResult.Result.Hex);
+			Console.WriteLine(decoded.ToJson());
 		}
 
 		[Test, Order(80)]
@@ -428,7 +510,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_issue_asset_to_self_using_createrawtransaction()
 		{
 			_stateDb.ClearState<TestState>();
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 
 			var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 1000);
 			var raw = await _txnCmd.CreateRawTransactionAsync(

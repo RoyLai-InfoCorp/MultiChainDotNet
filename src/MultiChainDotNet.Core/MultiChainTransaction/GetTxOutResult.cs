@@ -28,6 +28,8 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 			[JsonProperty("type")]
 			public string Type { get; set; }
+			[JsonProperty("token")]
+			public string Token { get; set; }
 		}
 
 		public class ScriptPubKeyResult

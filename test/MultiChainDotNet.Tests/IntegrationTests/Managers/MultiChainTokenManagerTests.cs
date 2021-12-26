@@ -39,7 +39,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task should_issue_and_send_non_fungible_token()
 		{
 			//Prepare
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var nfaName = RandomName();
 
 			// ACT 1
 			await _tokenManager.IssueNonfungibleAsset(_admin.NodeWallet, nfaName);

@@ -31,7 +31,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_create_variable()
 		{
-			var varName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var varName = RandomName();
 
 			// ACT 1
 			var createResult = await _varCmd.CreateVariableAsync(varName);

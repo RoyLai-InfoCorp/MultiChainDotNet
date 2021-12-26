@@ -8,7 +8,7 @@ namespace MultiChainDotNet.Core.Utils
 {
     public class TaskHelper
     {
-		public static async Task<bool> WaitUntilTrue(Func<Task<bool>> func, int retries, int delay)
+		public static async Task<bool> WaitUntilTrue(Func<Task<bool>> func, int retries = 5, int delay = 500)
 		{
 			var isTrue = await func();
 			for (int i = 0; i < retries; i++)

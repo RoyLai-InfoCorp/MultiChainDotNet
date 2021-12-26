@@ -160,6 +160,12 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<SignRawTransactionResult>("signrawtransaction", transaction);
 		}
 
+		public async Task<MultiChainResult<List<TxIdVoutStruct>>> ListLockUnspent()
+		{
+			return await JsonRpcRequestAsync<List<TxIdVoutStruct>>("listlockunspent");
+		}
+
+
 		public async Task<MultiChainResult<string>> AppendRawChangeAsync(string transaction, string address)
 		{
 			return await JsonRpcRequestAsync<string>("appendrawchange", transaction, address);
@@ -174,6 +180,21 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		{
 			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspent",
 				new Dictionary<string, Double> { { assetName, qty } });
+		}
+
+		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentAsync(object assetQuantities)
+		{
+			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspent", assetQuantities);
+		}
+
+		public Task<MultiChainResult<string>> CreateRawExchange(string txid, int vout, object askAssets)
+		{
+			return JsonRpcRequestAsync<string>("createrawexchange", txid, vout, askAssets);
+		}
+
+		public Task<MultiChainResult<AppendRawExchangeResult>> AppendRawExchange(string partialRawHex, string txid, int vout, object askAssets)
+		{
+			return JsonRpcRequestAsync<AppendRawExchangeResult>("appendrawexchange", partialRawHex, txid, vout, askAssets);
 		}
 
 		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentFromAsync(string from, string assetName, Double qty)

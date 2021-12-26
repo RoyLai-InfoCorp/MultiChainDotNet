@@ -83,7 +83,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public void Should_issue_asset()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetName = RandomName();
 
 			// ACT
 			var txid = new MultiChainFluent()
@@ -110,7 +110,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_non_fungible_asset()
 		{
 			//Prepare
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var nfaName = RandomName();
 			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
 
 			// ACT
@@ -144,7 +144,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_token()
 		{
 			//Prepare
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var nfaName = RandomName();
 			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
 			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
@@ -173,7 +173,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_send_token()
 		{
 			//Prepare
-			var nfaName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var nfaName = RandomName();
 			var tokenCmd = _cmdFactory.CreateCommand<MultiChainTokenCommand>();
 			await tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
@@ -244,7 +244,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_annotate_asset()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetName = RandomName();
 
 			// ACT
 			var txid = new MultiChainFluent()
@@ -276,7 +276,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_asset_with_declaration()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetName = RandomName();
 
 			// ACT
 			var txid = new MultiChainFluent()
@@ -305,7 +305,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_issue_more_asset()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetName = RandomName();
 			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 1, true);
 
@@ -329,7 +329,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public async Task Should_send_asset()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var assetName = RandomName();
 			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
 			await assetCmd.IssueAssetFromAsync(_admin.NodeWallet, _admin.NodeWallet, assetName, 1000, 1, true);
 
@@ -355,7 +355,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		public void Should_create_stream()
 		{
 			// PREPARE
-			var streamName = Guid.NewGuid().ToString("N").Substring(0, 20);
+			var streamName = RandomName();
 
 			// ACT
 			var txid = new MultiChainFluent()

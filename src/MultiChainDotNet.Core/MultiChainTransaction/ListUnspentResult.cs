@@ -16,6 +16,9 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			public string Name { get; set; }
 			[JsonProperty("assetref")]
 			public string AssetRef { get; set; }
+			[JsonProperty("token")]
+			public string Token { get; set; }
+
 			[JsonProperty("qty")]
 			public Double Qty { get; set; }
 		}

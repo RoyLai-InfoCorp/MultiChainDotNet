@@ -60,7 +60,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
 			if (balanceResult.Raw < 1000)
 			{
-				var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+				var assetName = RandomName();
 				var issueResult = _assetManager.Issue(multisig, assetName, 10, true);
 
 				// ACT
@@ -77,7 +77,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var multisigResult = addressMgr.CreateMultiSig(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var multisig = multisigResult.Address;
 			var redeemScript = multisigResult.RedeemScript;
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			_assetManager.Issue(multisig, assetName, 10, true);
 			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
 			if (balanceResult.Raw < 1000)

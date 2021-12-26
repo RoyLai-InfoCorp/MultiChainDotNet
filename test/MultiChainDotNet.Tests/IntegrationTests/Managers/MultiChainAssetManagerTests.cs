@@ -121,7 +121,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_issue_asset_with_metadata()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 
 			// ACT
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
@@ -163,7 +163,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_not_throw_exception_when_spending_output_with_non_inline_metadata()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
 			var issueResult = _assetManager.Issue(_admin.NodeWallet, assetName, 1, true, payload);
 
@@ -180,7 +180,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_throw_exception_when_spending_output_with_inline_metadata()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
 			var issueResult = _assetManager.IssueAnnotate(_admin.NodeWallet, assetName, 1, true, payload);
 
@@ -197,7 +197,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_send_annotated_asset()
 		{
 			//Prepare
-			var assetName = Guid.NewGuid().ToString("N").Substring(0, 6);
+			var assetName = RandomName();
 			var payload = new { DestinationChain = 1, DestinationAddress = "0xa3A5eC6ACEC6Ad6A92FFB1b30865B6A2929AE5f8" };
 			var issueResult = _assetManager.Issue(_admin.NodeWallet, assetName, 1, true);
 
