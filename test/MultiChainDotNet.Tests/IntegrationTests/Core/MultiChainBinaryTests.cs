@@ -28,13 +28,6 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[SetUp]
 		public async Task SetUp()
 		{
-
-			//var factory = _container.GetRequiredService<IMultiChainCommandFactory>();
-			//_assetCmd = factory.CreateCommand<MultiChainAssetCommand>();
-			//_txnCmd = factory.CreateCommand<MultiChainTransactionCommand>();
-			//_addrCmd = factory.CreateCommand<MultiChainAddressCommand>();
-			//_permCmd = factory.CreateCommand<MultiChainPermissionCommand>();
-
 			_mcBinCmd = _container.GetRequiredService<MultiChainBinaryCommand>();
 		}
 
@@ -49,7 +42,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(result.Result);
 			result.Result.Should().NotBeNull();
 
-			// File should be created in /.multichain/chain1/... on node1
+			// File should be created in /.multichain/chain1/cache/{binID} on node1
 		}
 
 		[Test]
@@ -66,7 +59,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(result.Result);
 			result.Result.Should().NotBe(0);
 
-			// File should be created in /.multichain/chain1/... on node1
+			// File should be created in /.multichain/chain1/cache/{binID} on node1
 		}
 
 		[Test]

@@ -1,15 +1,20 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.MultiChainBinary;
 using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using UtilsDotNet.Extensions;
 
@@ -30,6 +35,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		MultiChainStreamCommand _streamCmd;
+		MultiChainBinaryCommand _mcBinCmd;
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
@@ -43,6 +49,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task SetUp()
 		{
 			_streamCmd = _container.GetRequiredService<MultiChainStreamCommand>();
+			_mcBinCmd = _container.GetRequiredService<MultiChainBinaryCommand>();
 		}
 
 		[Test, Order(10)]
@@ -190,6 +197,90 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _streamCmd.SubscribeAsync(state.StreamName);
 			var item = await _streamCmd.GetStreamItemByTxidAsync(state.StreamName, result.Result);
 			Assert.That(JObject.FromObject(item.Result.Data).SelectToken("json.Greetings").ToString(), Is.EqualTo("Hello World"));
+		}
+
+		[Test, Order(90)]
+		public async Task T0692_publish_Json_streamitem_offchain()
+		{
+			var randomName = RandomName();
+
+			// PREPARE
+			await _streamCmd.CreateStreamAsync(randomName);
+			await _streamCmd.WaitUntilStreamExists(randomName);
+			var key1 = RandomName();
+
+			// ACT
+			var result = await _streamCmd.PublishJsonStreamItemAsync(randomName, new string[] { key1 }, new { Id = Guid.NewGuid(), Greetings = "Hello World" },"offchain");
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+
+			// ASSERT: seed node
+			await _streamCmd.SubscribeAsync(randomName);
+			var item = await _streamCmd.GetStreamItemByTxidAsync(randomName, result.Result);
+			Assert.That(JObject.FromObject(item.Result.Data).SelectToken("json.Greetings").ToString(), Is.EqualTo("Hello World"));
+			// Offchain data should be found in .multichain/chain1/chunks/data/stream-{randomName}
+
+			// ASSERT: relayer1
+			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(_relayer1.NodeName);
+			var relayer1Cmd = new MultiChainStreamCommand(NullLogger<MultiChainStreamCommand>.Instance, _mcConfig, http);
+			await relayer1Cmd.SubscribeAsync(randomName);
+			var wait = await TaskHelper.WaitUntilTrue(async () => (await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result))?.Result is { });
+			wait.Should().BeTrue();
+			var item2 = await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result);
+			Assert.That(JObject.FromObject(item2.Result.Data).SelectToken("json.Greetings").ToString(), Is.EqualTo("Hello World"));
+			// Offchain data should be found in .multichain/chain1/chunks/data/stream-{randomName}
+
+		}
+
+		[Test, Order(90)]
+		public async Task T0694_publish_Json_BinaryCache_offchain()
+		{
+			var randomName = RandomName();
+
+			// PREPARE
+			await _streamCmd.CreateStreamAsync(randomName);
+			await _streamCmd.WaitUntilStreamExists(randomName);
+			var binId = (await _mcBinCmd.CreateBinaryCache()).Result;
+			Console.WriteLine("bin-cache:"+binId);
+			var data = File.ReadAllText("image.dat");
+			await _mcBinCmd.AppendBinaryCache(binId, data);
+
+			// ACT
+			var key1 = RandomName();
+			var result = await _streamCmd.PublishBinaryCacheStreamItemAsync(randomName, new string[] { key1 },binId,"offchain");
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+
+			// ASSERT: on node1
+			await _streamCmd.SubscribeAsync(randomName);
+			var item = await _streamCmd.GetStreamItemByTxidAsync(randomName, result.Result);
+			var size = int.Parse(((JObject)item.Result.Data).SelectToken("size").ToString());
+			var txid = ((JObject)item.Result.Data).SelectToken("txid").ToString();
+			var vout = int.Parse(((JObject)item.Result.Data).SelectToken("vout").ToString());
+			Console.WriteLine($"txid:{txid} vout:{vout} size:{size}");
+			size.Should().Be(2354570);
+
+			// Get result from blockchain
+			var txoutResult = await _streamCmd.GetTxOutData(txid, vout);
+			txoutResult.Result.Hex2Bytes().Length.Should().Be(2354570);
+
+			await _mcBinCmd.TxoutToBinaryCache(binId, txid, vout, 2354570, 0);
+			// File should be created in /.multichain/chain1/cache/{binID} on node1
+
+			// ASSERT: relayer1
+			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(_relayer1.NodeName);
+			var relayer1Cmd = new MultiChainStreamCommand(NullLogger<MultiChainStreamCommand>.Instance, _mcConfig, http);
+
+			// Get result from blockchain
+			var txoutResult2 = await relayer1Cmd.GetTxOutData(txid, vout);
+			txoutResult2.Result.Hex2Bytes().Length.Should().Be(2354570);
+
+			// Download result into binary cache
+			var binCmd2 = new MultiChainBinaryCommand(NullLogger<MultiChainBinaryCommand>.Instance, _mcConfig, http);
+			var binId2 = (await binCmd2.CreateBinaryCache()).Result;
+			var result2 = await binCmd2.TxoutToBinaryCache(binId2, txid, vout, 2354570, 0);
+			if (result2.IsError)
+				throw result2.Exception;
+			// File should be created in /.multichain/chain1/cache/{binID} on relayer1
+
 		}
 
 	}

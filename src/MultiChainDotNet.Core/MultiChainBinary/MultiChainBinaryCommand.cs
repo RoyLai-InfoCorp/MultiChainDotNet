@@ -54,12 +54,12 @@ namespace MultiChainDotNet.Core.MultiChainBinary
 		/// <summary>
 		/// txouttobinarycache identifier txid vout (count-bytes=INT_MAX) (start-byte=0)
 		/// </summary>
-		public Task<MultiChainResult<int>> TxoutToBinaryCache(string id, string txid, int vout, int bytesCount, int bytesStart=0)
+		public Task<MultiChainResult<Int64>> TxoutToBinaryCache(string id, string txid, int vout, int bytesCount, int bytesStart=0)
 		{
 			if (id is null)
 				throw new ArgumentNullException(nameof(id));
 
-			return JsonRpcRequestAsync<int>("txouttobinarycache", id, txid, vout, bytesCount, bytesStart);
+			return JsonRpcRequestAsync<Int64>("txouttobinarycache", id, txid, vout, bytesCount, bytesStart);
 
 		}
 

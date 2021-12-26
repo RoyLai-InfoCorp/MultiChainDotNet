@@ -100,12 +100,14 @@ namespace MultiChainDotNet.Core.MultiChainStream
 			return await JsonRpcRequestAsync<string>("publish", streamName, key, hexadecimal);
 		}
 
-		public async Task<MultiChainResult<string>> PublishTextStreamItemAsync(string streamName, string[] key, string text)
+		public async Task<MultiChainResult<string>> PublishTextStreamItemAsync(string streamName, string[] key, string text, string options = null)
 		{
 			if (streamName is null)
 				throw new ArgumentNullException(nameof(streamName));
 
-			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { text = text });
+			if (string.IsNullOrEmpty(options))
+				return await JsonRpcRequestAsync<string>("publish", streamName, key, new { text = text });
+			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { text = text }, options);
 		}
 
 		public async Task<MultiChainResult<string>> PublishJsonStreamItemAsync<T>(string streamName, StreamItem<T> streamItem)
@@ -115,13 +117,23 @@ namespace MultiChainDotNet.Core.MultiChainStream
 
 			return await JsonRpcRequestAsync<string>("publish", streamName, streamItem.Keys, new { json = streamItem.Data });
 		}
-
-		public async Task<MultiChainResult<string>> PublishJsonStreamItemAsync(string streamName, string[] key, object payload)
+		public async Task<MultiChainResult<string>> PublishBinaryCacheStreamItemAsync(string streamName, string[] key, string binId, string options = null)
 		{
 			if (streamName is null)
 				throw new ArgumentNullException(nameof(streamName));
+			if (string.IsNullOrEmpty(options))
+				return await JsonRpcRequestAsync<string>("publish", streamName, key, new { cache = binId });
+			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { cache = binId }, options);
+		}
 
-			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload });
+
+		public async Task<MultiChainResult<string>> PublishJsonStreamItemAsync(string streamName, string[] key, object payload, string options=null)
+		{
+			if (streamName is null)
+				throw new ArgumentNullException(nameof(streamName));
+			if (string.IsNullOrEmpty(options))
+				return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload });
+			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload },options);
 		}
 
 		public async Task<MultiChainResult<StreamItemsResult>> GetStreamItemByTxidAsync(string streamName, string txId)
@@ -132,6 +144,10 @@ namespace MultiChainDotNet.Core.MultiChainStream
 			return await JsonRpcRequestAsync<StreamItemsResult>("getstreamitem", streamName, txId);
 		}
 
+		public Task<MultiChainResult<string>> GetTxOutData(string txid, int vout)
+		{
+			return JsonRpcRequestAsync<string>("gettxoutdata", txid, vout);
+		}
 
 		#endregion
 
