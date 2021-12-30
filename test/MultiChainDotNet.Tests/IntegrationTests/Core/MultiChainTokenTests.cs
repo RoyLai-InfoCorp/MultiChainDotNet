@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
@@ -73,6 +74,16 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// Can be found in wallet
 			var nfas = await _tokenCmd.ListNfa(_testUser1.NodeWallet);
 			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
+		}
+
+		[Test]
+		public async Task Should_be_not_be_able_to_issue_nfa_with_longer_than_32Byte_name()
+		{
+			var nfaName = Guid.NewGuid().ToString("N")+"X";		// 33 char string
+
+			// ACT
+			var result = await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
+			result.Exception.IsMultiChainException(MultiChainErrorCode.RPC_INVALID_PARAMETER).Should().BeTrue();
 		}
 
 		[Test]
@@ -152,13 +163,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// ASSERT
 			result.IsError.Should().BeFalse();
-			var nft = await _tokenCmd.ListNft(_testUser1.NodeWallet, nfaName, tokenId);
+			var nft = await _tokenCmd.ListNftByAddress(_testUser1.NodeWallet, nfaName, tokenId);
 			nft.Result[0].NfaName.Should().Be(nfaName);
 			nft.Result[0].Token.Should().Be(tokenId);
 		}
 
 		[Test]
-		public async Task Should_be_able_to_list_tokens()
+		public async Task Should_be_able_to_list_tokens_issued_by_nfa()
 		{
 			var nfaName = RandomName();
 			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
@@ -179,7 +190,38 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftC");
 
 			if (result.IsError) throw result.Exception;
-			var nfts = await _tokenCmd.ListNft(_testUser1.NodeWallet, nfaName);
+			var nfts = await _tokenCmd.ListNftByAsset(nfaName);
+
+			// ASSERT
+			nfts.IsError.Should().BeFalse(nfts.ExceptionMessage);
+			nfts.Result.Count.Should().Be(3);
+		}
+
+
+
+		[Test]
+		public async Task Should_be_able_to_list_tokens_by_owner()
+		{
+			var nfaName = RandomName();
+			Console.WriteLine("Issuer:" + _testUser1.NodeWallet);
+			Console.WriteLine("NFA:" + nfaName);
+			await _tokenCmd.IssueNfaAsync(_testUser1.NodeWallet, nfaName);
+			var wait = await _tokenCmd.WaitUntilNfaIssued(_testUser1.NodeWallet, nfaName);
+
+			// ACT
+			var result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftA");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftA");
+
+			if (result.IsError) throw result.Exception;
+			result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftB");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftB");
+
+			if (result.IsError) throw result.Exception;
+			result = await _tokenCmd.IssueNftAsync(_testUser1.NodeWallet, nfaName, "nftC");
+			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftC");
+
+			if (result.IsError) throw result.Exception;
+			var nfts = await _tokenCmd.ListNftByAddress(_testUser1.NodeWallet, nfaName);
 
 			// ASSERT
 			nfts.IsError.Should().BeFalse();

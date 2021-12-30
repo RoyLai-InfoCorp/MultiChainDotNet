@@ -3,11 +3,35 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace MultiChainDotNet.Core.MultiChainAsset
 {
 	public class GetAssetInfoResult
 	{
+		public class GetAssetInfoIssuesResult
+		{
+			[JsonProperty("txid")]
+			public string TxId { get; set; }
+
+			[JsonProperty("qty")]
+			public double Qty { get; set; }
+
+			[JsonProperty("raw")]
+			public UInt64 Raw { get; set; }
+
+			[JsonProperty("token")]
+			public string Token { get; set; }
+
+			[JsonProperty("details")]
+			public object Details { get; set; }
+
+			[JsonProperty("issuers")]
+			public string[] Issuers { get; set; }
+
+		}
+
+
 		[JsonProperty("name")]
 		public string Name { get; set; }
 
@@ -34,6 +58,9 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 
 		[JsonProperty("restrict")]
 		public AssetRestrictionResult AssetRestriction { get; set; }
+
+		[JsonProperty("issues")]
+		public IList<GetAssetInfoIssuesResult> Issues { get; set; }
 
 	}
 }

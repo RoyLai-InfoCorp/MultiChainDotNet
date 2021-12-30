@@ -148,8 +148,6 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 			return await JsonRpcRequestAsync<string>("sendwithdatafrom", from, to, amt, new { json = data });
 		}
 
-
-
 		public async Task<MultiChainResult<List<ListAssetsResult>>> ListAssetsAsync(string assetName = "*", bool verbose = false)
 		{
 			return await JsonRpcRequestAsync<List<ListAssetsResult>>("listassets", assetName, verbose);
@@ -172,10 +170,13 @@ namespace MultiChainDotNet.Core.MultiChainAsset
 			return await JsonRpcRequestAsync<List<AssetTransactionsResult>>("listassettransactions", assetName);
 		}
 
-		public async Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName)
+		public async Task<MultiChainResult<GetAssetInfoResult>> GetAssetInfoAsync(string assetName, bool verbose=false)
 		{
 			if (assetName is null)
 				throw new ArgumentNullException(nameof(assetName));
+
+			if (verbose)
+				return await JsonRpcRequestAsync<GetAssetInfoResult>("getassetinfo", assetName, true);
 
 			return await JsonRpcRequestAsync<GetAssetInfoResult>("getassetinfo", assetName);
 		}
