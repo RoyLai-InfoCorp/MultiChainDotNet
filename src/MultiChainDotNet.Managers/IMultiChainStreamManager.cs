@@ -10,17 +10,17 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainStreamManager
 	{
-		string CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false);
-		string CreateStream(string streamName, bool anyoneCanWrite = false);
-		Task<StreamsResult> GetStreamAsync(string streamName);
+		Task<string> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false);
+		Task<string> CreateStreamAsync(string streamName, bool anyoneCanWrite = false);
+		Task<StreamsResult> GetStreamInfoAsync(string streamName);
 		Task<StreamItemsResult> GetStreamItemAsync(string selectCmd);
 		Task<T> GetStreamItemAsync<T>(string selectCmd);
 		Task<bool> IsExist(string streamName);
-		Task<List<T>> ListAllStreamItemsAsync<T>(string streamName);
+		Task<IList<T>> ListAllStreamItemsAsync<T>(string streamName);
 		Task<IList<StreamItemsResult>> ListStreamItemsAsync(string selectCmd, bool verbose = false);
-		Task<List<T>> ListStreamItemsAsync<T>(string selectCmd);
-		Task<List<StreamsResult>> ListStreamsAsync(bool verbose = false);
-		Task<List<StreamsResult>> ListStreamsAsync(string streamName, bool verbose = false);
+		Task<IList<T>> ListStreamItemsAsync<T>(string selectCmd);
+		Task<IList<StreamsResult>> ListStreamsAsync(bool verbose = false);
+		Task<IList<StreamsResult>> ListStreamsAsync(string streamName, bool verbose = false);
 		Task<string> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string key, object json);
 		Task<string> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string[] keys, object json);
 		Task<string> PublishJsonAsync(string streamName, string key, object json);

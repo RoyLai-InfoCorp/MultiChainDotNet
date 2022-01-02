@@ -33,7 +33,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			return await JsonRpcRequestAsync<GetNonfungibleAssetInfoResult>("getassetinfo", nfaName);
 		}
 
-		public async Task<MultiChainResult<IList<ListAssetsResult>>> ListNfa(string address = null)
+		public async Task<MultiChainResult<IList<ListAssetsResult>>> ListNfaAsync(string address = null)
 		{
 			// List all available assets
 			var assetsResult = await JsonRpcRequestAsync<IList<ListAssetsResult>>("listassets");
@@ -57,7 +57,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			return new MultiChainResult<IList<ListAssetsResult>>(ownNfas);
 		}
 
-		public async Task<MultiChainResult<IList<GetTokenBalanceItem>>> ListNftByAddress(string address, string nfaName = null, string tokenId = null)
+		public async Task<MultiChainResult<IList<GetTokenBalanceItem>>> ListNftByAddressAsync(string address, string nfaName = null, string tokenId = null)
 		{
 			// Should not continue if tokenId is provided without nfaName
 			if (nfaName is null && tokenId is { })
@@ -79,7 +79,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			return new MultiChainResult<IList<GetTokenBalanceItem>>(result.Result[address].Where(x => x.NfaName == nfaName && x.Token == tokenId).ToList());
 		}
 
-		public async Task<MultiChainResult<IList<GetAssetInfoIssuesResult>>> ListNftByAsset(string nfaName)
+		public async Task<MultiChainResult<IList<GetAssetInfoIssuesResult>>> ListNftByAssetAsync(string nfaName)
 		{
 			var assetInfo = await JsonRpcRequestAsync<GetAssetInfoResult>("getassetinfo", nfaName, true);
 			if (assetInfo.IsError)
@@ -95,14 +95,14 @@ namespace MultiChainDotNet.Core.MultiChainToken
 		public Task<bool> WaitUntilNfaIssued(string issuer, string nfaName)
 		{
 			return TaskHelper.WaitUntilTrue(async () =>
-				(await ListNfa(issuer)).Result.Any(x => x.Name == nfaName)
+				(await ListNfaAsync(issuer)).Result.Any(x => x.Name == nfaName)
 			, 5, 500);
 		}
 
 		public Task<bool> WaitUntilNftIssued(string issuer, string nfaName, string tokenId)
 		{
 			return TaskHelper.WaitUntilTrue(async () =>
-				(await ListNftByAddress(issuer, nfaName, tokenId)).Result.Count > 0
+				(await ListNftByAddressAsync(issuer, nfaName, tokenId)).Result.Count > 0
 			, 5, 500);
 		}
 

@@ -50,6 +50,14 @@ namespace MultiChainDotNet.Core.MultiChainStream
 			return await JsonRpcRequestAsync<string>("create", "stream", streamName, isOpen);
 		}
 
+		public async Task<MultiChainResult<StreamsResult>> GetStreamInfoAsync(string streamName, bool verbose = false)
+		{
+			if (streamName is null)
+				throw new ArgumentNullException(nameof(streamName));
+
+			return await JsonRpcRequestAsync<StreamsResult>("getstreaminfo", streamName, verbose);
+		}
+
 		public async Task<MultiChainResult<List<StreamsResult>>> ListStreamsAsync(bool verbose = false)
 		{
 			return await JsonRpcRequestAsync<List<StreamsResult>>("liststreams", "*", verbose);

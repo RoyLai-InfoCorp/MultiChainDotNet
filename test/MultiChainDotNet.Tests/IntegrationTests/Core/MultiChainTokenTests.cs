@@ -72,7 +72,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var nfas = await _tokenCmd.ListNfa(_testUser1.NodeWallet);
+			var nfas = await _tokenCmd.ListNfaAsync(_testUser1.NodeWallet);
 			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
 
@@ -89,10 +89,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task Should_be_able_to_list_nfa()
 		{
-			var result = await _tokenCmd.ListNfa();
+			var result = await _tokenCmd.ListNfaAsync();
 			Console.WriteLine(result.Result.ToJson());
 
-			result = await _tokenCmd.ListNfa(_testUser1.NodeWallet);
+			result = await _tokenCmd.ListNfaAsync(_testUser1.NodeWallet);
 			Console.WriteLine(result.Result.ToJson());
 		}
 
@@ -119,7 +119,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var nfas = await _tokenCmd.ListNfa(_testUser2.NodeWallet);
+			var nfas = await _tokenCmd.ListNfaAsync(_testUser2.NodeWallet);
 			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
 
@@ -163,7 +163,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// ASSERT
 			result.IsError.Should().BeFalse();
-			var nft = await _tokenCmd.ListNftByAddress(_testUser1.NodeWallet, nfaName, tokenId);
+			var nft = await _tokenCmd.ListNftByAddressAsync(_testUser1.NodeWallet, nfaName, tokenId);
 			nft.Result[0].NfaName.Should().Be(nfaName);
 			nft.Result[0].Token.Should().Be(tokenId);
 		}
@@ -190,7 +190,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftC");
 
 			if (result.IsError) throw result.Exception;
-			var nfts = await _tokenCmd.ListNftByAsset(nfaName);
+			var nfts = await _tokenCmd.ListNftByAssetAsync(nfaName);
 
 			// ASSERT
 			nfts.IsError.Should().BeFalse(nfts.ExceptionMessage);
@@ -221,7 +221,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			wait = await _tokenCmd.WaitUntilNftIssued(_testUser1.NodeWallet, nfaName, "nftC");
 
 			if (result.IsError) throw result.Exception;
-			var nfts = await _tokenCmd.ListNftByAddress(_testUser1.NodeWallet, nfaName);
+			var nfts = await _tokenCmd.ListNftByAddressAsync(_testUser1.NodeWallet, nfaName);
 
 			// ASSERT
 			nfts.IsError.Should().BeFalse();

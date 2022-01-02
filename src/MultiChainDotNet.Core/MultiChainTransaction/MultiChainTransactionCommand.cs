@@ -171,9 +171,14 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<string>("appendrawchange", transaction, address);
 		}
 
-		public async Task<MultiChainResult<string>> AppendRawTransactionAsync(string transaction, string address)
+		public async Task<MultiChainResult<string>> AppendRawTransactionAsync(string transaction, TxIdVoutStruct[] unspents, object to, object with=null)
 		{
-			return await JsonRpcRequestAsync<string>("appendrawchange", transaction, address);
+			if (with is null)
+				return await JsonRpcRequestAsync<string>("createrawtransaction",
+				transaction,
+				unspents,
+				to);
+			return await JsonRpcRequestAsync<string>("appendrawtransaction", transaction, unspents, to, with);
 		}
 
 		public async Task<MultiChainResult<TxIdVoutStruct>> PrepareLockUnspentAsync(string assetName, Double qty)

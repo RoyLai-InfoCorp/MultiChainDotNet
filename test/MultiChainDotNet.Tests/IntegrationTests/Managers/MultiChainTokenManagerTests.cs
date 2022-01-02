@@ -53,12 +53,12 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			info.Should().NotBeNull();
 
 			// Can be found in wallet
-			var list = await _tokenManager.ListTokensAsync(_admin.NodeWallet, nfaName);
+			var list = await _tokenManager.ListNftByAddressAsync(_admin.NodeWallet, nfaName);
 			list.Count.Should().BeGreaterThan(0);
 
 			// ACT 2
 			_tokenManager.SendToken(_testUser1.NodeWallet, nfaName, "nft1");
-			list = await _tokenManager.ListTokensAsync(_testUser1.NodeWallet, nfaName);
+			list = await _tokenManager.ListNftByAddressAsync(_testUser1.NodeWallet, nfaName);
 			list.Count.Should().BeGreaterThan(0);
 
 

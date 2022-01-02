@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MultiChainDotNet.Core.MultiChainAsset.GetAssetInfoResult;
+using static MultiChainDotNet.Core.MultiChainToken.GetTokenBalancesResult;
 
 namespace MultiChainDotNet.Managers
 {
@@ -225,13 +227,22 @@ namespace MultiChainDotNet.Managers
 			return (await _assetCmd.GetAssetInfoAsync(assetName)).Result;
 		}
 
-		public async Task<IList<GetTokenBalancesResult.GetTokenBalanceItem>> ListTokensAsync(string address, string nfaName)
+		public async Task<IList<GetAssetInfoIssuesResult>> ListNftByAssetAsync(string nfaName)
 		{
-			_logger.LogDebug($"Executing GetTokenBalanceByAddressAsync");
-			var bal = await _tokenCmd.GetTokenBalancesAsync(address);
-			if (bal.IsError)
-				throw bal.Exception;
-			return bal.Result?[address].Where(x => x.NfaName == nfaName).ToList();
+			_logger.LogDebug($"Executing ListNftByAssetAsync");
+			var result = await _tokenCmd.ListNftByAssetAsync(nfaName);
+			if (result.IsError)
+				throw result.Exception;
+			return result.Result;
+		}
+
+		public async Task<IList<GetTokenBalanceItem>> ListNftByAddressAsync(string address, string  nfaName=null, string tokenId = null)
+		{
+			_logger.LogDebug($"Executing ListNftByAddressAsync");
+			var result = await _tokenCmd.ListNftByAddressAsync(address, nfaName, tokenId);
+			if (result.IsError)
+				throw result.Exception;
+			return result.Result;
 		}
 
 		public Task SubscribeAsync(string assetName)

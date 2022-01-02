@@ -319,7 +319,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			info.IsError.Should().BeFalse();
 
 			// Can be found in wallet
-			var nfas = await tokenCmd.ListNfa(_admin.NodeWallet);
+			var nfas = await tokenCmd.ListNfaAsync(_admin.NodeWallet);
 			nfas.Result.Any(x => x.Name == nfaName).Should().BeTrue();
 		}
 

@@ -33,10 +33,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_create_new_stream()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var txid = _streamManager.CreateStream(streamName);
+			var txid = _streamManager.CreateStreamAsync(streamName);
 
 			// ASSERT
-			var found = await _streamManager.GetStreamAsync(streamName);
+			var found = await _streamManager.GetStreamInfoAsync(streamName);
 			Assert.That(found.Name, Is.EqualTo(streamName));
 		}
 
@@ -49,7 +49,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_publish_new_streamitem()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			_streamManager.CreateStream(streamName);
+			await _streamManager.CreateStreamAsync(streamName);
 
 			// ACT
 			await _streamManager.PublishJsonAsync(streamName, "1", new JsonStreamItem { Counter = 1 });
@@ -63,9 +63,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_throw_rpc_transaction_rejected_error_when_stream_already_exists()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
-			var result = _streamManager.CreateStream(streamName);
+			var result = await _streamManager.CreateStreamAsync(streamName);
 
-			Action action = ()=>_streamManager.CreateStream(streamName);
+			Action action = ()=>_streamManager.CreateStreamAsync(streamName);
 			action.Should().Throw<MultiChainException>().WithMessage($"*RPC DUPLICATE NAME*");
 		}
 
@@ -73,7 +73,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			var prefix = Guid.NewGuid().ToString("N").Substring(0, 5);
 			var newStream = prefix;
-			_streamManager.CreateStream(newStream);
+			await _streamManager.CreateStreamAsync(newStream);
 			for (int i = 0; i < 10; i++)
 			{
 				var key = prefix + "-" + i;

@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UtilsDotNet;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Managers
 {
@@ -71,13 +72,13 @@ namespace MultiChainDotNet.Managers
 			return true;
 		}
 
-		public string CreateStream(string streamName, bool anyoneCanWrite = false)
+		public Task<string> CreateStreamAsync(string streamName, bool anyoneCanWrite = false)
 		{
 			_logger.LogDebug($"Executing CreateStreamAsync");
-			return CreateStream(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, anyoneCanWrite);
+			return CreateStreamAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, anyoneCanWrite);
 		}
 
-		public string CreateStream(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
+		public async Task<string> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
 		{
 			_logger.LogDebug($"Executing CreateStream");
 			try
@@ -92,6 +93,10 @@ namespace MultiChainDotNet.Managers
 						.Sign()
 						.Send()
 					;
+
+				var success = await _streamCmd.WaitUntilStreamExists(streamName);
+				if (!success)
+					throw new Exception($"CreateStream {streamName} timeout.");
 
 				Task.Run(async () =>
 				{
@@ -114,6 +119,7 @@ namespace MultiChainDotNet.Managers
 				throw;
 			}
 		}
+
 
 		public async Task<string> PublishJsonAsync(string streamName, string key, object json)
 		{
@@ -218,7 +224,7 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public async Task<StreamsResult> GetStreamAsync(string streamName)
+		public async Task<StreamsResult> GetStreamInfoAsync(string streamName)
 		{
 			_logger.LogDebug($"Executing GetStreamAsync");
 
@@ -243,7 +249,7 @@ namespace MultiChainDotNet.Managers
 		/// <typeparam name="T"></typeparam>
 		/// <param name="streamName"></param>
 		/// <returns></returns>
-		public async Task<List<T>> ListAllStreamItemsAsync<T>(string streamName)
+		public async Task<IList<T>> ListAllStreamItemsAsync<T>(string streamName)
 		{
 			int page = 0;
 			int size = 20;
@@ -286,7 +292,7 @@ namespace MultiChainDotNet.Managers
 			return streamItems;
 		}
 
-		public async Task<List<StreamsResult>> ListStreamsAsync(bool verbose = false)
+		public async Task<IList<StreamsResult>> ListStreamsAsync(bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListStreamsAsync");
 
@@ -299,7 +305,7 @@ namespace MultiChainDotNet.Managers
 			return result.Result;
 		}
 
-		public async Task<List<StreamsResult>> ListStreamsAsync(string streamName, bool verbose = false)
+		public async Task<IList<StreamsResult>> ListStreamsAsync(string streamName, bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListStreamsAsync");
 
@@ -400,7 +406,7 @@ namespace MultiChainDotNet.Managers
 			IList<StreamItemsResult> list = null;
 
 			if (streamName is null)
-				throw new Exception("Invalid FOR clause");
+				throw new Exception("Invalid FROM clause");
 
 			order = order ?? "DESC";
 			int count = 1;
@@ -474,11 +480,18 @@ namespace MultiChainDotNet.Managers
 		private T ConvertMultiChainJsonResult<T>(StreamItemsResult streamItem)
 		{
 			var data = JToken.FromObject(streamItem.Data);
+
+			if (typeof(T) == typeof(string))
+				return (T)Convert.ChangeType(data.ToString(), typeof(T));
+
+			if (typeof(T) == typeof(byte[]))
+				return (T)Convert.ChangeType(data.ToString().Hex2Bytes(), typeof(T));
+
 			var item = data.SelectToken("json");
 			return item.ToObject<T>();
 		}
 
-		public async Task<List<T>> ListStreamItemsAsync<T>(string selectCmd)
+		public async Task<IList<T>> ListStreamItemsAsync<T>(string selectCmd)
 		{
 			var list = new List<T>();
 			var streamItems = await ListStreamItemsAsync(selectCmd, false);
