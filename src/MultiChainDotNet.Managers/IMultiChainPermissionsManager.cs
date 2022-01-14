@@ -11,6 +11,7 @@ namespace MultiChainDotNet.Managers
 	public interface IMultiChainPermissionsManager
 	{
 		Task<bool> CheckPermissionGrantedAsync(string address, string permission, string entityName = null);
+		Task<bool> CheckPendingGrantPermissionAsync(string address, string permission, string entityName = null);
 		string GrantPermission(SignerBase signer, string fromAddress, string toAddress, string permissions, string entityName = null);
 		string GrantPermission(string toAddress, string permissions, string entityName = null);
 		Task<List<PermissionsResult>> ListPermissionsAsync(string address, string permissionType);

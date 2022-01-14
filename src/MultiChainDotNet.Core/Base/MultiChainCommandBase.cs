@@ -91,13 +91,13 @@ namespace MultiChainDotNet.Core.Base
 				_logger.LogDebug($"multichain command {method}: {cmd}");
 				_logger.LogTrace($"multichain request {method}: {JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented)}");
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
-				if (!response.IsSuccessStatusCode)
-					throw new Exception(response.ReasonPhrase);
 
 				content = await response.Content.ReadAsStringAsync();
 				var result = MultiChainResultParser.ParseMultiChainResult<T>(content);
 				if (result.IsError)
 					throw result.Exception;
+				if (!response.IsSuccessStatusCode)
+					throw new Exception(response.ReasonPhrase);
 				_logger.LogTrace($"multichain response {method}: {JsonConvert.SerializeObject(result.Result, Formatting.Indented)}");
 				return result;
 			}

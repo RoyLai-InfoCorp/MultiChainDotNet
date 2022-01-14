@@ -58,6 +58,9 @@ namespace MultiChainDotNet.Managers
 		{
 			try
 			{
+				var info = await GetStreamInfoAsync(streamName);
+				return info is { };
+
 				await SubscribeAsync(streamName);
 			}
 			catch (Exception e)

@@ -156,5 +156,21 @@ namespace MultiChainDotNet.Managers
 			}
 			return true;
 		}
+
+		public async Task<bool> CheckPendingGrantPermissionAsync(string address, string permission, string entityName = null)
+		{
+			var permissions = permission.Split(',');
+			foreach (var perm in permissions)
+			{
+				var result = await _permCmd.CheckPendingGrantPermissionAsync(address, perm, entityName);
+				if (result.IsError)
+					throw result.Exception;
+
+				if (!result.Result)
+					return false;
+			}
+			return true;
+		}
+
 	}
 }

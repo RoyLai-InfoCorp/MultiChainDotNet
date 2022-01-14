@@ -59,8 +59,8 @@ namespace MultiChainDotNet.Managers
 		{
 			try
 			{
-				await SubscribeAsync(assetName);
-				return true;
+				var info = await GetNonfungibleAssetInfo(assetName);
+				return info is { };
 			}
 			catch (MultiChainException ex)
 			{

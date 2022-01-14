@@ -51,7 +51,8 @@ namespace MultiChainDotNet.Managers
 		{
 			try
 			{
-				await SubscribeAsync(assetName);
+				var info = await GetAssetInfoAsync(assetName);
+				return info is { };
 			}
 			catch (Exception e)
 			{
