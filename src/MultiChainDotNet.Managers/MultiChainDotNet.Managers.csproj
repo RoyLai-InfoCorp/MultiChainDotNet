@@ -14,4 +14,8 @@
     <ProjectReference Include="..\MultiChainDotNet.Fluent\MultiChainDotNet.Fluent.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="UtilsDotNet" Version="1.2.2" />
+	</ItemGroup>
+
 </Project>

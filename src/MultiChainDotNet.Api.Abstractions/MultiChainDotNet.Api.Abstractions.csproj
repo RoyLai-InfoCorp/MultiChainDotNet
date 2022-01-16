@@ -21,6 +21,7 @@
 	  <PackageReference Update="NLog.Extensions.Logging">
 	    <TreatAsUsed>true</TreatAsUsed>
 	  </PackageReference>
+	  <PackageReference Update="UtilsDotNet" Version="1.2.2" />
 	</ItemGroup>
 
 </Project>

@@ -46,5 +46,9 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="UtilsDotNet" Version="1.2.2" />
+	</ItemGroup>
 	
 </Project>
