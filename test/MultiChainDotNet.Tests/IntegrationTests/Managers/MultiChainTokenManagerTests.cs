@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
 using Newtonsoft.Json;
@@ -14,24 +15,27 @@ using UtilsDotNet.Extensions;
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-	public class MultiChaiTokenManagerTests : TestCommandFactoryBase
+	public class MultiChainTokenManagerTests : TestBase
 	{
-		MultiChainTokenManager _tokenManager;
+		IMultiChainTokenManager _tokenManager;
 		IMultiChainTransactionManager _txnManager;
 
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<MultiChainTokenManager>();
-			services.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>();
-			services.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>();
-			services.AddSingleton<SignerBase>(_ => new DefaultSigner(_admin.Ptekey));
+			services
+				.AddMultiChain()
+				.AddTransient<IMultiChainTokenManager,MultiChainTokenManager>()
+				.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>()
+				.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>()
+				.AddSingleton<SignerBase>(_ => new DefaultSigner(_admin.Ptekey))
+				;
 		}
 
 		[SetUp]
 		public void Setup()
 		{
-			_tokenManager = _container.GetRequiredService<MultiChainTokenManager>();
+			_tokenManager = _container.GetRequiredService<IMultiChainTokenManager>();
 			_txnManager = _container.GetRequiredService<IMultiChainTransactionManager>();
 		}
 

@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Fluent.Signers;
 using MultiChainDotNet.Managers;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-	public class MultiChainMultiSigManagerTests : TestCommandFactoryBase
+	public class MultiChainMultiSigManagerTests : TestBase
 	{
 		IMultiChainAssetManager _assetManager;
 		IMultiChainTransactionManager _txnManager;
@@ -34,11 +35,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		protected override void ConfigureServices(IServiceCollection services)
 		{
 			base.ConfigureServices(services);
-			services.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>();
-			services.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>();
-			services.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>();
-			services.AddTransient<IMultiChainMultiSigManager, MultiChainMultiSigManager>();
-			services.AddTransient<IMultiChainPermissionsManager, MultiChainPermissionsManager>();
+			services
+				.AddMultiChain()
+				.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>()
+				.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>()
+				.AddTransient<IMultiChainAddressManager, MultiChainAddressManager>()
+				.AddTransient<IMultiChainMultiSigManager, MultiChainMultiSigManager>()
+				.AddTransient<IMultiChainPermissionsManager, MultiChainPermissionsManager>()
+				;
 		}
 
 		[SetUp]

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
@@ -15,39 +16,27 @@ namespace MultiChainDotNet.Managers
 {
 	public class MultiChainVariableManager : IMultiChainVariableManager
 	{
+		private readonly IServiceProvider _container;
 		private readonly ILogger _logger;
-		private readonly IMultiChainCommandFactory _commandFactory;
-		private readonly MultiChainVariableCommand _varCmd;
-		MultiChainTransactionCommand _txnCmd;
+		private MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
-		MultiChainConfiguration _mcConfig;
 
-		public MultiChainVariableManager(
-			ILogger<MultiChainVariableManager> logger,
-			IMultiChainCommandFactory commandFactory,
-			MultiChainConfiguration mcConfig)
+		public MultiChainVariableManager(IServiceProvider container)
 		{
-			_commandFactory = commandFactory;
-			_logger = logger;
-			_varCmd = commandFactory.CreateCommand<MultiChainVariableCommand>();
-			_txnCmd = commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			_mcConfig = mcConfig;
-			_defaultSigner = new DefaultSigner(mcConfig.Node.Ptekey);
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainVariableManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainVariableManager(
-			ILogger<MultiChainVariableManager> logger,
-			IMultiChainCommandFactory commandFactory,
-			MultiChainConfiguration mcConfig,
-			SignerBase signer)
+		public MultiChainVariableManager(IServiceProvider container, SignerBase signer)
 		{
-			_commandFactory = commandFactory;
-			_logger = logger;
-			_varCmd = commandFactory.CreateCommand<MultiChainVariableCommand>();
-			_txnCmd = commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			_mcConfig = mcConfig;
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainVariableManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
 			_defaultSigner = signer;
 		}
+
 
 		public string CreateVariable(string variableName)
 		{
@@ -58,26 +47,31 @@ namespace MultiChainDotNet.Managers
 		{
 			_logger.LogDebug($"Executing CreateVariableAsync");
 			signer = signer ?? _defaultSigner;
-			try
+			using (var scope = _container.CreateScope())
 			{
-				var fromAddress = _mcConfig.Node.NodeWallet;
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.With()
-						.CreateVariable(variableName, null)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(_defaultSigner)
-						.Sign()
-						.Send()
-					;
-				return txid;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				try
+				{
+					var fromAddress = _mcConfig.Node.NodeWallet;
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.With()
+							.CreateVariable(variableName, null)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(_defaultSigner)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
+					throw;
+				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				throw;
-			}
+
 		}
 
 		public string SetVariableValue<T>(string variableName, T variableValue)
@@ -87,59 +81,69 @@ namespace MultiChainDotNet.Managers
 		public string SetVariableValue<T>(SignerBase signer, string variableName, T variableValue)
 		{
 			_logger.LogDebug($"Executing SetVariableAsync");
-
-			// If variable is not found, then create variable.
-			try
+			using (var scope = _container.CreateScope())
 			{
-				var query = Task.Run(async () => await GetVariableValueAsync<T>(variableName)).GetAwaiter().GetResult();
-			}
-			catch (Exception ex)
-			{
-				if (!ex.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
-					throw;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				// If variable is not found, then create variable.
 				try
 				{
-					CreateVariable(variableName);
+					var query = Task.Run(async () => await GetVariableValueAsync<T>(variableName)).GetAwaiter().GetResult();
 				}
-				catch (Exception ex2)
+				catch (Exception ex)
 				{
-					_logger.LogWarning(ex2.ToString());
+					if (!ex.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+						throw;
+					try
+					{
+						CreateVariable(variableName);
+					}
+					catch (Exception ex2)
+					{
+						_logger.LogWarning(ex2.ToString());
+						throw;
+					}
+				}
+
+				// Update variable
+				try
+				{
+					var fromAddress = _mcConfig.Node.NodeWallet;
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.With()
+							.UpdateVariable(variableName, variableValue)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(_defaultSigner)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
 					throw;
 				}
 			}
 
-			// Update variable
-			try
-			{
-				var fromAddress = _mcConfig.Node.NodeWallet;
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.With()
-						.UpdateVariable(variableName, variableValue)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(_defaultSigner)
-						.Sign()
-						.Send()
-					;
-				return txid;
-			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				throw;
-			}
+
 		}
 
 		public async Task<T> GetVariableValueAsync<T>(string variableName)
 		{
-			var result = await _varCmd.GetVariableValueAsync<T>(variableName);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var varCmd = scope.ServiceProvider.GetRequiredService<MultiChainVariableCommand>();
+				var result = await varCmd.GetVariableValueAsync<T>(variableName);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 		}
 
 	}

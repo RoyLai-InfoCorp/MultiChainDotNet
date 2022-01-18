@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using MultiChainDotNet.Core.MultiChainTransaction;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,5 +17,7 @@ namespace MultiChainDotNet.Managers
 		Task<List<ListAssetTransactionResult>> ListAllTransactionsByAsset(string assetName);
 		Task<List<ListAddressTransactionResult>> ListTransactionsByAddress(string address, int count, int skip, bool verbose);
 		Task<List<ListAssetTransactionResult>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false);
+		(List<TxIdVoutStruct> SelectedUnspents, Dictionary<string, Double> ReturnUnspents) SelectUnspent(List<ListUnspentResult> unspents, UInt64 requiredPayment, string requiredAssetName, Double requiredAssetQty, UInt64 fees = 1000);
+		Task<Dictionary<string, double>> ListUnspentBalances(string address);
 	}
 }

@@ -10,6 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="IMultiChainManagerFactory.cs" />
+	  <Compile Remove="MultiChainManagerFactory.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj" />
     <ProjectReference Include="..\MultiChainDotNet.Fluent\MultiChainDotNet.Fluent.csproj" />
   </ItemGroup>

@@ -226,6 +226,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var wait = await TaskHelper.WaitUntilTrue(async () => (await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result))?.Result is { });
 			wait.Should().BeTrue();
 			var item2 = await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result);
+			Console.WriteLine(item2.ToJson());
+
 			Assert.That(JObject.FromObject(item2.Result.Data).SelectToken("json.Greetings").ToString(), Is.EqualTo("Hello World"));
 			// Offchain data should be found in .multichain/chain1/chunks/data/stream-{randomName}
 
@@ -271,6 +273,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			// Get result from blockchain
 			var txoutResult2 = await relayer1Cmd.GetTxOutData(txid, vout);
+			if (txoutResult2.IsError) throw txoutResult2.Exception;
 			txoutResult2.Result.Hex2Bytes().Length.Should().Be(2354570);
 
 			// Download result into binary cache

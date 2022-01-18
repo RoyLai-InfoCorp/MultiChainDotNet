@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
@@ -17,28 +18,45 @@ namespace MultiChainDotNet.Managers
 {
 	public class MultiChainTransactionManager : IMultiChainTransactionManager
 	{
+		private readonly IServiceProvider _container;
 		private readonly ILogger _logger;
-		private readonly IMultiChainCommandFactory _commandFactory;
+		//private readonly IMultiChainCommandFactory _commandFactory;
 		private MultiChainConfiguration _mcConfig;
+		private SignerBase _defaultSigner;
 
-		public MultiChainTransactionManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory,
-			MultiChainConfiguration mcConfig)
+		//public MultiChainTransactionManager(ILoggerFactory loggerFactory,
+		//	MultiChainCommandFactory commandFactory,
+		//	MultiChainConfiguration mcConfig)
+		//{
+		//	_commandFactory = commandFactory;
+		//	_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
+		//	_mcConfig = mcConfig;
+		//}
+
+		//public MultiChainTransactionManager(ILoggerFactory loggerFactory,
+		//	MultiChainCommandFactory commandFactory,
+		//	MultiChainConfiguration mcConfig,
+		//	SignerBase signer)
+		//{
+		//	_commandFactory = commandFactory;
+		//	_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
+		//}
+
+		public MultiChainTransactionManager(IServiceProvider container)
 		{
-			_commandFactory = commandFactory;
-			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
-			_mcConfig = mcConfig;
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainTransactionManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainTransactionManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory,
-			MultiChainConfiguration mcConfig,
-			SignerBase signer)
+		public MultiChainTransactionManager(IServiceProvider container, SignerBase signer)
 		{
-			_commandFactory = commandFactory;
-			_logger = loggerFactory.CreateLogger<MultiChainTransactionManager>();
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainTransactionManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+			_defaultSigner = signer;
 		}
-
 
 		public async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
@@ -74,110 +92,124 @@ namespace MultiChainDotNet.Managers
 
 		public async Task<DecodeRawTransactionResult> DecodeRawTransactionAsync(string txid)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			var txnResult = await txnCmd.GetRawTransaction(txid);
-			if (txnResult.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(txnResult.Exception.ToString());
-				throw txnResult.Exception;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				var txnResult = await txnCmd.GetRawTransaction(txid);
+				if (txnResult.IsError)
+				{
+					_logger.LogWarning(txnResult.Exception.ToString());
+					throw txnResult.Exception;
+				}
+
+				var result = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
+
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-
-			var result = await txnCmd.DecodeRawTransactionAsync(txnResult.Result);
-
-			if (result.IsError)
-			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
-			}
-			return result.Result;
-
 		}
 
 		public async Task<List<ListAddressTransactionResult>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			var result = await txnCmd.ListAddressTransactions(address, count, skip, verbose);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				var result = await txnCmd.ListAddressTransactions(address, count, skip, verbose);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
 		}
 
 		public async Task<List<ListAssetTransactionResult>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			var result = await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				var result = await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
 		}
 
 		public async Task<List<ListAssetTransactionResult>> ListAllTransactionsByAsset(string assetName)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			int page = 0;
-			int count = 100;
-			bool empty = false;
-			List<ListAssetTransactionResult> list = new List<ListAssetTransactionResult>();
-			while (!empty)
+			using (var scope = _container.CreateScope())
 			{
-				var buffer = await txnCmd.ListAssetTransactions(assetName, false, count, page * count, false);
-				if (buffer.IsError)
-					throw buffer.Exception;
-
-				if (buffer.Result.Count == 0)
-					empty = true;
-				else
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				int page = 0;
+				int count = 100;
+				bool empty = false;
+				List<ListAssetTransactionResult> list = new List<ListAssetTransactionResult>();
+				while (!empty)
 				{
-					foreach (var item in buffer.Result)
-						list.Add(item);
+					var buffer = await txnCmd.ListAssetTransactions(assetName, false, count, page * count, false);
+					if (buffer.IsError)
+						throw buffer.Exception;
+
+					if (buffer.Result.Count == 0)
+						empty = true;
+					else
+					{
+						foreach (var item in buffer.Result)
+							list.Add(item);
+					}
+					page++;
 				}
-				page++;
+
+				return list;
 			}
 
-			return list;
 		}
 
 		public async Task<List<ListAddressTransactionResult>> ListAllTransactionsByAddress(string address, string assetName = null)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			int page = 0;
-			int count = 100;
-			bool empty = false;
-			List<ListAddressTransactionResult> list = new List<ListAddressTransactionResult>();
-			while (!empty)
+			using (var scope = _container.CreateScope())
 			{
-				var buffer = await txnCmd.ListAddressTransactions(address, count, page * count, false);
-				if (buffer.IsError)
-					throw buffer.Exception;
-
-				if (buffer.Result.Count == 0)
-					empty = true;
-				else
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				int page = 0;
+				int count = 100;
+				bool empty = false;
+				List<ListAddressTransactionResult> list = new List<ListAddressTransactionResult>();
+				while (!empty)
 				{
-					foreach (var item in buffer.Result)
-						list.Add(item);
+					var buffer = await txnCmd.ListAddressTransactions(address, count, page * count, false);
+					if (buffer.IsError)
+						throw buffer.Exception;
+
+					if (buffer.Result.Count == 0)
+						empty = true;
+					else
+					{
+						foreach (var item in buffer.Result)
+							list.Add(item);
+					}
+					page++;
 				}
-				page++;
+
+				if (!string.IsNullOrEmpty(assetName))
+				{
+					var filteredList = list.Where(x => x.Balance.Assets.Any(x => x.Name == assetName)).ToList();
+					return filteredList;
+				}
+
+				return list;
 			}
 
-			if (!string.IsNullOrEmpty(assetName))
-			{
-				var filteredList = list.Where(x => x.Balance.Assets.Any(x => x.Name == assetName)).ToList();
-				return filteredList;
-			}
-
-			return list;
 		}
 
-
-
-		private (List<TxIdVoutStruct> SelectedUnspents, Dictionary<string, Double> ReturnUnspents) SelectUnspent(List<ListUnspentResult> unspents, UInt64 requiredPayment, string requiredAssetName, Double requiredAssetQty, UInt64 fees = 1000)
+		public (List<TxIdVoutStruct> SelectedUnspents, Dictionary<string, Double> ReturnUnspents) SelectUnspent(List<ListUnspentResult> unspents, UInt64 requiredPayment, string requiredAssetName, Double requiredAssetQty, UInt64 fees = 1000)
 		{
 			UInt64 totalPayment = 0;
 			Double totalAssetQty = 0;
@@ -228,25 +260,31 @@ namespace MultiChainDotNet.Managers
 			return (list, returnAssets);
 		}
 
-		private async Task<Dictionary<string, double>> ListUnspentBalances(string address)
+		public async Task<Dictionary<string, double>> ListUnspentBalances(string address)
 		{
-			var txnCmd = _commandFactory.CreateCommand<MultiChainTransactionCommand>();
-			Dictionary<string, double> unspentBal = new Dictionary<string, double>();
-			var unspents = await txnCmd.ListUnspentAsync(address);
-			unspentBal[""] = 0;
-			foreach (var unspent in unspents.Result)
+			using (var scope = _container.CreateScope())
 			{
-				foreach (var asset in unspent.Assets)
-					unspentBal[asset.Name] = 0;
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				Dictionary<string, double> unspentBal = new Dictionary<string, double>();
+				var unspents = await txnCmd.ListUnspentAsync(address);
+				unspentBal[""] = 0;
+				foreach (var unspent in unspents.Result)
+				{
+					foreach (var asset in unspent.Assets)
+						unspentBal[asset.Name] = 0;
+				}
+
+				foreach (var unspent in unspents.Result)
+				{
+					unspentBal[""] += unspent.Amount;
+					foreach (var asset in unspent.Assets)
+						unspentBal[asset.Name] += asset.Qty;
+				}
+				return unspentBal;
+
+
 			}
 
-			foreach (var unspent in unspents.Result)
-			{
-				unspentBal[""] += unspent.Amount;
-				foreach (var asset in unspent.Assets)
-					unspentBal[asset.Name] += asset.Qty;
-			}
-			return unspentBal;
 		}
 
 	}

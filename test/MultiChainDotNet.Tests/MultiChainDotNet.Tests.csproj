@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Remove="IntegrationTests\Fluent\MultiSigSenderTests.cs" />
     <Compile Remove="IntegrationTests\Fluent\TransactionSenderTests.cs" />
+    <Compile Remove="IntegrationTests\TestCommandFactoryBase.cs" />
   </ItemGroup>
 
 	<ItemGroup>

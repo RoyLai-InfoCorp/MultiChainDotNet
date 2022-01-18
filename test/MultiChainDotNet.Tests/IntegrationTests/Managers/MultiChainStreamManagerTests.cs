@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-	public class MultiChainStreamManagerTests : TestCommandFactoryBase
+	public class MultiChainStreamManagerTests : TestBase
 	{
 		IMultiChainStreamManager _streamManager;
 
@@ -20,7 +21,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			base.ConfigureServices(services);
 
-			services.AddTransient<IMultiChainStreamManager, MultiChainStreamManager>();
+			services
+				.AddMultiChain()
+				.AddTransient<IMultiChainStreamManager, MultiChainStreamManager>();
 		}
 
 		[SetUp]

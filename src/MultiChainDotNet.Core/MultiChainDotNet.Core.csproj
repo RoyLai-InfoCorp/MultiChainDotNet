@@ -10,9 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="IMultiChainCommandFactory.cs" />
 	  <Compile Remove="MultiChainAsset\AssetIssueMoreRequest.cs" />
 	  <Compile Remove="MultiChainAsset\AssetIssueRequest.cs" />
 	  <Compile Remove="MultiChainAsset\AssetRequest.cs" />
+	  <Compile Remove="MultiChainCommandFactory.cs" />
 	  <Compile Remove="MultiChainStream\StreamItemJsonRequest.cs" />
 	  <Compile Remove="MultiChainStream\StreamItemRequest.cs" />
 	  <Compile Remove="MultiChainStream\StreamItemTextRequest.cs" />

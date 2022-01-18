@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Fluent.Signers;
+using System;
 using System.Threading.Tasks;
 using UtilsDotNet;
 
@@ -13,47 +15,68 @@ namespace MultiChainDotNet.Managers
 {
 	public class MultiChainAddressManager : IMultiChainAddressManager
 	{
-		MultiChainAddressCommand _addressCmd;
+		private IServiceProvider _container;
+		private ILogger<MultiChainAddressManager> _logger;
+		private MultiChainConfiguration _mcConfig;
+		private SignerBase _defaultSigner;
 
-		public MultiChainAddressManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory commandFactory,
-			MultiChainConfiguration mcConfig,
-			SignerBase signer)
+		public MultiChainAddressManager(IServiceProvider container)
 		{
-			_addressCmd = commandFactory.CreateCommand<MultiChainAddressCommand>();
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainAddressManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainAddressManager(IMultiChainCommandFactory commandFactory)
+		public MultiChainAddressManager(IServiceProvider container, SignerBase signer)
 		{
-			_addressCmd = commandFactory.CreateCommand<MultiChainAddressCommand>();
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainAddressManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
+			_defaultSigner = signer;
 		}
 
 		public async Task ImportAddressAsync(string address)
 		{
-			var result = await _addressCmd.ImportAddressAsync(address);
-			if (result.IsError)
-				throw result.Exception;
+			using (var scope = _container.CreateScope())
+			{
+				var addressCmd = scope.ServiceProvider.GetRequiredService<MultiChainAddressCommand>();
+				var result = await addressCmd.ImportAddressAsync(address);
+				if (result.IsError)
+					throw result.Exception;
+			}
+
 		}
 
 		public CreateMultiSigResult CreateMultiSig(int nRequired, string[] pubkeys)
 		{
-			var result = Task.Run(async () =>
+			using (var scope = _container.CreateScope())
 			{
-				var addr = await _addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
-				await ImportAddressAsync(addr.Result.Address);
-				return addr;
-			}).GetAwaiter().GetResult();
-			if (result.IsError)
-				throw result.Exception;
-			return result.Result;
+				var addressCmd = scope.ServiceProvider.GetRequiredService<MultiChainAddressCommand>();
+				var result = Task.Run(async () =>
+				{
+					var addr = await addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+					await ImportAddressAsync(addr.Result.Address);
+					return addr;
+				}).GetAwaiter().GetResult();
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}
+
 		}
 
 		public async Task<bool> IsExistAsync(string address)
 		{
-			var result = await _addressCmd.CheckAddressImportedAsync(address);
-			if (result.IsError)
-				throw result.Exception;
-			return result.Result;
+			using (var scope = _container.CreateScope())
+			{
+				var addressCmd = scope.ServiceProvider.GetRequiredService<MultiChainAddressCommand>();
+				var result = await addressCmd.CheckAddressImportedAsync(address);
+				if (result.IsError)
+					throw result.Exception;
+				return result.Result;
+			}
+
 		}
 
 	}

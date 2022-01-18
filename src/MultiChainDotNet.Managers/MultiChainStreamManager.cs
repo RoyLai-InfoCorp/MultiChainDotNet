@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
@@ -22,35 +23,24 @@ namespace MultiChainDotNet.Managers
 {
 	public class MultiChainStreamManager : IMultiChainStreamManager
 	{
-		private readonly ILoggerFactory _loggerFactory;
+		private readonly IServiceProvider _container;
 		private readonly ILogger _logger;
 		private MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
-		private MultiChainStreamCommand _streamCmd;
-		MultiChainTransactionCommand _txnCmd;
 
-		public MultiChainStreamManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory cmdFactory,
-			MultiChainConfiguration mcConfig)
+		public MultiChainStreamManager(IServiceProvider container)
 		{
-			_loggerFactory = loggerFactory;
-			_mcConfig = mcConfig;
-			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
-			_streamCmd = cmdFactory.CreateCommand<MultiChainStreamCommand>();
-			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainStreamManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainStreamManager(ILoggerFactory loggerFactory,
-			IMultiChainCommandFactory cmdFactory,
-			MultiChainConfiguration mcConfig,
-			SignerBase signer)
+		public MultiChainStreamManager(IServiceProvider container, SignerBase signer)
 		{
-			_loggerFactory = loggerFactory;
-			_mcConfig = mcConfig;
-			_logger = loggerFactory.CreateLogger<MultiChainStreamManager>();
-			_streamCmd = cmdFactory.CreateCommand<MultiChainStreamCommand>();
-			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainStreamManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
 			_defaultSigner = signer;
 		}
 
@@ -84,43 +74,49 @@ namespace MultiChainDotNet.Managers
 		public async Task<string> CreateStreamAsync(SignerBase signer, string fromAddress, string streamName, bool anyoneCanWrite = false)
 		{
 			_logger.LogDebug($"Executing CreateStream");
-			try
+			using (var scope = _container.CreateScope())
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.With()
-					.CreateStream(streamName, anyoneCanWrite)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-
-				var success = await _streamCmd.WaitUntilStreamExists(streamName);
-				if (!success)
-					throw new Exception($"CreateStream {streamName} timeout.");
-
-				Task.Run(async () =>
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				try
 				{
-					await _streamCmd.SubscribeAsync(streamName);
-				}).GetAwaiter().GetResult();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.With()
+						.CreateStream(streamName, anyoneCanWrite)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
 
-				return txid;
-			}
-			catch (Exception ex)
-			{
-				// Error code remapped
-				if (ex.Message.Contains("New entity script rejected - entity with this name already exists."))
-				{
-					Exception me = new MultiChainException(MultiChainErrorCode.RPC_DUPLICATE_NAME);
-					_logger.LogWarning(me.ToString());
-					throw me;
+					var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+					var success = await streamCmd.WaitUntilStreamExists(streamName);
+					if (!success)
+						throw new Exception($"CreateStream {streamName} timeout.");
+
+					Task.Run(async () =>
+					{
+						await streamCmd.SubscribeAsync(streamName);
+					}).GetAwaiter().GetResult();
+
+					return txid;
 				}
+				catch (Exception ex)
+				{
+					// Error code remapped
+					if (ex.Message.Contains("New entity script rejected - entity with this name already exists."))
+					{
+						Exception me = new MultiChainException(MultiChainErrorCode.RPC_DUPLICATE_NAME);
+						_logger.LogWarning(me.ToString());
+						throw me;
+					}
 
-				_logger.LogWarning(ex.ToString());
-				throw;
+					_logger.LogWarning(ex.ToString());
+					throw;
+				}
 			}
+
 		}
 
 
@@ -130,20 +126,28 @@ namespace MultiChainDotNet.Managers
 			if (_defaultSigner is { })
 				return await PublishJsonAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, key, json);
 
-			// Remember to subscribe
-			await SubscribeAsync(streamName);
-			var result = await _streamCmd.PublishJsonStreamItemAsync(streamName, new string[] { key }, json);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				// Remember to subscribe
+				await SubscribeAsync(streamName);
+				var result = await streamCmd.PublishJsonStreamItemAsync(streamName, new string[] { key }, json);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 		}
 
 		public async Task<string> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string key, object json)
 		{
 			_logger.LogDebug($"Executing PublishJsonAsync");
+			using (var scope = _container.CreateScope())
+			{
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
 			try
 			{
 				// Remember to subscribe
@@ -154,7 +158,7 @@ namespace MultiChainDotNet.Managers
 					.From(fromAddress)
 					.With()
 					.PublishJson(streamName, key, json)
-					.CreateNormalTransaction(_txnCmd)
+					.CreateNormalTransaction(txnCmd)
 						.AddSigner(signer)
 						.Sign()
 						.Send()
@@ -167,6 +171,8 @@ namespace MultiChainDotNet.Managers
 				_logger.LogWarning(ex.ToString());
 				throw;
 			}
+			}
+
 		}
 
 		public async Task<string> PublishJsonAsync(string streamName, string[] keys, object json)
@@ -176,73 +182,92 @@ namespace MultiChainDotNet.Managers
 			if (_defaultSigner is { })
 				return await PublishJsonAsync(_defaultSigner, _mcConfig.Node.NodeWallet, streamName, keys, json);
 
-			var result = await _streamCmd.PublishJsonStreamItemAsync(streamName, keys, json);
-			if (result.IsError)
+
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				var result = await streamCmd.PublishJsonStreamItemAsync(streamName, keys, json);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 
 		}
 
 		public async Task<string> PublishJsonAsync(SignerBase signer, string fromAddress, string streamName, string[] keys, object json)
 		{
 			_logger.LogDebug($"Executing PublishJsonAsync");
-
-			try
+			using (var scope = _container.CreateScope())
 			{
-				// Remember to subscribe
-				await SubscribeAsync(streamName);
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				try
+				{
+					// Remember to subscribe
+					await SubscribeAsync(streamName);
 
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.With()
-					.PublishJson(streamName, keys, json)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.With()
+						.PublishJson(streamName, keys, json)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
 
-				return txid;
+					return txid;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
+					throw;
+				}
 			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				throw;
-			}
+
 		}
 
 
 		public async Task SubscribeAsync(string streamName)
 		{
 			_logger.LogDebug($"Executing SubscribeAsync");
-			var result = await _streamCmd.SubscribeAsync(streamName);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				var result = await streamCmd.SubscribeAsync(streamName);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
 			}
+
 		}
 
 		public async Task<StreamsResult> GetStreamInfoAsync(string streamName)
 		{
 			_logger.LogDebug($"Executing GetStreamAsync");
-
-			var result = await _streamCmd.ListStreamsAsync(streamName, true);
-
-			if (result.IsError && result.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
-				return null;
-
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				var result = await streamCmd.ListStreamsAsync(streamName, true);
+
+				if (result.IsError && result.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
+					return null;
+
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+
+				return result.Result[0];
 			}
 
-			return result.Result[0];
 		}
 
 
@@ -298,27 +323,35 @@ namespace MultiChainDotNet.Managers
 		public async Task<IList<StreamsResult>> ListStreamsAsync(bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListStreamsAsync");
-
-			var result = await _streamCmd.ListStreamsAsync("*", verbose);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				var result = await streamCmd.ListStreamsAsync("*", verbose);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 		}
 
 		public async Task<IList<StreamsResult>> ListStreamsAsync(string streamName, bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListStreamsAsync");
-
-			var result = await _streamCmd.ListStreamsAsync(streamName, verbose);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				var result = await streamCmd.ListStreamsAsync(streamName, verbose);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 		}
 
 		/// <summary>
@@ -427,57 +460,61 @@ namespace MultiChainDotNet.Managers
 				if (order == "ASC")
 					startFrom = page * size;
 			}
-
-			if (searchType is { })
+			using (var scope = _container.CreateScope())
 			{
-				if (where is null)
-					throw new Exception("Invalid WHERE clause");
-				switch (searchType)
+				var streamCmd = scope.ServiceProvider.GetRequiredService<MultiChainStreamCommand>();
+				if (searchType is { })
 				{
-					case "txid":
-						var txidResult = await _streamCmd.GetStreamItemByTxidAsync(streamName, where);
-						if (txidResult.IsError)
-						{
-							_logger.LogWarning(txidResult.Exception.ToString());
-							throw txidResult.Exception;
-						}
-						list = new List<StreamItemsResult> { txidResult.Result };
-						break;
-					case "publisher":
-						var pubResult = await _streamCmd.ListStreamItemsByPublisherAsync(streamName, where, verbose, count, startFrom);
-						if (pubResult.IsError)
-						{
-							_logger.LogWarning(pubResult.Exception.ToString());
-							throw pubResult.Exception;
-						}
-						list = pubResult.Result;
-						break;
-					case "key":
-						var keyResult = await _streamCmd.ListStreamItemsByKeyAsync(streamName, where, verbose, count, startFrom);
-						if (keyResult.IsError)
-						{
-							_logger.LogWarning(keyResult.Exception.ToString());
-							throw keyResult.Exception;
-						}
-						list = keyResult.Result;
-						break;
+					if (where is null)
+						throw new Exception("Invalid WHERE clause");
+					switch (searchType)
+					{
+						case "txid":
+							var txidResult = await streamCmd.GetStreamItemByTxidAsync(streamName, where);
+							if (txidResult.IsError)
+							{
+								_logger.LogWarning(txidResult.Exception.ToString());
+								throw txidResult.Exception;
+							}
+							list = new List<StreamItemsResult> { txidResult.Result };
+							break;
+						case "publisher":
+							var pubResult = await streamCmd.ListStreamItemsByPublisherAsync(streamName, where, verbose, count, startFrom);
+							if (pubResult.IsError)
+							{
+								_logger.LogWarning(pubResult.Exception.ToString());
+								throw pubResult.Exception;
+							}
+							list = pubResult.Result;
+							break;
+						case "key":
+							var keyResult = await streamCmd.ListStreamItemsByKeyAsync(streamName, where, verbose, count, startFrom);
+							if (keyResult.IsError)
+							{
+								_logger.LogWarning(keyResult.Exception.ToString());
+								throw keyResult.Exception;
+							}
+							list = keyResult.Result;
+							break;
+					}
 				}
-			}
-			else
-			{
-				var listResult = await _streamCmd.ListStreamItemsAsync(streamName, verbose, count, startFrom);
-				if (listResult.IsError)
+				else
 				{
-					_logger.LogWarning(listResult.Exception.ToString());
-					throw listResult.Exception;
+					var listResult = await streamCmd.ListStreamItemsAsync(streamName, verbose, count, startFrom);
+					if (listResult.IsError)
+					{
+						_logger.LogWarning(listResult.Exception.ToString());
+						throw listResult.Exception;
+					}
+					list = listResult.Result;
 				}
-				list = listResult.Result;
+
+				if (order == "DESC")
+					return list.Reverse().ToArray();
+
+				return list;
 			}
 
-			if (order == "DESC")
-				return list.Reverse().ToArray();
-
-			return list;
 		}
 
 		private T ConvertMultiChainJsonResult<T>(StreamItemsResult streamItem)

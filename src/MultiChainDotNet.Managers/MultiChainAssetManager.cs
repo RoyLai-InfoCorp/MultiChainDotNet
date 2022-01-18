@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2020-2021 InfoCorp Technologies Pte. Ltd. <roy.lai@infocorp.io>
 // SPDX-License-Identifier: See LICENSE.txt
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
@@ -21,29 +22,21 @@ namespace MultiChainDotNet.Managers
 		private readonly ILogger _logger;
 		private MultiChainConfiguration _mcConfig;
 		protected SignerBase _defaultSigner;
-		MultiChainAssetCommand _assetCmd;
-		MultiChainTransactionCommand _txnCmd;
+		private IServiceProvider _container;
 
-		public MultiChainAssetManager(ILogger<MultiChainAssetManager> logger,
-			IMultiChainCommandFactory cmdFactory,
-			MultiChainConfiguration mcConfig)
+		public MultiChainAssetManager(IServiceProvider container)
 		{
-			_mcConfig = mcConfig;
-			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = logger;
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainAssetManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
 			_defaultSigner = new DefaultSigner(_mcConfig.Node.Ptekey);
 		}
 
-		public MultiChainAssetManager(ILogger<MultiChainAssetManager> logger,
-			IMultiChainCommandFactory cmdFactory,
-			MultiChainConfiguration mcConfig,
-			SignerBase signer)
+		public MultiChainAssetManager(IServiceProvider container, SignerBase signer)
 		{
-			_mcConfig = mcConfig;
-			_assetCmd = cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			_txnCmd = cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = logger;
+			_container = container;
+			_logger = container.GetRequiredService<ILogger<MultiChainAssetManager>>();
+			_mcConfig = container.GetRequiredService<MultiChainConfiguration>();
 			_defaultSigner = signer;
 		}
 
@@ -76,19 +69,23 @@ namespace MultiChainDotNet.Managers
 			double qty = units / _mcConfig.Multiple;
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.Pay(qty)
-					.With()
-						.DeclareJson(data)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-				return txid;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.Pay(qty)
+						.With()
+							.DeclareJson(data)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -109,18 +106,22 @@ namespace MultiChainDotNet.Managers
 			double qty = units / _mcConfig.Multiple;
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.Pay(qty)
-						.AnnotateJson(annotation)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-				return txid;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.Pay(qty)
+							.AnnotateJson(annotation)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -134,11 +135,15 @@ namespace MultiChainDotNet.Managers
 		{
 			UInt64 multiple = Task.Run(async () =>
 			{
-				await _assetCmd.SubscribeAsync(assetName);
-				var assetInfo = await _assetCmd.GetAssetInfoAsync(assetName);
-				if (assetInfo.IsError)
-					throw assetInfo.Exception;
-				return assetInfo.Result.Multiple;
+				using (var scope = _container.CreateScope())
+				{
+					var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+					await assetCmd.SubscribeAsync(assetName);
+					var assetInfo = await assetCmd.GetAssetInfoAsync(assetName);
+					if (assetInfo.IsError)
+						throw assetInfo.Exception;
+					return assetInfo.Result.Multiple;
+				}
 			}).GetAwaiter().GetResult();
 			return multiple;
 		}
@@ -153,23 +158,27 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				// Must subscribe and get the multiple before running
-				UInt64 multiple = GetAssetMultiple(assetName);
-				double qty = units / multiple;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					// Must subscribe and get the multiple before running
+					UInt64 multiple = GetAssetMultiple(assetName);
+					double qty = units / multiple;
 
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.SendAsset(assetName, qty)
-					.With()
-						.DeclareJson(data)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-				return txid;
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.SendAsset(assetName, qty)
+						.With()
+							.DeclareJson(data)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -190,24 +199,26 @@ namespace MultiChainDotNet.Managers
 			Exception ex_ = new Exception();
 			try
 			{
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					// Must subscribe and get the multiple before running
+					UInt64 multiple = GetAssetMultiple(assetName);
+					double qty = units / multiple;
 
-				// Must subscribe and get the multiple before running
-				UInt64 multiple = GetAssetMultiple(assetName);
-				double qty = units / multiple;
-
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.SendAsset(assetName, qty)
-						.AnnotateJson(annotation)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-
-				return txid;
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.SendAsset(assetName, qty)
+							.AnnotateJson(annotation)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -244,26 +255,30 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.IssueAsset(units)
-					.With()
-						.IssueDetails(assetName, 1, canIssueMore)
-						.DeclareJson(data)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-
-				Task.Run(async () =>
+				using (var scope = _container.CreateScope())
 				{
-					await SubscribeAsync(assetName);
-				}).GetAwaiter().GetResult();
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.IssueAsset(units)
+						.With()
+							.IssueDetails(assetName, 1, canIssueMore)
+							.DeclareJson(data)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					Task.Run(async () =>
+					{
+						await SubscribeAsync(assetName);
+					}).GetAwaiter().GetResult();
 
-				return txid;
+					return txid;
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -283,21 +298,25 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.IssueAsset(units)
-						.AnnotateJson(annotation)
-					.With()
-						.IssueDetails(assetName, 1, canIssueMore)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.IssueAsset(units)
+							.AnnotateJson(annotation)
+						.With()
+							.IssueDetails(assetName, 1, canIssueMore)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
 
-				return txid;
+ 				}
 			}
 			catch (Exception ex)
 			{
@@ -317,20 +336,25 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.IssueMoreAsset(assetName, units)
-					.With()
-						.DeclareJson(data)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd= scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.IssueMoreAsset(assetName, units)
+						.With()
+							.DeclareJson(data)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
 
-				return txid;
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -349,19 +373,22 @@ namespace MultiChainDotNet.Managers
 
 			try
 			{
-				var txid = new MultiChainFluent()
-					.AddLogger(_logger)
-					.From(fromAddress)
-					.To(toAddress)
-						.IssueMoreAsset(assetName, units)
-						.AnnotateJson(annotation)
-					.CreateNormalTransaction(_txnCmd)
-						.AddSigner(signer)
-						.Sign()
-						.Send()
-					;
-
-				return txid;
+				using (var scope = _container.CreateScope())
+				{
+					var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+					var txid = new MultiChainFluent()
+						.AddLogger(_logger)
+						.From(fromAddress)
+						.To(toAddress)
+							.IssueMoreAsset(assetName, units)
+							.AnnotateJson(annotation)
+						.CreateNormalTransaction(txnCmd)
+							.AddSigner(signer)
+							.Sign()
+							.Send()
+						;
+					return txid;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -376,121 +403,153 @@ namespace MultiChainDotNet.Managers
 
 			if (String.IsNullOrEmpty(assetName))
 				return null;
-			var result = await _assetCmd.GetAssetInfoAsync(assetName);
-			if (result.IsError)
+
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var result = await assetCmd.GetAssetInfoAsync(assetName);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
+
 		}
 
 		public async Task<GetAddressBalancesResult> GetAssetBalanceByAddressAsync(string address, string assetName = null)
 		{
 			_logger.LogDebug($"Executing GetAssetBalanceByAddressAsync");
 
-			var result = await _assetCmd.GetAddressBalancesAsync(address);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
-			}
-
-			try
-			{
-				if (String.IsNullOrEmpty(assetName))
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var result = await assetCmd.GetAddressBalancesAsync(address);
+				if (result.IsError)
 				{
-					var nativeCurrency = result.Result.FirstOrDefault(x => String.IsNullOrEmpty(x.Name));
-					if (nativeCurrency is null)
-						return null;
-					return nativeCurrency;
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
 				}
 
-				GetAddressBalancesResult single = result.Result.FirstOrDefault(x => x.Name == assetName);
-				if (single is null)
+				try
 				{
-					return new GetAddressBalancesResult
+
+					if (String.IsNullOrEmpty(assetName))
 					{
-						Qty = 0,
-						AssetRef = "",
-						Name = assetName,
-						Raw = 0
-					};
+						var nativeCurrency = result.Result.FirstOrDefault(x => String.IsNullOrEmpty(x.Name));
+						if (nativeCurrency is null)
+							return null;
+						return nativeCurrency;
+					}
+
+					GetAddressBalancesResult single = result.Result.FirstOrDefault(x => x.Name == assetName);
+					if (single is null)
+					{
+						return new GetAddressBalancesResult
+						{
+							Qty = 0,
+							AssetRef = "",
+							Name = assetName,
+							Raw = 0
+						};
+					}
+
+					var assetInfo = await GetAssetInfoAsync(assetName);
+					single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
+					return single;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
+					throw;
 				}
 
-				var assetInfo = await GetAssetInfoAsync(assetName);
-				single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
-				return single;
 			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				throw;
-			}
+
 		}
 
 		public async Task<List<GetAddressBalancesResult>> ListAssetBalancesByAddressAsync(string address)
 		{
 			_logger.LogDebug($"Executing ListAssetBalancesByAddressAsync");
 
-			var assetsResult = await _assetCmd.GetAddressBalancesAsync(address);
-			if (assetsResult.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(assetsResult.Exception.ToString());
-				throw assetsResult.Exception;
-			}
-			try
-			{
-				foreach (GetAddressBalancesResult single in assetsResult.Result)
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var assetsResult = await assetCmd.GetAddressBalancesAsync(address);
+				if (assetsResult.IsError)
 				{
-					if (!String.IsNullOrEmpty(single.Name))
-					{
-						var assetInfo = await GetAssetInfoAsync(single.Name);
-						single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
-					}
+					_logger.LogWarning(assetsResult.Exception.ToString());
+					throw assetsResult.Exception;
 				}
-				return assetsResult.Result;
+				try
+				{
+					foreach (GetAddressBalancesResult single in assetsResult.Result)
+					{
+						if (!String.IsNullOrEmpty(single.Name))
+						{
+							var assetInfo = await GetAssetInfoAsync(single.Name);
+							single.Raw = Convert.ToUInt64(single.Qty * assetInfo.Multiple);
+						}
+					}
+					return assetsResult.Result;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
+					throw;
+				}
+
 			}
-			catch (Exception ex)
-			{
-				_logger.LogWarning(ex.ToString());
-				throw;
-			}
+
 		}
 
 		public async Task<List<ListAssetsResult>> ListAssetsAsync(string assetName = "*", bool verbose = false)
 		{
 			_logger.LogDebug($"Executing ListAssetsAsync");
-
-			var result = await _assetCmd.ListAssetsAsync(assetName, verbose);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var assetCmd= scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var result = await assetCmd.ListAssetsAsync(assetName, verbose);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
 			}
-			return result.Result;
 		}
 		public async Task<List<AssetTransactionsResult>> ListAssetTransactionsAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing ListAssetTransactionsAsync");
 
-			var result = await _assetCmd.ListAssetTransactionsAsync(assetName);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var result = await assetCmd.ListAssetTransactionsAsync(assetName);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+				return result.Result;
+
 			}
-			return result.Result;
 		}
 
 		public async Task SubscribeAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing SubscribeAsync");
-			var result = await _assetCmd.SubscribeAsync(assetName);
-			if (result.IsError)
+			using (var scope = _container.CreateScope())
 			{
-				_logger.LogWarning(result.Exception.ToString());
-				throw result.Exception;
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var result = await assetCmd.SubscribeAsync(assetName);
+				if (result.IsError)
+				{
+					_logger.LogWarning(result.Exception.ToString());
+					throw result.Exception;
+				}
+
 			}
 		}
 

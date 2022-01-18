@@ -20,7 +20,7 @@ using UtilsDotNet.Extensions;
 namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 {
 	[TestFixture]
-	public class MultiChainMultiSigFluentTests : TestCommandFactoryBase
+	public class MultiChainMultiSigFluentTests : TestBase
 	{
 		public class TestState
 		{
@@ -32,16 +32,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		}
 
-		IMultiChainCommandFactory _cmdFactory;
 		ILogger _logger;
-		MultiChainTransactionCommand _txnCmd;
 
 		[SetUp]
 		public async Task SetUp()
 		{
-			_cmdFactory = _container.GetRequiredService<IMultiChainCommandFactory>();
-			_txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
-			_logger = _loggerFactory.CreateLogger<MultiChainMultiSigFluentTests>();
+			_logger = _container.GetRequiredService<ILogger<MultiChainMultiSigFluentTests>>();
+		}
+
+		protected override void ConfigureServices(IServiceCollection services)
+		{
+			base.ConfigureServices(services);
+			services.AddMultiChain();
 		}
 
 		private async Task Prepare_MultiSigAddress(int n, string[] addresses)
@@ -49,17 +51,17 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// PREPARE
 
 			// Create multisig address
-			var addrCmd = _cmdFactory.CreateCommand<MultiChainAddressCommand>();
+			var addrCmd = _container.GetRequiredService<MultiChainAddressCommand>();
 			var multisig = await addrCmd.CreateMultiSigAsync(n, addresses);
 			await addrCmd.ImportAddressAsync(multisig.Result.Address);
 			Console.WriteLine(multisig.Result.ToJson());
 
 			// Grant multisig permission to send and receive
-			var permCmd = _cmdFactory.CreateCommand<MultiChainPermissionCommand>();
+			var permCmd = _container.GetRequiredService<MultiChainPermissionCommand>();
 			await permCmd.GrantPermissionAsync(multisig.Result.Address, "send,receive");
 
 			// Issue asset into multisig
-			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
+			var assetCmd = _container.GetRequiredService<MultiChainAssetCommand>();
 			var result = await assetCmd.SendAssetAsync(multisig.Result.Address, "openasset", 10);
 			if (result.IsError)
 				throw result.Exception;
@@ -80,23 +82,29 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var state = _stateDb.GetState<TestState>();
 
 			// PREPARE
-			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
+			using (var scope = _container.CreateScope())
+			{
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
 
-			// ACT
-			var txid = new MultiChainFluent()
-				.AddLogger(_logger)
-				.From(state.MultiSigAddress)
-				.To(_testUser1.NodeWallet)
-					.SendAsset(state.AssetName, 1)
-				.CreateMultiSigTransaction(_txnCmd)
-					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
-					.MultiSign(state.RedeemScript)
-					.Send()
-					;
+				// ACT
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
 
-			// ASSERT
-			Assert.IsNotNull(txid);
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(state.MultiSigAddress)
+					.To(_testUser1.NodeWallet)
+						.SendAsset(state.AssetName, 1)
+					.CreateMultiSigTransaction(txnCmd)
+						.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+						.MultiSign(state.RedeemScript)
+						.Send()
+						;
+
+				// ASSERT
+				Assert.IsNotNull(txid);
+
+			}
 		}
 
 		[Test, Order(220)]
@@ -105,24 +113,30 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			await Prepare_MultiSigAddress(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var state = _stateDb.GetState<TestState>();
 
-			// PREPARE
-			var txnCmd = _cmdFactory.CreateCommand<MultiChainTransactionCommand>();
+			using (var scope = _container.CreateScope())
+			{
 
-			// ACT
-			var txid = new MultiChainFluent()
-				.AddLogger(_logger)
-				.From(state.MultiSigAddress)
-				.To(_testUser1.NodeWallet)
-					.SendAsset(state.AssetName, 1)
-				.CreateMultiSigTransaction(_txnCmd)
-					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
-					.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
-					.MultiSign(state.RedeemScript)
-					.Send()
-					;
+				// PREPARE
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
 
-			// ASSERT
-			Console.WriteLine(txid);
+				// ACT
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(state.MultiSigAddress)
+					.To(_testUser1.NodeWallet)
+						.SendAsset(state.AssetName, 1)
+					.CreateMultiSigTransaction(txnCmd)
+						.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+						.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
+						.MultiSign(state.RedeemScript)
+						.Send()
+						;
+
+				// ASSERT
+				Console.WriteLine(txid);
+
+			}
+
 		}
 
 		[Test, Order(230)]
@@ -131,37 +145,45 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			await Prepare_MultiSigAddress(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var state = _stateDb.GetState<TestState>();
 
-			// ACT 1
-			var request = new MultiChainFluent()
-				.AddLogger(_logger)
-				.From(state.MultiSigAddress)
-				.To(_testUser1.NodeWallet)
-					.SendAsset(state.AssetName, 1)
-					.CreateRawTransaction(_txnCmd);
+			using (var scope = _container.CreateScope())
+			{
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
 
-			// ACT 2
-			var signatures1 = new MultiChainFluent()
-				.AddLogger(_logger)
-				.UseMultiSigTransaction(_txnCmd)
-					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
-					.MultiSignPartial(request, state.RedeemScript);
+				// ACT 1
+				var request = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(state.MultiSigAddress)
+					.To(_testUser1.NodeWallet)
+						.SendAsset(state.AssetName, 1)
+						.CreateRawTransaction(txnCmd);
 
-			var signatures2 = new MultiChainFluent()
-				.AddLogger(_logger)
-				.UseMultiSigTransaction(_txnCmd)
-					.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
-					.MultiSignPartial(request, state.RedeemScript);
+				// ACT 2
+				var signatures1 = new MultiChainFluent()
+					.AddLogger(_logger)
+					.UseMultiSigTransaction(txnCmd)
+						.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+						.MultiSignPartial(request, state.RedeemScript);
 
-			// ACT 3
-			var txid = new MultiChainFluent()
-				.AddLogger(_logger)
-				.UseMultiSigTransaction(_txnCmd)
-					.AddRawMultiSignatureTransaction(request)
-					.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
-					.MultiSign(state.RedeemScript)
-					.Send();
+				var signatures2 = new MultiChainFluent()
+					.AddLogger(_logger)
+					.UseMultiSigTransaction(txnCmd)
+						.AddMultiSigSigner(new DefaultSigner(_relayer2.Ptekey))
+						.MultiSignPartial(request, state.RedeemScript);
 
-			Assert.That(String.IsNullOrEmpty(txid), Is.False);
+				// ACT 3
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
+					.UseMultiSigTransaction(txnCmd)
+						.AddRawMultiSignatureTransaction(request)
+						.AddMultiSignatures(new List<string[]> { signatures1, signatures2 })
+						.MultiSign(state.RedeemScript)
+						.Send();
+
+				Assert.That(String.IsNullOrEmpty(txid), Is.False);
+
+			}
+
+
 		}
 
 
@@ -171,30 +193,36 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			await Prepare_MultiSigAddress(1, new string[] { _relayer1.Pubkey, _relayer2.Pubkey });
 			var state = _stateDb.GetState<TestState>();
 
-			// PREPARE
-			var assetCmd = _cmdFactory.CreateCommand<MultiChainAssetCommand>();
-			var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
+			using (var scope = _container.CreateScope())
+			{
+				// PREPARE
+				var assetCmd = scope.ServiceProvider.GetRequiredService<MultiChainAssetCommand>();
+				var balance = await assetCmd.GetAddressBalancesAsync(state.MultiSigAddress);
 
-			// ACT
-			await Task.Delay(3000);
-			var unspents = await _txnCmd.ListUnspentAsync(state.MultiSigAddress);
-			var unspent1 = unspents.Result.First(x => x.Assets?.Count > 0 && x.Assets[0].Name == state.AssetName);
-			var unspent2 = unspents.Result.First(x => x.Amount >= 1000);
-			var txid = new MultiChainFluent()
-				.AddLogger(_logger)
-				.From(state.MultiSigAddress)
-				.From(unspent1.TxId, unspent1.Vout)
-				.From(unspent2.TxId, unspent2.Vout)
-				.To(_testUser1.NodeWallet)
-					.SendAsset(state.AssetName, 1)
-				.CreateMultiSigTransaction(_txnCmd)
-					.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
-					.MultiSign(state.RedeemScript)
-					.Send()
-					;
+				// ACT
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				await Task.Delay(3000);
+				var unspents = await txnCmd.ListUnspentAsync(state.MultiSigAddress);
+				var unspent1 = unspents.Result.First(x => x.Assets?.Count > 0 && x.Assets[0].Name == state.AssetName);
+				var unspent2 = unspents.Result.First(x => x.Amount >= 1000);
+				var txid = new MultiChainFluent()
+					.AddLogger(_logger)
+					.From(state.MultiSigAddress)
+					.From(unspent1.TxId, unspent1.Vout)
+					.From(unspent2.TxId, unspent2.Vout)
+					.To(_testUser1.NodeWallet)
+						.SendAsset(state.AssetName, 1)
+					.CreateMultiSigTransaction(txnCmd)
+						.AddMultiSigSigner(new DefaultSigner(_relayer1.Ptekey))
+						.MultiSign(state.RedeemScript)
+						.Send()
+						;
 
-			// ASSERT
-			Assert.IsNotNull(txid);
+				// ASSERT
+				Assert.IsNotNull(txid);
+
+			}
+
 		}
 
 	}

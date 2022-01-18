@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
 	[TestFixture]
-	public class MultiChainTransactionManagerTests : TestCommandFactoryBase
+	public class MultiChainTransactionManagerTests : TestBase
 	{
 		IMultiChainTransactionManager _mcTxnMgr;
 		IMultiChainAssetManager _mcAssetMgr;
@@ -20,8 +21,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			base.ConfigureServices(services);
 
-			services.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>();
-			services.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>();
+			services
+				.AddMultiChain()
+				.AddTransient<IMultiChainTransactionManager, MultiChainTransactionManager>()
+				.AddTransient<IMultiChainAssetManager, MultiChainAssetManager>();
 		}
 
 		[SetUp]

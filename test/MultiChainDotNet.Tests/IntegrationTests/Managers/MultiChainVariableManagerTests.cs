@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 {
-	public class MultiChainVariableManagerTests : TestCommandFactoryBase
+	public class MultiChainVariableManagerTests : TestBase
 	{
 		IMultiChainVariableManager _varManager;
 
@@ -17,7 +18,9 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		{
 			base.ConfigureServices(services);
 
-			services.AddTransient<IMultiChainVariableManager, MultiChainVariableManager>();
+			services
+				.AddMultiChain()
+				.AddTransient<IMultiChainVariableManager, MultiChainVariableManager>();
 		}
 
 		[SetUp]

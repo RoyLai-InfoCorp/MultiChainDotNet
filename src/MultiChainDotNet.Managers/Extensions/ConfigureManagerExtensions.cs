@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.DependencyInjection;
+using MultiChainDotNet.Core;
 
 namespace MultiChainDotNet.Managers.Extensions
 {
@@ -18,7 +19,6 @@ namespace MultiChainDotNet.Managers.Extensions
 				.AddScoped<IMultiChainAddressManager, MultiChainAddressManager>()
 				.AddScoped<IMultiChainBlockchainManager, MultiChainBlockchainManager>()
 				.AddScoped<IMultiChainMultiSigManager, MultiChainMultiSigManager>()
-				.AddScoped<IMultiChainManagerFactory, MultiChainManagerFactory>()
 				.AddScoped<IMultiChainVariableManager, MultiChainVariableManager>()
 				;
 		}
