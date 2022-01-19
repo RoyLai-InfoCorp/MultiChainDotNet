@@ -94,10 +94,10 @@ namespace MultiChainDotNet.Core.Base
 
 				content = await response.Content.ReadAsStringAsync();
 				var result = MultiChainResultParser.ParseMultiChainResult<T>(content);
+				if (!response.IsSuccessStatusCode && !String.IsNullOrEmpty(response.ReasonPhrase))
+					throw new Exception(response.ReasonPhrase);
 				if (result.IsError)
 					throw result.Exception;
-				if (!response.IsSuccessStatusCode)
-					throw new Exception(response.ReasonPhrase);
 				_logger.LogTrace($"multichain response {method}: {JsonConvert.SerializeObject(result.Result, Formatting.Indented)}");
 				return result;
 			}

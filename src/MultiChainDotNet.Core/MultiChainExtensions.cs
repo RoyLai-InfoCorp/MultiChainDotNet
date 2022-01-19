@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
@@ -52,6 +53,8 @@ namespace MultiChainDotNet.Core
 			var hasConfig = services.Any(x => x.ServiceType == typeof(MultiChainConfiguration));
 			if (!hasConfig)
 				services.AddSingleton(mcConfig);
+			else
+				services.Replace(new ServiceDescriptor(typeof(MultiChainConfiguration), mcConfig));
 			services.AddMultiChain();
 			return services;
 		}
