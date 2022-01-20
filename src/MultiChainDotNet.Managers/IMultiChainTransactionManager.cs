@@ -12,7 +12,7 @@ namespace MultiChainDotNet.Managers
 	{
 		Task<DecodeRawTransactionResult> DecodeRawTransactionAsync(string txid);
 		Task<string> GetAnnotationAsync(string assetName, string txid);
-		Task<string> GetDeclarationAsync(string txid);
+		Task<string> GetAttachmentAsync(string txid);
 		Task<List<ListAddressTransactionResult>> ListAllTransactionsByAddress(string address, string assetName = null);
 		Task<List<ListAssetTransactionResult>> ListAllTransactionsByAsset(string assetName);
 		Task<List<ListAddressTransactionResult>> ListTransactionsByAddress(string address, int count, int skip, bool verbose);

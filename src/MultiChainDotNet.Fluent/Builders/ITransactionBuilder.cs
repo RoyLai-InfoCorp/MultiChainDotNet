@@ -42,9 +42,9 @@ namespace MultiChainDotNet.Fluent.Builders
 
 		#region With
 		ITransactionBuilder With();
-		ITransactionBuilder DeclareBytes(byte[] bytes);
-		ITransactionBuilder DeclareJson(object json);
-		ITransactionBuilder DeclareText(string text);
+		ITransactionBuilder AttachBytes(byte[] bytes);
+		ITransactionBuilder AttachJson(object json);
+		ITransactionBuilder AttachText(string text);
 		ITransactionBuilder IssueDetails(string assetName, uint multiple, bool canIssueMore);
 		ITransactionBuilder IssueDetails(string assetName, uint multiple, bool reissuable, Dictionary<string, object> details);
 		ITransactionBuilder IssueMoreDetails(string assetName);

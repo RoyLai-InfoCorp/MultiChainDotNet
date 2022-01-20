@@ -75,7 +75,7 @@ namespace MultiChainDotNet.Managers
 			return null;
 		}
 
-		public async Task<string> GetDeclarationAsync(string txid)
+		public async Task<string> GetAttachmentAsync(string txid)
 		{
 			var decoded = await DecodeRawTransactionAsync(txid);
 

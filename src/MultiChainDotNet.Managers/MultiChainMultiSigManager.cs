@@ -109,7 +109,7 @@ namespace MultiChainDotNet.Managers
 						.To(toAddress)
 						.SendAsset(assetName, qty)
 						.With()
-						.DeclareJson(data)
+						.AttachJson(data)
 						.CreateRawTransaction(txnCmd)
 						;
 
@@ -168,7 +168,7 @@ namespace MultiChainDotNet.Managers
 						.To(toAddress)
 						.IssueMoreAsset(assetName, qty)
 						.With()
-						.DeclareJson(data)
+						.AttachJson(data)
 						.CreateRawTransaction(txnCmd)
 						;
 

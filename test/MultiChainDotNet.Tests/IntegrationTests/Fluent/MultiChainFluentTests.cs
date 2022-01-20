@@ -230,7 +230,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			return null;
 		}
 
-		private async Task<string> GetDeclarationAsync(string txid)
+		private async Task<string> GetAttachmentAsync(string txid)
 		{
 			var txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
 			var txnResult = await txnCmd.GetRawTransaction(txid);
@@ -284,7 +284,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		}
 
 		[Test, Order(24)]
-		public async Task Should_issue_asset_with_declaration()
+		public async Task Should_issue_asset_with_Attachment()
 		{
 			//Prepare
 			var assetName = RandomName();
@@ -299,7 +299,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 					.IssueAsset(1000)
 				.With()
 					.IssueDetails(assetName, 1, true)
-					.DeclareJson(new { Name = "Declaration" })
+					.AttachJson(new { Name = "Attachment" })
 				.CreateNormalTransaction(txnCmd)
 					.AddSigner(new DefaultSigner(_admin.Ptekey))
 					.Sign()
@@ -309,8 +309,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			// ASSERT
 			Assert.IsNotNull(txid);
 
-			var annotation = await GetDeclarationAsync(txid);
-			Assert.That(annotation, Is.EqualTo("{\"Name\":\"Declaration\"}"));
+			var annotation = await GetAttachmentAsync(txid);
+			Assert.That(annotation, Is.EqualTo("{\"Name\":\"Attachment\"}"));
 
 		}
 

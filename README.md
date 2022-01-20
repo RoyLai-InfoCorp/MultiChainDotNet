@@ -179,7 +179,7 @@ This is equivalent to sending the API call 'issuefrom 12tDDPm72xRFqmQ96jJtqT4cCG
 
 The Fluent library is used to aid the construction, signing and sending of both normal and multisignature raw transactions using a fluent-style syntax. The MultiChainFluent class has 2 main functions. The first function is for constructing the transaction. The second function handles the signing and sending. The SignerBase class can be derived for other forms of signing mechanism such as hardware signing.
 
-The library has also made some changes to the MultiChain terminologies to lend clarity when constructing the transaction. Sending native cryptocurrency is referred by the library as `Pay` as oppose to `Send` which is used for native assets. Inline meta-data is referred to as `Annotation` and non-inline meta-data is referred to as `Declaration`.
+The library has also made some changes to the MultiChain terminologies to lend clarity when constructing the transaction. Sending native cryptocurrency is referred by the library as `Pay` as oppose to `Send` which is used for native assets. Inline meta-data is referred to as `Annotation` and non-inline meta-data is referred to as `Attachment`.
 
 
 
@@ -216,7 +216,7 @@ The library has also made some changes to the MultiChain terminologies to lend c
         .IssueAsset(1000)
         .With()
         .IssueDetails(assetName, 1, true)
-        .DeclareJson(new { Name = "Non-Inline meta-data" })
+        .AttachJson(new { Name = "Non-Inline meta-data" })
         .CreateNormalTransaction(txnCmd)
             .AddSigner(signer)
             .Sign()

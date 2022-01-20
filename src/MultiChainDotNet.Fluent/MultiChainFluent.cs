@@ -180,21 +180,21 @@ namespace MultiChainDotNet.Fluent
 			return this;
 		}
 
-		public ITransactionBuilder DeclareBytes(byte[] bytes)
+		public ITransactionBuilder AttachBytes(byte[] bytes)
 		{
 			if (bytes is { })
 				_withData.Add(bytes.Bytes2Hex());
 			return this;
 		}
 
-		public ITransactionBuilder DeclareJson(object json)
+		public ITransactionBuilder AttachJson(object json)
 		{
 			if (json is { })
 				_withData.Add(new { json = json });
 			return this;
 		}
 
-		public ITransactionBuilder DeclareText(string text)
+		public ITransactionBuilder AttachText(string text)
 		{
 			if (!String.IsNullOrEmpty(text))
 				_withData.Add(new { text = text });

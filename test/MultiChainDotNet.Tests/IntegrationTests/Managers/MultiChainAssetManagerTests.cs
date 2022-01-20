@@ -78,7 +78,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 				$"sender paid extra for fee {senderBalBefore - senderBalAfter - 1_000_000}");
 
 			// Assert payload
-			//var metadata = await _txnManager.GetDeclarationAsync(txid);
+			//var metadata = await _txnManager.GetAttachmentAsync(txid);
 			//Assert.That(metadata, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 		}
 
@@ -116,7 +116,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(senderAssetBalAfter, Is.EqualTo(senderAssetBalBefore - 1000), $"sender paid extra for fee{senderAssetBalBefore - senderAssetBalAfter - 1000 * 1_000_000}");
 
 			// Assert payload
-			var metadata = await _txnManager.GetDeclarationAsync(txid);
+			var metadata = await _txnManager.GetAttachmentAsync(txid);
 			Assert.That(metadata, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 
 		}
@@ -138,7 +138,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(receiverBalAfter, Is.EqualTo(1_000_000), $"Receiver current balance {receiverBalAfter}");
 
 			// Assert payload
-			var metadata = await _txnManager.GetDeclarationAsync(txid);
+			var metadata = await _txnManager.GetAttachmentAsync(txid);
 			Assert.That(metadata, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 		}
 
@@ -159,7 +159,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			Assert.That(receiverBalAfter, Is.EqualTo(receiverBalBefore + 1_000_000), $"Receiver current balance {receiverBalAfter}");
 
 			// Assert payload
-			var metadata = await _txnManager.GetDeclarationAsync(txid);
+			var metadata = await _txnManager.GetAttachmentAsync(txid);
 			Assert.That(metadata, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 		}
 
@@ -175,7 +175,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var result = _assetManager.SendAsset(_testUser1.NodeWallet, assetName, 1);
 
 			// ASSERT
-			//var comment = await _txnManager.GetDeclarationAsync(issueResult);
+			//var comment = await _txnManager.GetAttachmentAsync(issueResult);
 			//Assert.That(comment, Is.EqualTo(JsonConvert.SerializeObject(payload)));
 		}
 
