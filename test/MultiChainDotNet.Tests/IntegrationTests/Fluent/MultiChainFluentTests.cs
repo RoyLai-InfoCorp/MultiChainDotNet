@@ -530,5 +530,20 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 
 		}
 
+		[Test, Order(130)]
+		public async Task Should_sign_raw_transaction()
+		{
+			string raw = "01000000016dd867531fe35179fac8b89d3eb4ac4a0181b5982b9f02628491001d1c325af10100000000ffffffff04000000000000000025a914a022b7140b5f0834c2a5c3f71937097f725de9dc870c73706b670000000000000000750000000000000000201d73706b6e0100010a4572633230546f6b656e0041040100000000020101756a0000000000000000280573706b6602756a1f7b6907436f6d6d656e74536911496e697469616c206372656174696f6e2e7d00000000000000001976a9140dee8693d58dd6fb03aeabc8123037d9f302867d88ac00000000";
+			var txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
+			var rawsigned = new MultiChainFluent()
+				.UseNormalTransaction(txnCmd)
+				.AddRawNormalTransaction(raw)
+				.AddSigner(new DefaultSigner(_admin.Ptekey))
+				.Sign()
+				.RawSigned()
+				;
+			Console.WriteLine(rawsigned);
+
+		}
 	}
 }

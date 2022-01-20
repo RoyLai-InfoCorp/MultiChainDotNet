@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Collections.Generic;
 
 namespace MultiChainDotNet.Core
 {
@@ -48,6 +49,7 @@ namespace MultiChainDotNet.Core
 			return services;
 		}
 
+		// Override any existing MultiChainConfiguration registered in container
 		public static IServiceCollection AddMultiChain(this IServiceCollection services, MultiChainConfiguration mcConfig)
 		{
 			var hasConfig = services.Any(x => x.ServiceType == typeof(MultiChainConfiguration));
@@ -75,5 +77,24 @@ namespace MultiChainDotNet.Core
 			return services;
 		}
 
+		// multichain
+		//	  - MultiChainConfiguration: must contain 1 active MultiChainNode
+		//	  - MultiChainNodes (Optional): List of MultiChainNodes. Mainly used for simulation and testing purpose.
+		public static IServiceCollection AddMultiChain(this IServiceCollection services, IConfiguration config)
+		{
+			var mcConfig = config.GetSection("MultiChainConfiguration").Get<MultiChainConfiguration>();
+			if (mcConfig is { })
+			{
+				if (mcConfig.Node is null)
+					throw new System.Exception("MultiChainConfiguration.Node not configured.");
+				services
+					.AddMultiChain(mcConfig)
+					;
+				var mcNodes = config.GetSection("MultiChainNodes").Get<IList<MultiChainNode>>();
+				if (mcNodes is { })
+					services.AddSingleton(mcNodes);
+			}
+			return services;
+		}
 	}
 }
