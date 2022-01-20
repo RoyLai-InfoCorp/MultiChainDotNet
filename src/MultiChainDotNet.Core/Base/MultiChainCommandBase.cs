@@ -88,8 +88,8 @@ namespace MultiChainDotNet.Core.Base
 			{
 				string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 				var cmd = ToCommand(method, args);
-				_logger.LogDebug($"multichain command {method}: {cmd}");
-				_logger.LogTrace($"multichain request {method}: {JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented)}");
+				_logger.LogDebug("MultichainCommand: {MultiChainMethod} - {MultiChainCommand}",method,cmd);
+				_logger.LogTrace("multichainRequest: POST {MultiChainMethod} {MultiChainArgs}",method, JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented));
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
 
 				content = await response.Content.ReadAsStringAsync();
@@ -98,7 +98,7 @@ namespace MultiChainDotNet.Core.Base
 					throw new Exception(response.ReasonPhrase);
 				if (result.IsError)
 					throw result.Exception;
-				_logger.LogTrace($"multichain response {method}: {JsonConvert.SerializeObject(result.Result, Formatting.Indented)}");
+				_logger.LogTrace("MultichainResponse: {MultiChainMethod} - {MultiChainResponse}",method, JsonConvert.SerializeObject(result.Result, Formatting.Indented));
 				return result;
 			}
 			catch (Exception ex)
