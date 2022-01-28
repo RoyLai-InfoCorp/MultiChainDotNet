@@ -21,5 +21,9 @@ connection.On<string>("Publish", (raw) =>
 {
     Console.WriteLine(raw);
 });
-Console.ReadLine();
+connection.On<string>("Block", (block) =>
+{
+	Console.WriteLine(block);
+});
 
+Console.ReadLine();
