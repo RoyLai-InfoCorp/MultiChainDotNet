@@ -1,9 +1,14 @@
 #!/bin/bash
-echo $1
 if [ -z $ReceivingHost ]; then
-    ReceivingHost="http://localhost:12040/RawTransactions"
+    ReceivingHost="http://localhost:12028/transaction"
 fi
-curl -s -X POST $ReceivingHost -H 'Content-Type:application/json' -d ''"$1"''
+
+# publish only if mined
+if [ $2 -ne "-1" ]; then
+    echo $1
+    #curl -s -X POST $ReceivingHost -H 'Content-Type:application/json' -d ''"$1"''
+    curl -s -X POST $ReceivingHost -H 'Content-Type:application/json' -d ''\{"txn":"$1","height":$2\}''
+fi
 
 
 

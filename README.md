@@ -1,24 +1,17 @@
 # MultiChainDotNet
 
-
-
 MultiChainDotNet is a cross-Platform development library for integrating with [MultiChain](https://www.multichain.com/developers/) blockchain platform. It includes features for supporting construction and externally signed transactions for both normal and multisig using a fluent-style syntax. It also features an SQL-style query for stream items . MultiChainDotNet is built using .NET Core on Ubuntu on Windows, aka WSL.
-
-
 
 ## Features
 
-
-
-* The build directory contains docker-compose script used to launch a 4-node multichain network on the development machine running WSL(Ubuntu).
-* The Core library contains the wrapper of MultiChain RPC API and included relevant strongly typed class for request and response.
-* The Fluent library is a fluent framework for constructing multichain raw transactions and signing transactions externally.
-* The Managers library is a high-level abstraction of the underlying classes designed for dependency injection.
-* The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
-* Uses sql-style command for stream query.
-* Web-socket API Listener for transaction monitoring.
-* Supports MultiChain version 2.2
-
+- The build directory contains docker-compose script used to launch a 4-node multichain network on the development machine running WSL(Ubuntu).
+- The Core library contains the wrapper of MultiChain RPC API and included relevant strongly typed class for request and response.
+- The Fluent library is a fluent framework for constructing multichain raw transactions and signing transactions externally.
+- The Managers library is a high-level abstraction of the underlying classes designed for dependency injection.
+- The libraries incorporated some enhancements using HttpClientFactory and Polly to manage the resiliency of calls.
+- Uses sql-style command for stream query.
+- Web-socket API Listener for transaction monitoring.
+- Supports MultiChain version 2.2
 
 ## Getting Started
 
@@ -30,7 +23,6 @@ https://docs.docker.com/docker-for-windows/wsl/
 
 https://github.com/RoyLai-InfoCorp/MultiChainDotNet
 
-
 ## Setup Local Test Network
 
 ### 1. Startup 1 seednode and 3 test nodes
@@ -41,7 +33,7 @@ Go to /build/docker-compose directory
 sh$ docker-compose up
 ```
 
-NOTE: 
+NOTE:
 
 The output should show `Node ready.` for all 4 nodes.
 
@@ -62,8 +54,6 @@ sh$ docker exec -it mcdotnet-relayer2 multichain-cli chain1 getpeerinfo
 ### 3. Test Explorer
 
 Open browser at localhost:12029. It should show the MultiChain Explorer.
-
-
 
 ## Compile MultiChainDotNet and Test
 
@@ -124,8 +114,6 @@ Add the configuration to appSettings.json and replace the relevant configuration
     }
 ```
 
-
-
 ## 2. Write a console app and run getinfo
 
 ```C#
@@ -152,13 +140,9 @@ Add the configuration to appSettings.json and replace the relevant configuration
     }
 ```
 
-
-
 ## Using MultiChainDotNet Command
 
-
-
-All MultiChainDotNet Command classes follows the [MultiChain RPC API](https://www.multichain.com/developers/json-rpc-api/) command structure. Below example shows how to issue an asset using the MultiChainAssetCommand. It will issue 100 units of "testasset" into the node address from the appSettings.json configuration file and show balance. 
+All MultiChainDotNet Command classes follows the [MultiChain RPC API](https://www.multichain.com/developers/json-rpc-api/) command structure. Below example shows how to issue an asset using the MultiChainAssetCommand. It will issue 100 units of "testasset" into the node address from the appSettings.json configuration file and show balance.
 
 ```
     var mcConfig = container.GetRequiredService<MultiChainConfiguration>();
@@ -171,18 +155,11 @@ All MultiChainDotNet Command classes follows the [MultiChain RPC API](https://ww
 
 This is equivalent to sending the API call 'issuefrom 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB {"name":"testasset","open":true} 100 1' assuming that the wallet address is 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB.
 
-
-
 ## Using MultiChain Fluent
-
-
 
 The Fluent library is used to aid the construction, signing and sending of both normal and multisignature raw transactions using a fluent-style syntax. The MultiChainFluent class has 2 main functions. The first function is for constructing the transaction. The second function handles the signing and sending. The SignerBase class can be derived for other forms of signing mechanism such as hardware signing.
 
 The library has also made some changes to the MultiChain terminologies to lend clarity when constructing the transaction. Sending native cryptocurrency is referred by the library as `Pay` as oppose to `Send` which is used for native assets. Inline meta-data is referred to as `Annotation` and non-inline meta-data is referred to as `Attachment`.
-
-
-
 
 ### Sending a pay transaction
 
@@ -201,8 +178,6 @@ The library has also made some changes to the MultiChain terminologies to lend c
             .Send()
         ;
 ```
-
-
 
 ### Issue asset with non-inline meta-data
 
@@ -224,8 +199,6 @@ The library has also made some changes to the MultiChain terminologies to lend c
         ;
 ```
 
-
-
 ### Send asset with inline meta-data
 
 **Code**:
@@ -246,8 +219,6 @@ The library has also made some changes to the MultiChain terminologies to lend c
         ;
 ```
 
-
-
 ### Send asset using 2-of-3 multisig address
 
 **Code**:
@@ -266,8 +237,6 @@ The library has also made some changes to the MultiChain terminologies to lend c
         ;
 
 ```
-
-
 
 ### Sending asset using 2-of-3 multisig address in multi-stages
 
@@ -380,38 +349,57 @@ FROM <streamName> [WHERE (txid=<txid>|key=<key>|publish=<address>) [(DESC|ASC)] 
 
 1. Get last item from <streamName>
 
-   ```FROM <streamName>```
+   `FROM <streamName>`
 
 2. Get first item from <streamName>
 
-   ```FROM <streamName> ASC```
+   `FROM <streamName> ASC`
 
 3. Get last 5 items from <streamName> in descending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 10,9,8,7,6
 
-   ```FROM <streamName> PAGE 0 SIZE 5```
+   `FROM <streamName> PAGE 0 SIZE 5`
 
 4. Get first 5 items from <streamName> in ascending order, ie. if items are 1,2,3,4,5,6,7,8,9,10 will return 1,2,3,4,5
 
-   ```FROM <streamName> ASC PAGE 0 SIZE 5```
+   `FROM <streamName> ASC PAGE 0 SIZE 5`
 
 5. Get item by txid
 
-   ```FROM <streamName> WHERE txid='...'```
+   `FROM <streamName> WHERE txid='...'`
 
 6. Get item by key
 
-   ```FROM <streamName> WHERE key='...'```
+   `FROM <streamName> WHERE key='...'`
 
 7. Get item by publisher wallet address
 
-   ```FROM <streamName> WHERE publisher='...'```
+   `FROM <streamName> WHERE publisher='...'`
 
+## Using the Web Socket Service
 
-## Using API Web Socket Listener
+The MultiChainDotNet Web Socket Server is designed to broadcast transaction to web socket subscribers when the node's wallet is notified of a new transaction.
 
-The API Listener is designed to broadcast new transaction to web socket subscribers when the node's wallet is notified of a new transaction. 
+### Wallet Notification
 
-### Connect using Javascript
+The multichain.conf file on the seednode contains the runtime parameter `walletnotifynew=/root/notify.sh %j %n` for the daemon to send notification to the notify.sh script.
+
+The notification will transmit the decoded raw transaction and blockheight to port `12028`
+
+```sh
+#!/bin/bash
+echo $1
+echo Block Height: $2
+if [ -z $ReceivingHost ]; then
+    ReceivingHost="http://localhost:12028/transaction"
+fi
+curl -s -X POST $ReceivingHost -H 'Content-Type:application/json' -d ''"$1"''
+```
+
+### Web Socket Server
+
+The web socket server project is located in the MultiChainDotNet.Api.Service folder. It will run at port `12028` accepting POST request from the seednode at the transaction endpoint. Upon receiving the request, the web socket server will broadcast via the Publish endpoint to the web socket client.
+
+### Web Socket Client using Javascript
 
 ```js
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
@@ -433,7 +421,7 @@ The API Listener is designed to broadcast new transaction to web socket subscrib
     </script>
 ```
 
-### Connect using C#
+### Web Socket Client using C#
 
 ```cs
 using Microsoft.AspNetCore.SignalR.Client;
@@ -453,14 +441,13 @@ connection.On<string>("Publish", (raw) =>
 
 ```
 
-
 ### Testing the API Listener
 
-1. Go to the folder /test/MultiChainDotNet.SocketTest. 
+1. Go to the folder /test/MultiChainDotNet.SocketTest.
 2. In the same folder, start a web server running at port:3000 or port:8080, eg. From 'visual Code', click on index.html and run `Live Preview` or `live-server` from node.
 3. Open a browser at the server location.
-4. Go to the same folder, open a termainl and run `dotnet run` to start a listener console.
-4. Go to the same folder, open another terminal and run `./mc.sh` to send a test transaction to multichain.
+4. Go to the same folder, open a terminal and run `dotnet run` to start a listener console.
+5. Go to the same folder, open another terminal and run `./mc.sh` to send a test transaction to multichain. Alternatively, just run the command `send 12tDDPm72xRFqmQ96jJtqT4cCGwTHNVsz2A4HB 0` using multichain-cli
 
 The result of the decoded raw transaction should be displayed on both the listener console and browser.
 

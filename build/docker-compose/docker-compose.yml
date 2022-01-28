@@ -1,57 +1,57 @@
-version: '3.4'
+version: "3.4"
 
 services:
-
   mcdotnet-seednode:
-      image: mcdotnet-seednode:2.2
-      build:
-        context: .
-        dockerfile: Dockerfile.mcdotnet-seednode
-        args:
-          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
-      container_name: mcdotnet-seednode
-      environment:
+    image: mcdotnet-seednode:2.2
+    build:
+      context: .
+      dockerfile: Dockerfile.mcdotnet-seednode
+      args:
+        - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
+    container_name: mcdotnet-seednode
+    environment:
+      - ReceivingBlockNotify=http://host.docker.internal:12028/block
       - ReceivingHost=http://host.docker.internal:12028/transaction
-      #- ReceivingHost=http://mcdotnet-api:12028/transaction
-      ports:
-      - '12020:12020'
-      - '12021:12021'
-      - '12029:12022'
+    #- ReceivingHost=http://mcdotnet-api:12028/transaction
+    ports:
+      - "12020:12020"
+      - "12021:12021"
+      - "12029:12022"
 
   mcdotnet-relayer1:
-      image: mcdotnet-relaynode:2.2
-      build:
-        context: .
-        dockerfile: Dockerfile.mcdotnet-relaynode
-        args:
-          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
-      container_name: mcdotnet-relayer1
-      ports:
-      - '12022:12020'
-      - '12023:12021'
-      environment:
+    image: mcdotnet-relaynode:2.2
+    build:
+      context: .
+      dockerfile: Dockerfile.mcdotnet-relaynode
+      args:
+        - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
+    container_name: mcdotnet-relayer1
+    ports:
+      - "12022:12020"
+      - "12023:12021"
+    environment:
       - seed_ip=mcdotnet-seednode
       - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
       - ptekey=VAHJarN329oHzL5fJjEJMSWoMLXdtfBXyu62D74JaKXtt77Ypc9PNaFz
-      depends_on:
+    depends_on:
       - mcdotnet-seednode
 
   mcdotnet-relayer2:
-      image: mcdotnet-relaynode:2.2
-      build:
-        context: .
-        dockerfile: Dockerfile.mcdotnet-relaynode
-        args:
-          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
-      container_name: mcdotnet-relayer2
-      ports:
-      - '12024:12020'
-      - '12025:12021'
-      environment:
+    image: mcdotnet-relaynode:2.2
+    build:
+      context: .
+      dockerfile: Dockerfile.mcdotnet-relaynode
+      args:
+        - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
+    container_name: mcdotnet-relayer2
+    ports:
+      - "12024:12020"
+      - "12025:12021"
+    environment:
       - seed_ip=mcdotnet-seednode
       - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
       - ptekey=V8Ktev3iY49EuEeUyaSaiQ1QU3gmW3M5HV8HNdx7srkR3PSty4KbpXZ4
-      depends_on:
+    depends_on:
       - mcdotnet-seednode
 
   mcdotnet-relayer3:
@@ -60,29 +60,29 @@ services:
       context: .
       dockerfile: Dockerfile.mcdotnet-relaynode
       args:
-          - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
+        - BUILD_CHAIN_NAME=${BUILD_CHAIN_NAME}
     container_name: mcdotnet-relayer3
     ports:
-    - '12026:12020'
-    - '12027:12021'
+      - "12026:12020"
+      - "12027:12021"
     environment:
-    - seed_ip=mcdotnet-seednode
-    - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
-    - ptekey=V8btCNTAyxH1R9NGHF6PSWR8CTzadPHxpKTp75enouS2GHEyqxAZHVrU
+      - seed_ip=mcdotnet-seednode
+      - rpcpassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
+      - ptekey=V8btCNTAyxH1R9NGHF6PSWR8CTzadPHxpKTp75enouS2GHEyqxAZHVrU
     depends_on:
       - mcdotnet-seednode
 
-  mcdotnet-api:
-     image: mcdotnet-api:2.2
-     build:
-         context: ../../
-         dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
-     container_name: mcdotnet-api
-     environment:
-     - ASPNETCORE_ENVIRONMENT=Development
-     - ASPNETCORE_URLS=http://+:12028
-     - MULTICHAINDOTNET_AllowedOrigins=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
-     ports:
-     - '12028:12028'
-     depends_on:
-     - mcdotnet-seednode
+  # mcdotnet-api:
+  #    image: mcdotnet-api:2.2
+  #    build:
+  #        context: ../../
+  #        dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
+  #    container_name: mcdotnet-api
+  #    environment:
+  #    - ASPNETCORE_ENVIRONMENT=Development
+  #    - ASPNETCORE_URLS=http://+:12028
+  #    - MULTICHAINDOTNET_AllowedOrigins=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
+  #    ports:
+  #    - '12028:12028'
+  #    depends_on:
+  #    - mcdotnet-seednode

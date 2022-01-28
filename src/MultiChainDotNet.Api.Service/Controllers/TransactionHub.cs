@@ -10,5 +10,11 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		{
 			await Clients.All.SendAsync("Publish", raw);
 		}
+
+		public async Task Blocks(string blockhash)
+		{
+			await Clients.All.SendAsync("Blocks", blockhash);
+		}
+
 	}
 }

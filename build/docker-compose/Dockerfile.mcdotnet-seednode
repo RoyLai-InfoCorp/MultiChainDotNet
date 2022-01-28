@@ -20,6 +20,9 @@ COPY /scripts/params.dat params.dat
 COPY /scripts/notify.sh /root
 RUN chmod 755 /root/notify.sh
 
+COPY /scripts/block-notify.sh /root
+RUN chmod 755 /root/block-notify.sh
+
 # copy init script
 COPY /scripts/mc-seednode.sh /root
 RUN /root/mc-seednode.sh

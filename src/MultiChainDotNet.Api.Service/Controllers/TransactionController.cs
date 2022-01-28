@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
+using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
@@ -17,13 +18,22 @@ namespace MultiChainDotNet.Api.Service.Controllers
 	{
 		private IHubContext<TransactionHub> _transactionHub;
 
+		public class WalletNotifyResult
+		{
+			[JsonProperty("txn")]
+			public DecodeRawTransactionResult Transaction { get; set; }
+
+			[JsonProperty("height")]
+			public int Height { get; set; }
+		}
+
 		public TransactionController(IHubContext<TransactionHub> transactionHub)
 		{
 			_transactionHub = transactionHub;
 		}
 
 		[HttpPost()]
-		public async Task Post(DecodeRawTransactionResult transaction)
+		public async Task Post(WalletNotifyResult transaction)
 		{
 			await _transactionHub.Clients.All.SendAsync("Publish", JsonConvert.SerializeObject(transaction));
 		}
