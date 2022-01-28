@@ -214,7 +214,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		private async Task<string> GetAnnotationAsync(string assetName, string txid)
 		{
 			var txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
-			var txnResult = await txnCmd.GetRawTransaction(txid);
+			var txnResult = await txnCmd.GetRawTransactionAsync(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
 
@@ -233,7 +233,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 		private async Task<string> GetAttachmentAsync(string txid)
 		{
 			var txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
-			var txnResult = await txnCmd.GetRawTransaction(txid);
+			var txnResult = await txnCmd.GetRawTransactionAsync(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
 

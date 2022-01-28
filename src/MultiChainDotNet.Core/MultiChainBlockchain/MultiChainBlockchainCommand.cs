@@ -26,12 +26,12 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 			return await JsonRpcRequestAsync<GetInfoResult>("getinfo");
 		}
 
-		public async Task<MultiChainResult<GetBlockResult>> GetBlock(string blockHash)
+		public async Task<MultiChainResult<GetBlockResult>> GetBlockAsync(string blockHash)
 		{
 			return await JsonRpcRequestAsync<GetBlockResult>("getblock", blockHash);
 		}
 
-		public async Task<MultiChainResult<GetBlockResult>> GetBlock(UInt64 height)
+		public async Task<MultiChainResult<GetBlockResult>> GetBlockAsync(UInt64 height)
 		{
 			return await JsonRpcRequestAsync<GetBlockResult>("getblock", height);
 		}

@@ -66,7 +66,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		protected async Task<string> ShowDecodedTransaction(string txid)
 		{
 			var txCmd = _container.GetService<MultiChainTransactionCommand>();
-			var result = await txCmd.GetRawTransaction(txid);
+			var result = await txCmd.GetRawTransactionAsync(txid);
 			var result2 = await txCmd.DecodeRawTransactionAsync(result.Result);
 			return result2.Result.ToJson();
 		}

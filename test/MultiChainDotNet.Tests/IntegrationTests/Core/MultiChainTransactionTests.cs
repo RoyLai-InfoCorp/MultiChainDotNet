@@ -436,7 +436,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 			//ASSERT
 			if (lockUnspentResult.IsError) throw lockUnspentResult.Exception;
-			var list = await _txnCmd.ListLockUnspent();
+			var list = await _txnCmd.ListLockUnspentAsync();
 			AssetDecodeResult found = null;
 			foreach (var item in list.Result)
 			{
@@ -466,13 +466,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// ACT 1: CreateRawExchange
 			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, "Nft2");
 			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, "Nft2");
-			var exchangeResult = await _txnCmd.CreateRawExchange(txid, vout, new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
+			var exchangeResult = await _txnCmd.CreateRawExchangeAsync(txid, vout, new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
 
 			// ACT 2: AppendRawExchange
 			var lockUnspentResult2 = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
 			var txid2 = lockUnspentResult2.Result.TxId;
 			var vout2 = lockUnspentResult2.Result.Vout;
-			var completeResult = await _txnCmd.AppendRawExchange(exchangeResult.Result, txid2, vout2, new Dictionary<string, object> { { nfa, new { token = "Nft1", qty = 1 } } });
+			var completeResult = await _txnCmd.AppendRawExchangeAsync(exchangeResult.Result, txid2, vout2, new Dictionary<string, object> { { nfa, new { token = "Nft1", qty = 1 } } });
 
 			// ASSERT
 			completeResult.Result.Complete.Should().BeTrue();
@@ -604,8 +604,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var sendResult = await _assetCmd.SendFromAsync(_admin.NodeWallet, _testUser1.NodeWallet, 100);
 
 			// ACT
-			var result1 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
-			var result2 = await _txnCmd.ListAddressTransactions(_testUser1.NodeWallet);
+			var result1 = await _txnCmd.ListAddressTransactionsAsync(_admin.NodeWallet);
+			var result2 = await _txnCmd.ListAddressTransactionsAsync(_testUser1.NodeWallet);
 
 			// ASSERT
 
@@ -638,8 +638,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var sendResult = await _assetCmd.SendAssetFromAsync(newSender, newRecipient, assetName, 1);
 
 			// ACT
-			var result1 = await _txnCmd.ListAddressTransactions(newSender);
-			var result2 = await _txnCmd.ListAddressTransactions(newRecipient);
+			var result1 = await _txnCmd.ListAddressTransactionsAsync(newSender);
+			var result2 = await _txnCmd.ListAddressTransactionsAsync(newRecipient);
 
 			// ASSERT
 
@@ -674,7 +674,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_list_transactions_by_asset()
 		{
 			await _assetCmd.SubscribeAsync("openasset");
-			var result = await _txnCmd.ListAssetTransactions("openasset");
+			var result = await _txnCmd.ListAssetTransactionsAsync("openasset");
 			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
@@ -682,7 +682,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test, Order(130)]
 		public async Task Should_list_transactions_by_address()
 		{
-			var result = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
+			var result = await _txnCmd.ListAddressTransactionsAsync(_admin.NodeWallet);
 			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 		}
@@ -690,17 +690,17 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test, Order(140)]
 		public async Task Should_list_transaction_by_address_in_the_correct_order()
 		{
-			var result1 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet);
+			var result1 = await _txnCmd.ListAddressTransactionsAsync(_admin.NodeWallet);
 			var list1 = result1.Result.Select(x => x.Confirmations);
 			Console.WriteLine("ListAddressTransactions Default:");
 			Console.WriteLine(JsonConvert.SerializeObject(list1, Formatting.Indented));
 
-			var result2 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet, 1);
+			var result2 = await _txnCmd.ListAddressTransactionsAsync(_admin.NodeWallet, 1);
 			var list2 = result2.Result.Select(x => x.Confirmations);
 			Console.WriteLine("ListAddressTransactions 1 count:");
 			Console.WriteLine(JsonConvert.SerializeObject(list2, Formatting.Indented));
 
-			var result3 = await _txnCmd.ListAddressTransactions(_admin.NodeWallet, 20);
+			var result3 = await _txnCmd.ListAddressTransactionsAsync(_admin.NodeWallet, 20);
 			var list3 = result3.Result.Select(x => x.Confirmations);
 			Console.WriteLine("ListAddressTransactions 20 count:");
 			Console.WriteLine(JsonConvert.SerializeObject(list3, Formatting.Indented));

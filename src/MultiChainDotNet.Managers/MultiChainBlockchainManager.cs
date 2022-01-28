@@ -49,7 +49,7 @@ namespace MultiChainDotNet.Managers
 				}
 
 				var blockHeight = result.Result.Blocks;
-				var result2 = await bcCommand.GetBlock(blockHeight);
+				var result2 = await bcCommand.GetBlockAsync(blockHeight);
 				if (result2.IsError)
 				{
 					_logger.LogWarning(result2.Exception.ToString());

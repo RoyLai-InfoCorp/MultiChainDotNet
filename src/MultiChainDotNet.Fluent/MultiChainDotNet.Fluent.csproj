@@ -25,6 +25,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Update="NLog.Extensions.Logging" Version="1.7.4" />
 	  <PackageReference Update="UtilsDotNet" Version="1.2.2" />
 	</ItemGroup>
 

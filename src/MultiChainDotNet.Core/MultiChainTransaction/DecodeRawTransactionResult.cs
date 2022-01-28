@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: See LICENSE.txt
 
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace MultiChainDotNet.Core.MultiChainTransaction
@@ -144,6 +145,17 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		[JsonProperty("vout")]
 		public List<VoutResult> Vout { get; set; }
 
+		[JsonProperty("blockhash")]
+		public string BlockHash { get; set; }
+
+		[JsonProperty("confirmations")]
+		public UInt64 Confirmations { get; set; }
+
+		[JsonProperty("time")]
+		public UInt64 Time { get; set; }
+
+		[JsonProperty("blocktime")]
+		public UInt64 BlockTime { get; set; }
 
 	}
 }

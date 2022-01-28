@@ -52,7 +52,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 		public async Task<string> GetMetaDataAsync(string txid)
 		{
-			var txnResult = await _txnCmd.GetRawTransaction(txid);
+			var txnResult = await _txnCmd.GetRawTransactionAsync(txid);
 			if (txnResult.IsError)
 				throw txnResult.Exception;
 

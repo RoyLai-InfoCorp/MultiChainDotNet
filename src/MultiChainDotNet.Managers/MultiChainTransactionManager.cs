@@ -95,7 +95,7 @@ namespace MultiChainDotNet.Managers
 			using (var scope = _container.CreateScope())
 			{
 				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
-				var txnResult = await txnCmd.GetRawTransaction(txid);
+				var txnResult = await txnCmd.GetRawTransactionAsync(txid);
 				if (txnResult.IsError)
 				{
 					_logger.LogWarning(txnResult.Exception.ToString());
@@ -118,7 +118,7 @@ namespace MultiChainDotNet.Managers
 			using (var scope = _container.CreateScope())
 			{
 				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
-				var result = await txnCmd.ListAddressTransactions(address, count, skip, verbose);
+				var result = await txnCmd.ListAddressTransactionsAsync(address, count, skip, verbose);
 				if (result.IsError)
 				{
 					_logger.LogWarning(result.Exception.ToString());
@@ -133,7 +133,7 @@ namespace MultiChainDotNet.Managers
 			using (var scope = _container.CreateScope())
 			{
 				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
-				var result = await txnCmd.ListAssetTransactions(assetName, verbose, count, start, localOrdering);
+				var result = await txnCmd.ListAssetTransactionsAsync(assetName, verbose, count, start, localOrdering);
 				if (result.IsError)
 				{
 					_logger.LogWarning(result.Exception.ToString());
@@ -154,7 +154,7 @@ namespace MultiChainDotNet.Managers
 				List<ListAssetTransactionResult> list = new List<ListAssetTransactionResult>();
 				while (!empty)
 				{
-					var buffer = await txnCmd.ListAssetTransactions(assetName, false, count, page * count, false);
+					var buffer = await txnCmd.ListAssetTransactionsAsync(assetName, false, count, page * count, false);
 					if (buffer.IsError)
 						throw buffer.Exception;
 
@@ -184,7 +184,7 @@ namespace MultiChainDotNet.Managers
 				List<ListAddressTransactionResult> list = new List<ListAddressTransactionResult>();
 				while (!empty)
 				{
-					var buffer = await txnCmd.ListAddressTransactions(address, count, page * count, false);
+					var buffer = await txnCmd.ListAddressTransactionsAsync(address, count, page * count, false);
 					if (buffer.IsError)
 						throw buffer.Exception;
 

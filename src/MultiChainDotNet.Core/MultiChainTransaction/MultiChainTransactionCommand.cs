@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,13 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<DecodeRawTransactionResult>("decoderawtransaction", hexdata);
 		}
 
+		public Task<bool> WaitUntilTransactionExistAsync(string txid, int retries = 5, int delay = 500)
+		{
+			return TaskHelper.WaitUntilTrue(async () =>
+			  (await GetRawTransactionAsync(txid)).Result is { }
+		  , retries, delay);
+		}
+
 		public async Task<MultiChainResult<string>> SendRawTransactionAsync(string txHex)
 		{
 			if (txHex is null)
@@ -69,7 +77,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<string>("createrawsendfrom", from, to, with, action);
 		}
 
-		public async Task<MultiChainResult<string>> GetRawTransaction(string txid)
+		public async Task<MultiChainResult<string>> GetRawTransactionAsync(string txid)
 		{
 			if (txid is null)
 				throw new ArgumentNullException(nameof(txid));
@@ -77,7 +85,16 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<string>("getrawtransaction", txid);
 		}
 
-		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAddressTransactions(string address, int count = 10, int skip = 0, bool verbose = false)
+		public async Task<MultiChainResult<DecodeRawTransactionResult>> DecodeRawTransactionByTxidAsync(string txid)
+		{
+			if (txid is null)
+				throw new ArgumentNullException(nameof(txid));
+
+			return await JsonRpcRequestAsync<DecodeRawTransactionResult>("getrawtransaction", txid,1);
+		}
+
+
+		public async Task<MultiChainResult<List<ListAddressTransactionResult>>> ListAddressTransactionsAsync(string address, int count = 10, int skip = 0, bool verbose = false)
 		{
 			if (address is null)
 				throw new ArgumentNullException(nameof(address));
@@ -95,7 +112,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 		/// <param name="start"></param>
 		/// <param name="verbose"></param>
 		/// <returns></returns>
-		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAssetTransactions(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
+		public async Task<MultiChainResult<List<ListAssetTransactionResult>>> ListAssetTransactionsAsync(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
 		{
 			if (assetName is null)
 				throw new ArgumentNullException(nameof(assetName));
@@ -160,7 +177,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<SignRawTransactionResult>("signrawtransaction", transaction);
 		}
 
-		public async Task<MultiChainResult<List<TxIdVoutStruct>>> ListLockUnspent()
+		public async Task<MultiChainResult<List<TxIdVoutStruct>>> ListLockUnspentAsync()
 		{
 			return await JsonRpcRequestAsync<List<TxIdVoutStruct>>("listlockunspent");
 		}
@@ -192,12 +209,12 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 			return await JsonRpcRequestAsync<TxIdVoutStruct>("preparelockunspent", assetQuantities);
 		}
 
-		public Task<MultiChainResult<string>> CreateRawExchange(string txid, int vout, object askAssets)
+		public Task<MultiChainResult<string>> CreateRawExchangeAsync(string txid, int vout, object askAssets)
 		{
 			return JsonRpcRequestAsync<string>("createrawexchange", txid, vout, askAssets);
 		}
 
-		public Task<MultiChainResult<AppendRawExchangeResult>> AppendRawExchange(string partialRawHex, string txid, int vout, object askAssets)
+		public Task<MultiChainResult<AppendRawExchangeResult>> AppendRawExchangeAsync(string partialRawHex, string txid, int vout, object askAssets)
 		{
 			return JsonRpcRequestAsync<AppendRawExchangeResult>("appendrawexchange", partialRawHex, txid, vout, askAssets);
 		}
@@ -211,9 +228,9 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 				new Dictionary<string, Double> { { assetName, qty } });
 		}
 
-		public async Task<MultiChainResult<string>> LockUnspentAsync(bool unlock, string txid, UInt16 vout)
+		public async Task<MultiChainResult<bool>> LockUnspentAsync(bool unlock, string txid, UInt16 vout)
 		{
-			return await JsonRpcRequestAsync<string>("lockunspent", unlock,
+			return await JsonRpcRequestAsync<bool>("lockunspent", unlock,
 				new object[] { new { txid = txid, vout = vout } });
 		}
 

@@ -18,7 +18,7 @@
 	  <PackageReference Update="Microsoft.Extensions.Configuration.Json">
 	    <TreatAsUsed>true</TreatAsUsed>
 	  </PackageReference>
-	  <PackageReference Update="NLog.Extensions.Logging">
+	  <PackageReference Update="NLog.Extensions.Logging" Version="1.7.4">
 	    <TreatAsUsed>true</TreatAsUsed>
 	  </PackageReference>
 	  <PackageReference Update="UtilsDotNet" Version="1.2.2" />

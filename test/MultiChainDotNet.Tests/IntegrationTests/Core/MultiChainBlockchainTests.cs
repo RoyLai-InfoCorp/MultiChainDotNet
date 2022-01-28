@@ -36,7 +36,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Assert.That(chain.IsError, Is.False, chain.ExceptionMessage);
 			_logger.LogInformation(JsonConvert.SerializeObject(chain));
 
-			var block = await _bcCmd.GetBlock(chain.Result.Blocks);
+			var block = await _bcCmd.GetBlockAsync(chain.Result.Blocks);
 			Assert.That(block.IsError, Is.False, block.ExceptionMessage);
 			_logger.LogInformation(JsonConvert.SerializeObject(block));
 		}
@@ -49,7 +49,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				throw chain.Exception;
 			_logger.LogInformation(JsonConvert.SerializeObject(chain));
 
-			var block = await _bcCmd.GetBlock(chain.Result.Blocks);
+			var block = await _bcCmd.GetBlockAsync(chain.Result.Blocks);
 			_logger.LogInformation(JsonConvert.SerializeObject(block));
 			if (block.IsError)
 				throw block.Exception;
