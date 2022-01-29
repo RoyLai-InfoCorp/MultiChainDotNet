@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
 using System.Net.WebSockets;
@@ -16,10 +17,12 @@ namespace MultiChainDotNet.Api.Service.Controllers
 	public class BlockController : ControllerBase
 	{
 		private IHubContext<TransactionHub> _transactionHub;
+		private ILogger<BlockController> _logger;
 
-		public BlockController(IHubContext<TransactionHub> transactionHub)
+		public BlockController(ILogger<BlockController> logger,IHubContext<TransactionHub> transactionHub)
 		{
 			_transactionHub = transactionHub;
+			_logger = logger;
 		}
 
 		public class BlockNotifyResult
@@ -31,6 +34,7 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		[HttpPost()]
 		public async Task Post(BlockNotifyResult block)
 		{
+			_logger.LogDebug($"McWebSocket: Received blockhash {block.Block}");
 			await _transactionHub.Clients.All.SendAsync("Block", JsonConvert.SerializeObject(block));
 		}
 

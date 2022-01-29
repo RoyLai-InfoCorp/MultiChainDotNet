@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.MultiChainTransaction;
 using Newtonsoft.Json;
 using System;
@@ -17,6 +18,7 @@ namespace MultiChainDotNet.Api.Service.Controllers
 	public class TransactionController : ControllerBase
 	{
 		private IHubContext<TransactionHub> _transactionHub;
+		private ILogger<TransactionController> _logger;
 
 		public class WalletNotifyResult
 		{
@@ -27,15 +29,18 @@ namespace MultiChainDotNet.Api.Service.Controllers
 			public int Height { get; set; }
 		}
 
-		public TransactionController(IHubContext<TransactionHub> transactionHub)
+		public TransactionController(ILogger<TransactionController> logger,IHubContext<TransactionHub> transactionHub)
 		{
 			_transactionHub = transactionHub;
+			_logger = logger;
 		}
 
 		[HttpPost()]
 		public async Task Post(WalletNotifyResult transaction)
 		{
-			await _transactionHub.Clients.All.SendAsync("Publish", JsonConvert.SerializeObject(transaction));
+			var json = JsonConvert.SerializeObject(transaction);
+			_logger.LogDebug($"McWebSocket: Received transaction {json}");
+			await _transactionHub.Clients.All.SendAsync("Publish", json);
 		}
 
 	}
