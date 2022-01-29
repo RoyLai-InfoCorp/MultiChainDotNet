@@ -36,6 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Abstra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0EF9E1E7-69EF-481B-B42F-7143E3559B41}"
 	ProjectSection(SolutionItems) = preProject
+		build\docker-compose\scripts\block-notify.sh = build\docker-compose\scripts\block-notify.sh
 		build\docker-compose\scripts\create-base-image.sh = build\docker-compose\scripts\create-base-image.sh
 		build\docker-compose\scripts\mc-seednode.sh = build\docker-compose\scripts\mc-seednode.sh
 		build\docker-compose\scripts\multichain.conf = build\docker-compose\scripts\multichain.conf
