@@ -68,7 +68,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 				var issueResult = _assetManager.Issue(multisig, assetName, 10, true);
 
 				// ACT
-				Action action = ()=> _multisSigManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+				Action action = ()=> _multisSigManager.CreateSendAssetSignatureSlip(multisig, _testUser2.NodeWallet, assetName, 1);
 				action.Should().Throw<MultiChainException>().WithMessage($"*{MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS.ToString()}*");
 			}
 		}
@@ -91,7 +91,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			_permManager.GrantPermission(multisig, "send");
 
 			// ACT
-			var signatureSlip = _multisSigManager.CreateSendAssetSignatureSlipAsync(multisig, _testUser2.NodeWallet, assetName, 1);
+			var signatureSlip = _multisSigManager.CreateSendAssetSignatureSlip(multisig, _testUser2.NodeWallet, assetName, 1);
 
 			var relayer1Sig = _multisSigManager.SignMultiSig(new DefaultSigner(_relayer1.Ptekey), signatureSlip, redeemScript);
 			var relayer2Sig = _multisSigManager.SignMultiSig(new DefaultSigner(_relayer2.Ptekey), signatureSlip, redeemScript);

@@ -26,14 +26,14 @@ namespace MultiChainDotNet.Core.MultiChainPermission
 		}
 		public Task<bool> WaitUntilPermissionGranted(string subject, string permission, int retries=5, int delay=500)
 		{
-			return TaskHelper.WaitUntilTrue(async () =>
+			return TaskHelper.WaitUntilTrueAsync(async () =>
 			  (await CheckPermissionGrantedAsync(subject, permission)).Result == true
 		  , retries, delay);
 		}
 
 		public Task<bool> WaitUntilPermissionRevoked(string subject, string permission, int retries = 5, int delay = 500)
 		{
-			return TaskHelper.WaitUntilTrue(async () =>
+			return TaskHelper.WaitUntilTrueAsync(async () =>
 			  (await CheckPermissionGrantedAsync(subject, permission)).Result == false
 		  , retries, delay);
 		}

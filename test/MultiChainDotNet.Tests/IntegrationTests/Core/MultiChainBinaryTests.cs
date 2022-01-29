@@ -35,7 +35,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task should_be_able_to_create_binary_cache()
 		{
 			// ACT
-			var result = await _mcBinCmd.CreateBinaryCache();
+			var result = await _mcBinCmd.CreateBinaryCacheAsync();
 
 			// ASSERT
 			result.IsError.Should().BeFalse(result.ExceptionMessage);
@@ -48,10 +48,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task should_be_able_to_append_binary_cache()
 		{
-			var binId = (await _mcBinCmd.CreateBinaryCache()).Result;
+			var binId = (await _mcBinCmd.CreateBinaryCacheAsync()).Result;
 
 			// ACT
-			var result = await _mcBinCmd.AppendBinaryCache(binId,"0123456789abcdef");
+			var result = await _mcBinCmd.AppendBinaryCacheAsync(binId,"0123456789abcdef");
 
 			// ASSERT
 			Console.WriteLine("binID:" + binId);
@@ -65,10 +65,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		[Test]
 		public async Task should_be_able_to_delete_binary_cache()
 		{
-			var binId = (await _mcBinCmd.CreateBinaryCache()).Result;
+			var binId = (await _mcBinCmd.CreateBinaryCacheAsync()).Result;
 
 			// ACT
-			var result = await _mcBinCmd.DeleteBinaryCache(binId);
+			var result = await _mcBinCmd.DeleteBinaryCacheAsync(binId);
 
 			// ASSERT
 			Console.WriteLine("binID:" + binId);

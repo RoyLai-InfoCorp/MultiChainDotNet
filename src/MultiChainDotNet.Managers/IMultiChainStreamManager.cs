@@ -15,7 +15,7 @@ namespace MultiChainDotNet.Managers
 		Task<StreamsResult> GetStreamInfoAsync(string streamName);
 		Task<StreamItemsResult> GetStreamItemAsync(string selectCmd);
 		Task<T> GetStreamItemAsync<T>(string selectCmd);
-		Task<bool> IsExist(string streamName);
+		Task<bool> IsExistAsync(string streamName);
 		Task<IList<T>> ListAllStreamItemsAsync<T>(string streamName);
 		Task<IList<StreamItemsResult>> ListStreamItemsAsync(string selectCmd, bool verbose = false);
 		Task<IList<T>> ListStreamItemsAsync<T>(string selectCmd);

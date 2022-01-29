@@ -41,7 +41,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var txid = _mcAssetMgr.Issue(_admin.NodeWallet, assetName, 1000, true);
 
 			// ACT
-			var result = await _mcTxnMgr.ListAllTransactionsByAsset(assetName);
+			var result = await _mcTxnMgr.ListAllTransactionsByAssetAsync(assetName);
 
 			//ASSERT
 			Assert.That(result.Count, Is.EqualTo(1));
@@ -55,7 +55,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			}
 
 			// ACT
-			var result1 = await _mcTxnMgr.ListAllTransactionsByAsset(assetName);
+			var result1 = await _mcTxnMgr.ListAllTransactionsByAssetAsync(assetName);
 
 			//ASSERT
 			Assert.That(result1.Count, Is.EqualTo(11));
@@ -74,7 +74,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			}
 
 			// ACT
-			var result1 = await _mcTxnMgr.ListAllTransactionsByAddress(_testUser1.NodeWallet, assetName);
+			var result1 = await _mcTxnMgr.ListAllTransactionsByAddressAsync(_testUser1.NodeWallet, assetName);
 
 			//ASSERT
 			Assert.That(result1.Count(), Is.EqualTo(5));

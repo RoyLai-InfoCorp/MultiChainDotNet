@@ -72,17 +72,18 @@ services:
     depends_on:
       - mcdotnet-seednode
 
-  # mcdotnet-api:
-  #    image: mcdotnet-api:2.2
-  #    build:
-  #        context: ../../
-  #        dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
-  #    container_name: mcdotnet-api
-  #    environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - ASPNETCORE_URLS=http://+:12028
-  #    - MULTICHAINDOTNET_AllowedOrigins=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
-  #    ports:
-  #    - '12028:12028'
-  #    depends_on:
-  #    - mcdotnet-seednode
+  mcdotnet-api:
+    image: mcdotnet-api:2.2
+    build:
+      context: ../../
+      dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile
+    container_name: mcdotnet-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:12028
+      - MULTICHAINDOTNET_AllowedOrigins=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
+#      - MULTICHAINDOTNET_Logging__LogLevel__MultiChainDotNet.Api.Service=debug
+    ports:
+      - '12028:12028'
+    depends_on:
+      - mcdotnet-seednode

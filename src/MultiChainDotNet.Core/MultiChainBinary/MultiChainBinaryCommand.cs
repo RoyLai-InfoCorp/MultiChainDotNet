@@ -24,7 +24,7 @@ namespace MultiChainDotNet.Core.MultiChainBinary
 		/// <summary>
 		/// createbinarycache
 		/// </summary>
-		public Task<MultiChainResult<string>> CreateBinaryCache()
+		public Task<MultiChainResult<string>> CreateBinaryCacheAsync()
 		{
 			return JsonRpcRequestAsync<string>("createbinarycache");
 		}
@@ -32,7 +32,7 @@ namespace MultiChainDotNet.Core.MultiChainBinary
 		/// <summary>
 		/// appendbinarycache identifier data-hex
 		/// </summary>
-		public Task<MultiChainResult<Int64>> AppendBinaryCache(string id, string hex="")
+		public Task<MultiChainResult<Int64>> AppendBinaryCacheAsync(string id, string hex="")
 		{
 			if (id is null)
 				throw new ArgumentNullException(nameof(id));
@@ -43,7 +43,7 @@ namespace MultiChainDotNet.Core.MultiChainBinary
 		/// <summary>
 		/// deletebinarycache identifier
 		/// </summary>
-		public Task<MultiChainResult<VoidType>> DeleteBinaryCache(string id)
+		public Task<MultiChainResult<VoidType>> DeleteBinaryCacheAsync(string id)
 		{
 			if (id is null)
 				throw new ArgumentNullException(nameof(id));
@@ -54,7 +54,7 @@ namespace MultiChainDotNet.Core.MultiChainBinary
 		/// <summary>
 		/// txouttobinarycache identifier txid vout (count-bytes=INT_MAX) (start-byte=0)
 		/// </summary>
-		public Task<MultiChainResult<Int64>> TxoutToBinaryCache(string id, string txid, int vout, int bytesCount, int bytesStart=0)
+		public Task<MultiChainResult<Int64>> TxoutToBinaryCacheAsync(string id, string txid, int vout, int bytesCount, int bytesStart=0)
 		{
 			if (id is null)
 				throw new ArgumentNullException(nameof(id));

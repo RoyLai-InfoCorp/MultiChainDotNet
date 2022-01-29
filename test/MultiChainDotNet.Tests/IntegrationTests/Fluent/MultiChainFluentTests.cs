@@ -136,7 +136,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Fluent
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 
 			// Can be found on blockchain
-			var info = await tokenCmd.GetNfaInfo(nfaName);
+			var info = await tokenCmd.GetNfaInfoAsync(nfaName);
 			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 

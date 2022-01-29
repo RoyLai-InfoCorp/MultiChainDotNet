@@ -42,7 +42,7 @@ namespace MultiChainDotNet.Core.MultiChainTransaction
 
 		public Task<bool> WaitUntilTransactionExistAsync(string txid, int retries = 5, int delay = 500)
 		{
-			return TaskHelper.WaitUntilTrue(async () =>
+			return TaskHelper.WaitUntilTrueAsync(async () =>
 			  (await GetRawTransactionAsync(txid)).Result is { }
 		  , retries, delay);
 		}

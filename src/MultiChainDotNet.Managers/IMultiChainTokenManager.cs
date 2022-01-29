@@ -10,10 +10,10 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainTokenManager
 	{
-		Task<GetAssetInfoResult> GetNonfungibleAssetInfo(string assetName);
-		Task<bool> IsExist(string assetName);
-		Task<string> IssueNonfungibleAsset(SignerBase signer, string fromAddress, string toAddress, string nfaName, object data = null);
-		Task<string> IssueNonfungibleAsset(string toAddress, string nfaName, object data = null);
+		Task<GetAssetInfoResult> GetNonfungibleAssetInfoAsync(string assetName);
+		Task<bool> IsExistAsync(string assetName);
+		Task<string> IssueNonfungibleAssetAsync(SignerBase signer, string fromAddress, string toAddress, string nfaName, object data = null);
+		Task<string> IssueNonfungibleAssetAsync(string toAddress, string nfaName, object data = null);
 		string IssueToken(string toAddress, string nfaName, string tokenId, int qty, object annotation = null);
 		string IssueTokenAnnotate(SignerBase signer, string fromAddress, string toAddress, string nfaName, string tokenId, int qty, object annotation = null);
 		Task<IList<GetAssetInfoIssuesResult>> ListNftByAssetAsync(string nfaName);

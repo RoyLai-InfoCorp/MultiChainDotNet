@@ -133,7 +133,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(asset1);
 			var result = await _assetCmd.IssueAssetAsync(_admin.NodeWallet, asset1, 10, 1, true);
 			if (result.IsError) throw result.Exception;
-			var success = await TaskHelper.WaitUntilTrue(async () => (await _assetCmd.GetAssetInfoAsync(asset1)).Result is { });
+			var success = await TaskHelper.WaitUntilTrueAsync(async () => (await _assetCmd.GetAssetInfoAsync(asset1)).Result is { });
 			if (!success) throw new Exception("Not successful");
 
 			// ACT
@@ -314,7 +314,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var tokenCmd = _container.GetRequiredService<MultiChainTokenCommand>();
 
 			// Cna be found on blockchain
-			var info = await tokenCmd.GetNfaInfo(nfaName);
+			var info = await tokenCmd.GetNfaInfoAsync(nfaName);
 			Console.WriteLine("Info:" + info.Result.ToJson());
 			info.IsError.Should().BeFalse();
 
@@ -330,7 +330,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine(nfaName);
 			var result = await _tokenCmd.IssueNfaAsync(_admin.NodeWallet,nfaName);
 			if (result.IsError) throw result.Exception;
-			var issued = await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfaName);
+			var issued = await _tokenCmd.WaitUntilNfaIssuedAsync(_admin.NodeWallet, nfaName);
 			issued.Should().BeTrue();
 
 			var perm = _container.GetRequiredService<MultiChainPermissionCommand>();
@@ -363,7 +363,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			if (raw.IsError) throw raw.Exception;
 
 			// WAIT
-			var wait = await TaskHelper.WaitUntilTrue(async () => {
+			var wait = await TaskHelper.WaitUntilTrueAsync(async () => {
 				var bal = await _tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
 				if (bal.IsError)
 					throw bal.Exception;
@@ -425,11 +425,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfa = RandomName();
 			Console.WriteLine(nfa);
 			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfa);
-			await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfa);
+			await _tokenCmd.WaitUntilNfaIssuedAsync(_admin.NodeWallet, nfa);
 			var nft = RandomName();
 			Console.WriteLine(nft);
 			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, nft);
-			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, nft);
+			await _tokenCmd.WaitUntilNftIssuedAsync(_admin.NodeWallet, nfa, nft);
 
 			// ACT
 			var lockUnspentResult = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = nft, qty = 1 } } });
@@ -454,18 +454,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfa = RandomName();
 			Console.WriteLine(nfa);
 			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfa);
-			await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfa);
+			await _tokenCmd.WaitUntilNfaIssuedAsync(_admin.NodeWallet, nfa);
 
 			// NFT 1
 			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, "Nft1");
-			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, "Nft1");
+			await _tokenCmd.WaitUntilNftIssuedAsync(_admin.NodeWallet, nfa, "Nft1");
 			var lockUnspentResult = await _txnCmd.PrepareLockUnspentAsync(new Dictionary<string, object> { { nfa, new { token = "Nft1", qty = 1 } } });
 			var txid = lockUnspentResult.Result.TxId;
 			var vout = lockUnspentResult.Result.Vout;
 
 			// ACT 1: CreateRawExchange
 			await _tokenCmd.IssueNftAsync(_admin.NodeWallet, nfa, "Nft2");
-			await _tokenCmd.WaitUntilNftIssued(_admin.NodeWallet, nfa, "Nft2");
+			await _tokenCmd.WaitUntilNftIssuedAsync(_admin.NodeWallet, nfa, "Nft2");
 			var exchangeResult = await _txnCmd.CreateRawExchangeAsync(txid, vout, new Dictionary<string, object> { { nfa, new { token = "Nft2", qty = 1 } } });
 
 			// ACT 2: AppendRawExchange
@@ -555,7 +555,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
 			await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
-			var issued = await _tokenCmd.WaitUntilNfaIssued(_admin.NodeWallet, nfaName);
+			var issued = await _tokenCmd.WaitUntilNfaIssuedAsync(_admin.NodeWallet, nfaName);
 			issued.Should().BeTrue();
 
 			// ACT

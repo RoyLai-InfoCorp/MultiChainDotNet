@@ -44,7 +44,7 @@ namespace MultiChainDotNet.Managers
 			_defaultSigner = signer;
 		}
 
-		public async Task<bool> IsExist(string streamName)
+		public async Task<bool> IsExistAsync(string streamName)
 		{
 			try
 			{

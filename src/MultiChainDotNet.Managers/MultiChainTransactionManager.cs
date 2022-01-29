@@ -113,7 +113,7 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public async Task<List<ListAddressTransactionResult>> ListTransactionsByAddress(string address, int count, int skip, bool verbose)
+		public async Task<List<ListAddressTransactionResult>> ListTransactionsByAddressAsync(string address, int count, int skip, bool verbose)
 		{
 			using (var scope = _container.CreateScope())
 			{
@@ -128,7 +128,7 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public async Task<List<ListAssetTransactionResult>> ListTransactionsByAsset(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
+		public async Task<List<ListAssetTransactionResult>> ListTransactionsByAssetAsync(string assetName, bool verbose = false, int count = 10, int start = -10, bool localOrdering = false)
 		{
 			using (var scope = _container.CreateScope())
 			{
@@ -143,7 +143,7 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public async Task<List<ListAssetTransactionResult>> ListAllTransactionsByAsset(string assetName)
+		public async Task<List<ListAssetTransactionResult>> ListAllTransactionsByAssetAsync(string assetName)
 		{
 			using (var scope = _container.CreateScope())
 			{
@@ -173,7 +173,7 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public async Task<List<ListAddressTransactionResult>> ListAllTransactionsByAddress(string address, string assetName = null)
+		public async Task<List<ListAddressTransactionResult>> ListAllTransactionsByAddressAsync(string address, string assetName = null)
 		{
 			using (var scope = _container.CreateScope())
 			{
@@ -260,7 +260,7 @@ namespace MultiChainDotNet.Managers
 			return (list, returnAssets);
 		}
 
-		public async Task<Dictionary<string, double>> ListUnspentBalances(string address)
+		public async Task<Dictionary<string, double>> ListUnspentBalancesAsync(string address)
 		{
 			using (var scope = _container.CreateScope())
 			{

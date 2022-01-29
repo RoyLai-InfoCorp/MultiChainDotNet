@@ -8,12 +8,12 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainMultiSigManager
 	{
-		string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, ulong qty);
-		string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, ulong qty, object data);
-		string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, ulong qty);
-		string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, ulong qty, object data);
+		string CreateIssueAssetSignatureSlip(string fromAddress, string toAddress, string assetName, ulong qty);
+		string CreateIssueAssetSignatureSlip(string fromAddress, string toAddress, string assetName, ulong qty, object data);
+		string CreateSendAssetSignatureSlip(string fromAddress, string toAddress, string assetName, ulong qty);
+		string CreateSendAssetSignatureSlip(string fromAddress, string toAddress, string assetName, ulong qty, object data);
 		string SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript);
-		string SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, ulong qty, string redeemScript);
+		string SendMultiSigAsset(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, ulong qty, string redeemScript);
 		string[] SignMultiSig(SignerBase signer, string signatureSlip, string redeemScript);
 		string[] SignMultiSig(string signatureSlip, string redeemScript);
 	}

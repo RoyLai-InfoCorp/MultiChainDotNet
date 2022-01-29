@@ -12,7 +12,7 @@ namespace MultiChainDotNet.Managers
 	{
 		Task<GetAddressBalancesResult> GetAssetBalanceByAddressAsync(string address, string assetName = null);
 		Task<GetAssetInfoResult> GetAssetInfoAsync(string assetName);
-		Task<bool> IsExist(string assetName);
+		Task<bool> IsExistAsync(string assetName);
 		string Issue(SignerBase signer, string fromAddress, string toAddress, string assetName, ulong units, bool canIssueMore = true, object data = null);
 		string Issue(string toAddress, string assetName, ulong units, bool canIssueMore = true, object data = null);
 		string IssueAnnotate(SignerBase signer, string fromAddress, string toAddress, string assetName, ulong units, bool canIssueMore, object annotation);

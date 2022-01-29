@@ -8,6 +8,6 @@ namespace MultiChainDotNet.Managers
 {
 	public interface IMultiChainBlockchainManager
 	{
-		Task<GetBlockResult> GetCurrentBlock();
+		Task<GetBlockResult> GetCurrentBlockAsync();
 	}
 }

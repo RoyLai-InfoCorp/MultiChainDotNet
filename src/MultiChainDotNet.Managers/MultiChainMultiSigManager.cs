@@ -37,7 +37,7 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public string SendMultiSigAssetAsync(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, UInt64 qty, string redeemScript)
+		public string SendMultiSigAsset(IList<SignerBase> signers, string fromAddress, string toAddress, string assetName, UInt64 qty, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
 			using (var scope = _container.CreateScope())
@@ -66,7 +66,7 @@ namespace MultiChainDotNet.Managers
 			}
 		}
 
-		public string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
+		public string CreateSendAssetSignatureSlip(string fromAddress, string toAddress, string assetName, UInt64 qty)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 			using (var scope = _container.CreateScope())
@@ -95,7 +95,7 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public string CreateSendAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
+		public string CreateSendAssetSignatureSlip(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 			using (var scope = _container.CreateScope())
@@ -125,7 +125,7 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty)
+		public string CreateIssueAssetSignatureSlip(string fromAddress, string toAddress, string assetName, UInt64 qty)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 			using (var scope = _container.CreateScope())
@@ -154,7 +154,7 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public string CreateIssueAssetSignatureSlipAsync(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
+		public string CreateIssueAssetSignatureSlip(string fromAddress, string toAddress, string assetName, UInt64 qty, object data)
 		{
 			_logger.LogDebug($"Executing CreateSignatureSlipAsync");
 			using (var scope = _container.CreateScope())

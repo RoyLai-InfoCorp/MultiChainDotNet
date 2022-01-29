@@ -43,11 +43,11 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public async Task<bool> IsExist(string assetName)
+		public async Task<bool> IsExistAsync(string assetName)
 		{
 			try
 			{
-				var info = await GetNonfungibleAssetInfo(assetName);
+				var info = await GetNonfungibleAssetInfoAsync(assetName);
 				return info is { };
 			}
 			catch (MultiChainException ex)
@@ -128,12 +128,12 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public Task<string> IssueNonfungibleAsset(string toAddress, string nfaName, object data = null)
+		public Task<string> IssueNonfungibleAssetAsync(string toAddress, string nfaName, object data = null)
 		{
-			return IssueNonfungibleAsset(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, nfaName, data);
+			return IssueNonfungibleAssetAsync(_defaultSigner, _mcConfig.Node.NodeWallet, toAddress, nfaName, data);
 		}
 
-		public async Task<string> IssueNonfungibleAsset(SignerBase signer, string fromAddress, string toAddress, string nfaName, object data = null)
+		public async Task<string> IssueNonfungibleAssetAsync(SignerBase signer, string fromAddress, string toAddress, string nfaName, object data = null)
 		{
 			_logger.LogDebug($"Executing IssueAsync");
 			using (var scope = _container.CreateScope())
@@ -155,10 +155,10 @@ namespace MultiChainDotNet.Managers
 							.Send()
 						;
 
-					await TaskHelper.WaitUntilTrue(async () =>
+					await TaskHelper.WaitUntilTrueAsync(async () =>
 					{
 						var tokenCmd = scope.ServiceProvider.GetRequiredService<MultiChainTokenCommand>();
-						var exist = await tokenCmd.GetNfaInfo(nfaName);
+						var exist = await tokenCmd.GetNfaInfoAsync(nfaName);
 						if (exist.IsError)
 						{
 							if (exist.Exception.IsMultiChainException(MultiChainErrorCode.RPC_ENTITY_NOT_FOUND))
@@ -227,7 +227,7 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public async Task<GetAssetInfoResult> GetNonfungibleAssetInfo(string assetName)
+		public async Task<GetAssetInfoResult> GetNonfungibleAssetInfoAsync(string assetName)
 		{
 			_logger.LogDebug($"Executing GetTokenInfoAsync");
 			using (var scope = _container.CreateScope())

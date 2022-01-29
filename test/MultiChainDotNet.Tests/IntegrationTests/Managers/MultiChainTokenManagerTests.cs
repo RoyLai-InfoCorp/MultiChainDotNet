@@ -46,13 +46,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var nfaName = RandomName();
 
 			// ACT 1
-			await _tokenManager.IssueNonfungibleAsset(_admin.NodeWallet, nfaName);
+			await _tokenManager.IssueNonfungibleAssetAsync(_admin.NodeWallet, nfaName);
 			_tokenManager.IssueToken(_admin.NodeWallet, nfaName, "nft1", 1);
 
 			// ASSERT
 
 			// Can be found on blockchain
-			var info = await _tokenManager.GetNonfungibleAssetInfo(nfaName);
+			var info = await _tokenManager.GetNonfungibleAssetInfoAsync(nfaName);
 			Console.WriteLine("Info:" + info.ToJson());
 			info.Should().NotBeNull();
 

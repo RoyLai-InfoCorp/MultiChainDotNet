@@ -35,7 +35,7 @@ namespace MultiChainDotNet.Core.MultiChainStream
 
 		public Task<bool> WaitUntilStreamExists(string streamName)
 		{
-			return TaskHelper.WaitUntilTrue(async () => (await ListStreamsAsync()).Result.Any(x => x.Name == streamName), 
+			return TaskHelper.WaitUntilTrueAsync(async () => (await ListStreamsAsync()).Result.Any(x => x.Name == streamName), 
 			5, 
 			500);
 		}
@@ -152,7 +152,7 @@ namespace MultiChainDotNet.Core.MultiChainStream
 			return await JsonRpcRequestAsync<StreamItemsResult>("getstreamitem", streamName, txId);
 		}
 
-		public Task<MultiChainResult<string>> GetTxOutData(string txid, int vout)
+		public Task<MultiChainResult<string>> GetTxOutDataAsync(string txid, int vout)
 		{
 			return JsonRpcRequestAsync<string>("gettxoutdata", txid, vout);
 		}

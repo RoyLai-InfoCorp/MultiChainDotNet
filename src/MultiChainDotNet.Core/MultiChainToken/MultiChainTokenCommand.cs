@@ -25,7 +25,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			_logger.LogDebug($"Initialized MultiChainTokenCommand: {mcConfig.Node.Protocol}://{mcConfig.Node.NetworkAddress}:{mcConfig.Node.NetworkPort}");
 		}
 
-		public async Task<MultiChainResult<GetNonfungibleAssetInfoResult>> GetNfaInfo(string nfaName)
+		public async Task<MultiChainResult<GetNonfungibleAssetInfoResult>> GetNfaInfoAsync(string nfaName)
 		{
 			if (nfaName is null)
 				throw new ArgumentNullException(nameof(nfaName));
@@ -92,16 +92,16 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			return new MultiChainResult<IList<GetAssetInfoIssuesResult>>();
 		}
 
-		public Task<bool> WaitUntilNfaIssued(string issuer, string nfaName)
+		public Task<bool> WaitUntilNfaIssuedAsync(string issuer, string nfaName)
 		{
-			return TaskHelper.WaitUntilTrue(async () =>
+			return TaskHelper.WaitUntilTrueAsync(async () =>
 				(await ListNfaAsync(issuer)).Result.Any(x => x.Name == nfaName)
 			, 5, 500);
 		}
 
-		public Task<bool> WaitUntilNftIssued(string issuer, string nfaName, string tokenId)
+		public Task<bool> WaitUntilNftIssuedAsync(string issuer, string nfaName, string tokenId)
 		{
-			return TaskHelper.WaitUntilTrue(async () =>
+			return TaskHelper.WaitUntilTrueAsync(async () =>
 				(await ListNftByAddressAsync(issuer, nfaName, tokenId)).Result.Count > 0
 			, 5, 500);
 		}

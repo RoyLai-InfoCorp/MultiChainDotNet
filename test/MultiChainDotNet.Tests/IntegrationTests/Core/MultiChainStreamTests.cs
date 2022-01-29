@@ -223,7 +223,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(_relayer1.NodeName);
 			var relayer1Cmd = new MultiChainStreamCommand(NullLogger<MultiChainStreamCommand>.Instance, _mcConfig, http);
 			await relayer1Cmd.SubscribeAsync(randomName);
-			var wait = await TaskHelper.WaitUntilTrue(async () => (await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result))?.Result is { });
+			var wait = await TaskHelper.WaitUntilTrueAsync(async () => (await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result))?.Result is { });
 			wait.Should().BeTrue();
 			var item2 = await relayer1Cmd.GetStreamItemByTxidAsync(randomName, result.Result);
 			Console.WriteLine(item2.ToJson());
@@ -241,10 +241,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			// PREPARE
 			await _streamCmd.CreateStreamAsync(randomName);
 			await _streamCmd.WaitUntilStreamExists(randomName);
-			var binId = (await _mcBinCmd.CreateBinaryCache()).Result;
+			var binId = (await _mcBinCmd.CreateBinaryCacheAsync()).Result;
 			Console.WriteLine("bin-cache:"+binId);
 			var data = File.ReadAllText("image.dat");
-			await _mcBinCmd.AppendBinaryCache(binId, data);
+			await _mcBinCmd.AppendBinaryCacheAsync(binId, data);
 
 			// ACT
 			var key1 = RandomName();
@@ -261,10 +261,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			size.Should().Be(2354570);
 
 			// Get result from blockchain
-			var txoutResult = await _streamCmd.GetTxOutData(txid, vout);
+			var txoutResult = await _streamCmd.GetTxOutDataAsync(txid, vout);
 			txoutResult.Result.Hex2Bytes().Length.Should().Be(2354570);
 
-			await _mcBinCmd.TxoutToBinaryCache(binId, txid, vout, 2354570, 0);
+			await _mcBinCmd.TxoutToBinaryCacheAsync(binId, txid, vout, 2354570, 0);
 			// File should be created in /.multichain/chain1/cache/{binID} on node1
 
 			// ASSERT: relayer1
@@ -272,14 +272,14 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var relayer1Cmd = new MultiChainStreamCommand(NullLogger<MultiChainStreamCommand>.Instance, _mcConfig, http);
 
 			// Get result from blockchain
-			var txoutResult2 = await relayer1Cmd.GetTxOutData(txid, vout);
+			var txoutResult2 = await relayer1Cmd.GetTxOutDataAsync(txid, vout);
 			if (txoutResult2.IsError) throw txoutResult2.Exception;
 			txoutResult2.Result.Hex2Bytes().Length.Should().Be(2354570);
 
 			// Download result into binary cache
 			var binCmd2 = new MultiChainBinaryCommand(NullLogger<MultiChainBinaryCommand>.Instance, _mcConfig, http);
-			var binId2 = (await binCmd2.CreateBinaryCache()).Result;
-			var result2 = await binCmd2.TxoutToBinaryCache(binId2, txid, vout, 2354570, 0);
+			var binId2 = (await binCmd2.CreateBinaryCacheAsync()).Result;
+			var result2 = await binCmd2.TxoutToBinaryCacheAsync(binId2, txid, vout, 2354570, 0);
 			if (result2.IsError)
 				throw result2.Exception;
 			// File should be created in /.multichain/chain1/cache/{binID} on relayer1

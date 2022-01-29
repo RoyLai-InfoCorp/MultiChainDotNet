@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Core.Base;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -34,6 +35,20 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 		public async Task<MultiChainResult<GetBlockResult>> GetBlockAsync(UInt64 height)
 		{
 			return await JsonRpcRequestAsync<GetBlockResult>("getblock", height);
+		}
+
+		public async Task<MultiChainResult<GetBlockResult>> GetLastBlockInfoAsync(UInt64 skip=0)
+		{
+			if (skip==0)
+				return await JsonRpcRequestAsync<GetBlockResult>("getlastblockinfo");
+			return await JsonRpcRequestAsync<GetBlockResult>("getlastblockinfo", skip);
+		}
+
+		public async Task<MultiChainResult<IList<GetBlockResult>>> ListBlocksAsync(UInt64 blockFrom, UInt64 blockTo, bool verbose = false)
+		{
+			if (verbose)
+				return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks",$"{blockFrom}-{blockTo}");
+			return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks", $"{blockFrom}-{blockTo}",verbose);
 		}
 
 	}

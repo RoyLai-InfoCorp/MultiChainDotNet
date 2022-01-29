@@ -23,27 +23,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7C0BBB9-534
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker-compose", "docker-compose", "{83C27AFD-FE8E-4798-9084-14FC0B85FD53}"
-	ProjectSection(SolutionItems) = preProject
-		build\docker-compose\docker-compose.yml = build\docker-compose\docker-compose.yml
-		build\docker-compose\Dockerfile.mcdotnet-relaynode = build\docker-compose\Dockerfile.mcdotnet-relaynode
-		build\docker-compose\Dockerfile.mcdotnet-seednode = build\docker-compose\Dockerfile.mcdotnet-seednode
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Service", "src\MultiChainDotNet.Api.Service\MultiChainDotNet.Api.Service.csproj", "{7CAAB5E5-91AE-4EC2-A501-95286A9AC67F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Abstractions", "src\MultiChainDotNet.Api.Abstractions\MultiChainDotNet.Api.Abstractions.csproj", "{81888DD1-3E48-476D-8CF4-DE6F705522A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{0EF9E1E7-69EF-481B-B42F-7143E3559B41}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mcdotnet", "mcdotnet", "{A3BFA756-E6C6-454C-8637-7E5BF2BBF3DB}"
 	ProjectSection(SolutionItems) = preProject
-		build\docker-compose\scripts\block-notify.sh = build\docker-compose\scripts\block-notify.sh
-		build\docker-compose\scripts\create-base-image.sh = build\docker-compose\scripts\create-base-image.sh
-		build\docker-compose\scripts\mc-seednode.sh = build\docker-compose\scripts\mc-seednode.sh
-		build\docker-compose\scripts\multichain.conf = build\docker-compose\scripts\multichain.conf
-		build\docker-compose\scripts\notify.sh = build\docker-compose\scripts\notify.sh
-		build\docker-compose\scripts\params-2-1-2.dat = build\docker-compose\scripts\params-2-1-2.dat
-		build\docker-compose\scripts\params-2-2.dat = build\docker-compose\scripts\params-2-2.dat
-		build\docker-compose\scripts\params.dat = build\docker-compose\scripts\params.dat
+		build\mcdotnet\docker-compose.yml = build\mcdotnet\docker-compose.yml
 	EndProjectSection
 EndProject
 Global
@@ -85,10 +71,9 @@ Global
 		{D5C93C17-EC73-4238-B463-29558DA111C6} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{A90A1D83-CAEC-4D30-9A19-74BCADE51EAA} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{3E61CFB2-A687-4B89-8FC9-B13E94FD5E79} = {BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}
-		{83C27AFD-FE8E-4798-9084-14FC0B85FD53} = {CFF4CD03-F4A1-4B46-9116-2F23372BBABB}
 		{7CAAB5E5-91AE-4EC2-A501-95286A9AC67F} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{81888DD1-3E48-476D-8CF4-DE6F705522A2} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
-		{0EF9E1E7-69EF-481B-B42F-7143E3559B41} = {83C27AFD-FE8E-4798-9084-14FC0B85FD53}
+		{A3BFA756-E6C6-454C-8637-7E5BF2BBF3DB} = {CFF4CD03-F4A1-4B46-9116-2F23372BBABB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EFC47B3-88A4-4AA8-944E-200D97EC87C1}

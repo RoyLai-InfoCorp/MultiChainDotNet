@@ -36,7 +36,7 @@ namespace MultiChainDotNet.Managers
 		}
 
 
-		public async Task<GetBlockResult> GetCurrentBlock()
+		public async Task<GetBlockResult> GetCurrentBlockAsync()
 		{
 			using (var scope = _container.CreateScope())
 			{
