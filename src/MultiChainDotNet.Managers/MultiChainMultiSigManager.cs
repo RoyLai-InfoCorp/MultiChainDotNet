@@ -215,6 +215,34 @@ namespace MultiChainDotNet.Managers
 
 		}
 
+		public string CreateSignedMultiSigAssetTransactionAsync(IList<string[]> signatures, string signatureSlip, string redeemScript)
+		{
+			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
+			using (var scope = _container.CreateScope())
+			{
+				var txnCmd = scope.ServiceProvider.GetRequiredService<MultiChainTransactionCommand>();
+				try
+				{
+					var signed = new MultiChainFluent()
+						.AddLogger(_logger)
+						.UseMultiSigTransaction(txnCmd)
+							.AddRawMultiSignatureTransaction(signatureSlip)
+							.AddMultiSignatures(signatures)
+							.MultiSign(redeemScript)
+							.RawSigned()
+							;
+					return signed;
+				}
+				catch (Exception ex)
+				{
+					_logger.LogWarning(ex.ToString());
+					throw;
+				}
+			}
+
+
+		}
+
 		public string SendMultiSigAsset(IList<string[]> signatures, string signatureSlip, string redeemScript)
 		{
 			_logger.LogDebug($"Executing SendMultiSigAssetAsync");
