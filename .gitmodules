@@ -3,9 +3,7 @@
 	url = https://github.com/RoyLai-InfoCorp/UtilsDotNet
 	branch = main
 	update = rebase
-[submodule "build/docker-compose/multichain-explorer-2"]
-	path = build/docker-compose/multichain-explorer-2
-	url = https://github.com/MultiChain/multichain-explorer-2.git
 [submodule "build/mcdotnet/multichain-explorer-2"]
 	path = build/mcdotnet/multichain-explorer-2
 	url = https://github.com/RoyLai-InfoCorp/multichain-explorer-2
+	branch = main
