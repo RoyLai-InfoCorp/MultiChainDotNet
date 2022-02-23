@@ -351,3 +351,4 @@ MigrationBackup/
 .ionide/
 
 publish.ps1
+**/docker.sh

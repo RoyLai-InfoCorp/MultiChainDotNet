@@ -1,4 +1,4 @@
-FROM multichain-base:2.2 AS base
+FROM roylai/multichain-base:2.2 AS base
 
 EXPOSE 12020
 EXPOSE 12021

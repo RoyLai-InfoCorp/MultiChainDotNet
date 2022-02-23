@@ -1,4 +1,4 @@
-FROM multichain-base:2.2 AS base
+FROM roylai/multichain-base:2.2 AS base
 
 EXPOSE 12020
 EXPOSE 12021
@@ -8,9 +8,6 @@ ARG BUILD_CHAIN_NAME="chain1"
 ENV chain_name=$BUILD_CHAIN_NAME
 RUN multichain-util create ${BUILD_CHAIN_NAME}
 WORKDIR /root/.multichain/${BUILD_CHAIN_NAME}
-
-# copy explorer 2
-COPY /multichain-explorer-2 /root/multichain-explorer-2
 
 # copy chain configuration files
 COPY /scripts/multichain.conf multichain.conf
@@ -27,7 +24,8 @@ RUN chmod 755 /root/block-notify.sh
 COPY /scripts/mc-seednode.sh /root
 RUN /root/mc-seednode.sh
 
-# create startup script
+# create explorer and startup script
+COPY ./scripts/config.ini /root/multichain-explorer-2/config.ini
 RUN echo cd /root/multichain-explorer-2 > /root/startup.sh
 RUN echo python3 -m explorer config.ini daemon >> /root/startup.sh
 RUN echo 'multichaind "$chain_name"' >> /root/startup.sh

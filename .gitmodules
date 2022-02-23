@@ -3,7 +3,7 @@
 	url = https://github.com/RoyLai-InfoCorp/UtilsDotNet
 	branch = main
 	update = rebase
-[submodule "build/mcdotnet/multichain-explorer-2"]
-	path = build/mcdotnet/multichain-explorer-2
+[submodule "build/mcdotnet/multichain-base/multichain-explorer-2"]
+	path = build/mcdotnet/multichain-base/multichain-explorer-2
 	url = https://github.com/RoyLai-InfoCorp/multichain-explorer-2
-	branch = main
+	branch = master
