@@ -25,11 +25,23 @@ steps:
           restoreSolution: '$(solution)'
       displayName: Restore packages
 
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #       command: 'build'
+    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+    #   displayName: Build
+
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #       command: 'pack'
+    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+    #   displayName: Build and pack
+
     - task: DotNetCoreCLI@2
       inputs:
-          command: 'build'
-          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-      displayName: Build
+        command: 'push'
+        nugetFeedType: 'external'
+        externalEndPoint: 'MyNuGetServiceConnection'
 
     - task: PublishPipelineArtifact@1
       inputs:
@@ -37,13 +49,12 @@ steps:
         artifactType: 'pipeline'
         artifactName: 'drop'
 
-    - task: NuGetCommand@2
-      displayName: 'NuGet push'
-      inputs:
-          command: push
-          feedsToUse: 'nuget-service-connection'
-          #publishVstsFeed: 'MultiChainDotNet/nuget-service-connection'
-          packagesToPush: '$(System.ArtifactsDirectory)/**/*.nupkg'
-          allowPackageConflicts: false
-          includeNugetOrg: 'true'
+    # - task: NuGetCommand@2
+    #   displayName: 'NuGet push'
+    #   inputs:
+    #       command: push
+    #       feedsToUse: 'nuget-service-connection'
+    #       packagesToPush: '$(System.ArtifactsDirectory)/**/*.nupkg'
+    #       allowPackageConflicts: false
+    #       includeNugetOrg: 'true'
 
