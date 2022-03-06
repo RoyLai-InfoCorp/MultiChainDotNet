@@ -63,9 +63,9 @@ steps:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Manager/bin/$(buildConfiguration)'
+        targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Managers/bin/$(buildConfiguration)'
         artifactType: 'pipeline'
-        artifactName: 'MultiChainDotNet.Manager'
+        artifactName: 'MultiChainDotNet.Managers'
 
     - task: NuGetCommand@2
       inputs:
