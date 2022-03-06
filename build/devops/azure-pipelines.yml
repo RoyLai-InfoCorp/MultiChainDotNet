@@ -34,7 +34,6 @@ steps:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        #targetPath: '$(Pipeline.Workspace)'
         targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/bin/$(buildConfiguration)'
         artifactType: 'pipeline'
         artifactName: 'drop'
@@ -47,12 +46,12 @@ steps:
     #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
     #   displayName: Build and pack
 
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #     command: 'push'
-    #     packagesToPush: '$(System.ArtifactsDirectory)/packages/**/*.nupkg'
-    #     nugetFeedType: 'external'
-    #     externalEndPoint: 'nuget-service-connection'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'push'
+        packagesToPush: '$(System.ArtifactsDirectory)/**/*.nupkg'
+        nugetFeedType: 'external'
+        externalEndPoint: 'nuget-service-connection'
 
 
     # - task: NuGetCommand@2
