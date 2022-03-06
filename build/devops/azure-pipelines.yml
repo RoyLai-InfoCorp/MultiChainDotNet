@@ -34,7 +34,7 @@ steps:
     - task: NuGetCommand@2
       inputs:
           command: pack
-          packagesToPack: '**/*.csproj'
+          packagesToPack: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
           packDestination: '$(Build.ArtifactStagingDirectory)'
       displayName: Package files
 
