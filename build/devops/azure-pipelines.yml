@@ -6,8 +6,8 @@ pool:
 
 variables:
     solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
-    buildPlatform: "Any CPU"
-    buildConfiguration: "Release"
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Release'
 
 steps:
     - task: DotNetCoreCLI@2
@@ -22,12 +22,12 @@ steps:
 
     - task: NuGetCommand@2
       inputs:
-          restoreSolution: "$(solution)"
+          restoreSolution: '$(solution)'
       displayName: Restore packages
 
     - task: DotNetCoreCLI@2
       inputs:
-          command: "build"
+          command: 'build'
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build
 
@@ -40,13 +40,15 @@ steps:
     - task: NuGetAuthenticate@0
       inputs:
         nuGetServiceConnections: nuget-service-connection
-      displayName: "NuGet Authenticate"
+      displayName: 'NuGet Authenticate'
 
     - task: NuGetCommand@2
-      displayName: "NuGet push"
+      displayName: 'NuGet push'
       inputs:
           command: push
-          publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
-          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+          feedsToUse: 'nuget-service-connection'
+          #publishVstsFeed: 'MultiChainDotNet/nuget-service-connection'
+          packagesToPush: '$(System.ArtifactsDirectory)/**/*.nupkg'
           allowPackageConflicts: false
+          includeNugetOrg: 'true'
 
