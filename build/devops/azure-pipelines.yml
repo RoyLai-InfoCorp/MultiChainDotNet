@@ -37,33 +37,12 @@ steps:
         artifactType: 'pipeline'
         artifactName: 'drop'
 
-    # - task: NuGetCommand@2
-    #   inputs:
-    #       command: pack
-    #       packagesToPack: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-    #       packDestination: '$(Build.ArtifactStagingDirectory)'
-    #   displayName: Package files
-
-    # - task: CopyFiles@2 # deprecated
-    #   inputs:
-    #       SourceFolder: '$(Build.SourcesDirectory)'
-    #       Contents: '**/bin/$(buildConfiguration)/**'
-    #       TargetFolder: "$(Build.ArtifactStagingDirectory)"
-    #   displayName: Copy files for publishing
-
-    # - task: PublishBuildArtifacts@1 # deprecated
-    #   inputs:
-    #       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    #       ArtifactName: "drop"
-    #       publicLocation: "Container"
-    #   displayName: Publish to 'drop' container
-
-    # - task: NuGetAuthenticate@0
-    #   displayName: "NuGet Authenticate"
-    # - task: NuGetCommand@2
-    #   displayName: "NuGet push"
-    #   inputs:
-    #       command: push
-    #       publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
-    #       allowPackageConflicts: true
+    - task: NuGetAuthenticate@0
+      displayName: "NuGet Authenticate"
+    - task: NuGetCommand@2
+      displayName: "NuGet push"
+      inputs:
+          command: push
+          publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
+          allowPackageConflicts: false
 
