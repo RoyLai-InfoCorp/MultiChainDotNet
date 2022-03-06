@@ -31,6 +31,13 @@ steps:
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build
 
+    - task: NuGetCommand@2
+      inputs:
+          command: pack
+          packagesToPack: '**/*.csproj'
+          packDestination: '$(Build.ArtifactStagingDirectory)'
+      displayName: Package files
+
     - task: CopyFiles@2 # deprecated
       inputs:
           SourceFolder: '$(Build.SourcesDirectory)'
