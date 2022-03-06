@@ -1,0 +1,61 @@
+trigger:
+    - main
+
+pool:
+    vmImage: ubuntu-latest
+
+variables:
+    solution: "MultiChainDotNet.sln"
+    buildPlatform: "Any CPU"
+    buildConfiguration: "release"
+
+steps:
+    - task: DotNetCoreCLI@2
+      displayName: Update NBGV tool
+      inputs:
+          command: custom
+          custom: tool
+          arguments: install --tool-path . nbgv
+
+    - script: nbgv cloud -c -a
+      displayName: Set Version
+
+    - task: NuGetCommand@2
+      inputs:
+          restoreSolution: "$(solution)"
+      displayName: Restore packages
+
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: "build"
+      displayName: Build
+
+    - task: NuGetCommand@2
+      inputs:
+          command: pack
+          packagesToPack: "**/*.csproj"
+          packDestination: "$(Build.ArtifactStagingDirectory)"
+      displayName: Package files
+
+    # - task: CopyFiles@2
+    #   inputs:
+    #       SourceFolder: "$(Build.SourcesDirectory)"
+    #       Contents: '**\bin\$(buildConfiguration)\**'
+    #       TargetFolder: "$(Build.ArtifactStagingDirectory)"
+    #   displayName: Copy files for publishing
+
+    # - task: NuGetAuthenticate@0
+    #   displayName: "NuGet Authenticate"
+    # - task: NuGetCommand@2
+    #   displayName: "NuGet push"
+    #   inputs:
+    #       command: push
+    #       publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
+    #       allowPackageConflicts: true
+
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #       PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+    #       ArtifactName: "drop"
+    #       publicLocation: "Container"
+    #   displayName: Publish to 'drop' container
