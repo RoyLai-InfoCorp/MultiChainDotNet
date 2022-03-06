@@ -31,12 +31,19 @@ steps:
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #       SourceFolder: "$(Build.SourcesDirectory)"
-    #       Contents: '**\bin\$(buildConfiguration)\**'
-    #       TargetFolder: "$(Build.ArtifactStagingDirectory)"
-    #   displayName: Copy files for publishing
+    - task: CopyFiles@2
+      inputs:
+          SourceFolder: '$(Build.SourcesDirectory)'
+          Contents: '**/bin/$(buildConfiguration)/**'
+          TargetFolder: "$(Build.ArtifactStagingDirectory)"
+      displayName: Copy files for publishing
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: "drop"
+          publicLocation: "Container"
+      displayName: Publish to 'drop' container
 
     # - task: NuGetAuthenticate@0
     #   displayName: "NuGet Authenticate"
@@ -47,9 +54,3 @@ steps:
     #       publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
     #       allowPackageConflicts: true
 
-    # - task: PublishBuildArtifacts@1
-    #   inputs:
-    #       PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-    #       ArtifactName: "drop"
-    #       publicLocation: "Container"
-    #   displayName: Publish to 'drop' container
