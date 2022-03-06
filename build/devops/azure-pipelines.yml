@@ -38,11 +38,15 @@ steps:
         artifactName: 'drop'
 
     - task: NuGetAuthenticate@0
+      inputs:
+        nuGetServiceConnections: nuget-service-connection
       displayName: "NuGet Authenticate"
+
     - task: NuGetCommand@2
       displayName: "NuGet push"
       inputs:
           command: push
           publishVstsFeed: "MultiChainDotNet/nuget-service-connection"
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
           allowPackageConflicts: false
 
