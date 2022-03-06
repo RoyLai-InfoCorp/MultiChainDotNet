@@ -28,14 +28,13 @@ steps:
     - task: DotNetCoreCLI@2
       inputs:
           command: 'build'
-          configurationToPackage: 'Release'
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build
 
     - task: DotNetCoreCLI@2
       inputs:
           command: 'pack'
-          configurationToPackage: 'Release'
+          configurationToPackage: 'release'
           packDirectory: "$(System.ArtifactsDirectory)/packages"
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
