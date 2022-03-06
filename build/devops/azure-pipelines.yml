@@ -35,14 +35,14 @@ steps:
       inputs:
           command: 'pack'
           configurationToPackage: 'Release'
-          packDirectory: "$(Build.ArtifactStagingDirectory)/packages"
+          packDirectory: "$(System.ArtifactsDirectory)/packages"
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
 
     - task: DotNetCoreCLI@2
       inputs:
         command: 'push'
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/packages/*.*nupkg'
+        packagesToPush: '$(System.ArtifactsDirectory)/packages/*.*nupkg'
         nugetFeedType: 'external'
         externalEndPoint: 'nuget-service-connection'
 
