@@ -5,7 +5,7 @@ pool:
     vmImage: ubuntu-latest
 
 variables:
-    solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
+    solution: "$(Build.SourcesDirectory)\MultiChainDotNet.sln"
     #solution: '**\*.sln'
     buildPlatform: "Any CPU"
     buildConfiguration: "release"
