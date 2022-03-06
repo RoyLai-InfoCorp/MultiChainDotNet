@@ -37,7 +37,7 @@ steps:
           command: 'pack'
           arguments: '--configuration $(buildConfiguration)'
           # configurationToPackage: 'release'
-          packDirectory: "$(System.ArtifactsDirectory)/packages"
+          packDirectory: '$(System.ArtifactsDirectory)/packages'
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
 
