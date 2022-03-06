@@ -34,7 +34,8 @@ steps:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Pipeline.Workspace)'
+        #targetPath: '$(Pipeline.Workspace)'
+        targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/bin/$(buildConfiguration)/*.nupkg'
         artifactType: 'pipeline'
         artifactName: 'drop'
 
