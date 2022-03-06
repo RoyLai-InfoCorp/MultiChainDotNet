@@ -49,15 +49,23 @@ steps:
 
     - task: NuGetAuthenticate@0
       inputs:
-        nuGetServiceConnections: 'nuget-service-connection'
+        nuGetServiceConnections: nuget-service-connection
 
-    - task: NuGetCommand@2
-      inputs:
-        command: push
-        packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg;!$(Build.SourcesDirectory)/**/*.symbols.nupkg'
-        nuGetFeedType: external
-        publishFeedCredentials: 'nuget-service-connection'
-        allowPackageConflicts: false
+    - script: dotnet nuget push --api-key $(pat) --source https://api.nuget.org/v3/index.json $(Build.SourcesDirectory)/**/*.nupkg
+      displayName: Publish to nuget.org
+    
+
+    # - task: NuGetAuthenticate@0
+    #   inputs:
+    #     nuGetServiceConnections: 'nuget-service-connection'
+
+    # - task: NuGetCommand@2
+    #   inputs:
+    #     command: push
+    #     packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg;!$(Build.SourcesDirectory)/**/*.symbols.nupkg'
+    #     nuGetFeedType: external
+    #     publishFeedCredentials: 'nuget-service-connection'
+    #     allowPackageConflicts: false
 
     # - task: DotNetCoreCLI@2
     #   inputs:
