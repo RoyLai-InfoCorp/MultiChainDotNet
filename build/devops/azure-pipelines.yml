@@ -7,7 +7,7 @@ pool:
 variables:
     solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
     buildPlatform: 'Any CPU'
-    buildConfiguration: 'release'
+    buildConfiguration: 'Release'
 
 steps:
     - task: DotNetCoreCLI@2
@@ -25,21 +25,20 @@ steps:
           restoreSolution: '$(solution)'
       displayName: Restore packages
 
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #       command: 'build'
-    #       arguments: '--configuration $(buildConfiguration)'
-    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-    #   displayName: Build
-
     - task: DotNetCoreCLI@2
       inputs:
-          command: 'pack'
+          command: 'build'
           arguments: '--configuration $(buildConfiguration)'
-          # configurationToPackage: 'release'
-          packDirectory: '$(System.ArtifactsDirectory)/packages'
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-      displayName: Build and pack
+      displayName: Build
+
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #       command: 'pack'
+    #       arguments: '--configuration $(buildConfiguration)'
+    #       packDirectory: '$(System.ArtifactsDirectory)/packages'
+    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+    #   displayName: Build and pack
 
     # - task: DotNetCoreCLI@2
     #   inputs:
