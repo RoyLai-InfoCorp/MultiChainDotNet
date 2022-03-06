@@ -39,7 +39,7 @@ steps:
       inputs:
         targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/bin/$(buildConfiguration)'
         artifactType: 'pipeline'
-        artifactName: 'drop'
+        artifactName: 'MultiChainDotNet.Core'
 
     - task: DotNetCoreCLI@2
       inputs:
@@ -52,7 +52,7 @@ steps:
       inputs:
         targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Fluent/bin/$(buildConfiguration)'
         artifactType: 'pipeline'
-        artifactName: 'drop'
+        artifactName: 'MultiChainDotNet.Fluent'
 
     - task: DotNetCoreCLI@2
       inputs:
@@ -65,7 +65,7 @@ steps:
       inputs:
         targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Manager/bin/$(buildConfiguration)'
         artifactType: 'pipeline'
-        artifactName: 'drop'
+        artifactName: 'MultiChainDotNet.Manager'
 
     - task: NuGetCommand@2
       inputs:
