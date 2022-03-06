@@ -6,7 +6,7 @@ pool:
 
 variables:
     #solution: "MultiChainDotNet.sln"
-    solution: "MultiChainDotNet.sln"
+    solution: '**\*.sln'
     buildPlatform: "Any CPU"
     buildConfiguration: "release"
 
