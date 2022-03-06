@@ -31,26 +31,32 @@ steps:
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build
 
-    - task: NuGetCommand@2
+    - task: PublishPipelineArtifact@1
       inputs:
-          command: pack
-          packagesToPack: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-          packDestination: '$(Build.ArtifactStagingDirectory)'
-      displayName: Package files
+        targetPath: '$(Pipeline.Workspace)'
+        artifactType: 'pipeline'
+        artifactName: 'drop'
 
-    - task: CopyFiles@2 # deprecated
-      inputs:
-          SourceFolder: '$(Build.SourcesDirectory)'
-          Contents: '**/bin/$(buildConfiguration)/**'
-          TargetFolder: "$(Build.ArtifactStagingDirectory)"
-      displayName: Copy files for publishing
+    # - task: NuGetCommand@2
+    #   inputs:
+    #       command: pack
+    #       packagesToPack: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+    #       packDestination: '$(Build.ArtifactStagingDirectory)'
+    #   displayName: Package files
 
-    - task: PublishBuildArtifacts@1 # deprecated
-      inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          ArtifactName: "drop"
-          publicLocation: "Container"
-      displayName: Publish to 'drop' container
+    # - task: CopyFiles@2 # deprecated
+    #   inputs:
+    #       SourceFolder: '$(Build.SourcesDirectory)'
+    #       Contents: '**/bin/$(buildConfiguration)/**'
+    #       TargetFolder: "$(Build.ArtifactStagingDirectory)"
+    #   displayName: Copy files for publishing
+
+    # - task: PublishBuildArtifacts@1 # deprecated
+    #   inputs:
+    #       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    #       ArtifactName: "drop"
+    #       publicLocation: "Container"
+    #   displayName: Publish to 'drop' container
 
     # - task: NuGetAuthenticate@0
     #   displayName: "NuGet Authenticate"
