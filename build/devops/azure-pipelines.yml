@@ -41,7 +41,7 @@ steps:
       inputs:
         command: 'push'
         nugetFeedType: 'external'
-        externalEndPoint: 'MyNuGetServiceConnection'
+        externalEndPoint: 'nuget-service-connection'
 
     - task: PublishPipelineArtifact@1
       inputs:
