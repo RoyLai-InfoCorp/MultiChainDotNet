@@ -41,18 +41,6 @@ steps:
         artifactType: 'pipeline'
         artifactName: 'drop'
 
-    # - task: NuGetAuthenticate@0
-    #   inputs:
-    #     nuGetServiceConnections: nuget-service-connection
-
-    # - script: dotnet nuget push --api-key $(pat) --source https://api.nuget.org/v3/index.json $(Build.SourcesDirectory)/**/*.nupkg
-    #   displayName: Publish to nuget.org
-    
-
-    # - task: NuGetAuthenticate@0
-    #   inputs:
-    #     nuGetServiceConnections: 'nuget-service-connection'
-
     - task: NuGetCommand@2
       inputs:
         command: push
@@ -60,28 +48,3 @@ steps:
         nuGetFeedType: external
         publishFeedCredentials: 'nuget-service-connection'
         allowPackageConflicts: false
-
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #       command: 'pack'
-    #       arguments: '--configuration $(buildConfiguration)'
-    #       packDirectory: '$(System.ArtifactsDirectory)/packages'
-    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-    #   displayName: Build and pack
-
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #     command: 'push'
-    #     packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg'
-    #     nugetFeedType: 'external'
-    #     externalEndPoint: 'nuget-service-connection'
-
-    # - task: NuGetCommand@2
-    #   displayName: 'NuGet push'
-    #   inputs:
-    #       command: push
-    #       feedsToUse: 'nuget-service-connection'
-    #       packagesToPush: '$(System.ArtifactsDirectory)/**/*.nupkg'
-    #       allowPackageConflicts: false
-    #       includeNugetOrg: 'true'
-
