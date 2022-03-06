@@ -1,0 +1,45 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  solution: '**\*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'release'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: Update NBGV tool
+  inputs:
+    command: custom
+    custom: tool
+    arguments: install --tool-path . nbgv
+
+- script: nbgv cloud -c -a
+  displayName: Set Version
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+  displayName: Restore packages
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+  displayName: Build
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**\bin\$(buildConfiguration)\**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: Copy files for publishing
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publicLocation: 'Container'
+  displayName: Publish to 'drop' container
