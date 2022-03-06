@@ -29,7 +29,7 @@ steps:
     - task: DotNetCoreCLI@2
       inputs:
           command: "build"
-          projects: '$(Build.SourcesDirectory)\src\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj'
+          projects: "$(Build.SourcesDirectory)\src\MultiChainDotNet.Core\MultiChainDotNet.Core.csproj"
       displayName: Build
 
     # - task: CopyFiles@2
