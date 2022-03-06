@@ -48,7 +48,7 @@ steps:
         artifactName: 'drop'
 
     - task: NuGetAuthenticate@0
-      input:
+      inputs:
         nuGetServiceConnections: 'nuget-service-connection'
 
     - task: NuGetCommand@2
