@@ -25,17 +25,19 @@ steps:
           restoreSolution: '$(solution)'
       displayName: Restore packages
 
-    - task: DotNetCoreCLI@2
-      inputs:
-          command: 'build'
-          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-      displayName: Build
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #       command: 'build'
+    #       arguments: '--configuration $(buildConfiguration)'
+    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+    #   displayName: Build
 
     - task: DotNetCoreCLI@2
       inputs:
           command: 'pack'
-          configurationToPackage: 'release'
-          packDirectory: "$(System.ArtifactsDirectory)/packages"
+          arguments: '--configuration $(buildConfiguration)'
+          # configurationToPackage: 'release'
+          # packDirectory: "$(System.ArtifactsDirectory)/packages"
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
 
