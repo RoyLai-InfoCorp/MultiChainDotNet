@@ -7,16 +7,10 @@ pool:
 variables:
     - name: solution
       value: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
-    #solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
     - name: buildPlatform
       value: 'Any CPU'
-    #buildPlatform: 'Any CPU'
     - name: buildConfiguration
       value: 'Release'
-    #buildConfiguration: 'Release'
-    - group: Secrets
-    - name: pat
-      value: $[variables.pat]
 
 steps:
     - task: DotNetCoreCLI@2
