@@ -41,6 +41,32 @@ steps:
         artifactType: 'pipeline'
         artifactName: 'drop'
 
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: 'build'
+          arguments: '--configuration $(buildConfiguration)'
+          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Fluent/MultiChainDotNet.Fluent.csproj'
+      displayName: Build
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Fluent/bin/$(buildConfiguration)'
+        artifactType: 'pipeline'
+        artifactName: 'drop'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: 'build'
+          arguments: '--configuration $(buildConfiguration)'
+          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Managers/MultiChainDotNet.Managers.csproj'
+      displayName: Build
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Manager/bin/$(buildConfiguration)'
+        artifactType: 'pipeline'
+        artifactName: 'drop'
+
     - task: NuGetCommand@2
       inputs:
         command: push
