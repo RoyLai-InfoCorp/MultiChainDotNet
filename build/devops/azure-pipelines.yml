@@ -5,9 +5,18 @@ pool:
     vmImage: ubuntu-latest
 
 variables:
-    solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
-    buildPlatform: 'Any CPU'
-    buildConfiguration: 'Release'
+    - name: solution
+      value: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
+    #solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
+    - name: buildPlatform
+      value: 'Any CPU'
+    #buildPlatform: 'Any CPU'
+    - name: buildConfiguration
+      value: 'Release'
+    #buildConfiguration: 'Release'
+    - group: Secrets
+    - name: pat
+      value: $[variables.pat]
 
 steps:
     - task: DotNetCoreCLI@2
@@ -38,6 +47,18 @@ steps:
         artifactType: 'pipeline'
         artifactName: 'drop'
 
+    - task: NuGetAuthenticate@0
+      input:
+        nuGetServiceConnections: 'nuget-service-connection'
+
+    - task: NuGetCommand@2
+      inputs:
+        command: push
+        packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg;!$(Build.SourcesDirectory)/**/*.symbols.nupkg'
+        nuGetFeedType: external
+        publishFeedCredentials: 'nuget-service-connection'
+        allowPackageConflicts: false
+
     # - task: DotNetCoreCLI@2
     #   inputs:
     #       command: 'pack'
@@ -46,13 +67,12 @@ steps:
     #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
     #   displayName: Build and pack
 
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'push'
-        packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg'
-        nugetFeedType: 'external'
-        externalEndPoint: 'nuget-service-connection'
-
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #     command: 'push'
+    #     packagesToPush: '$(Build.SourcesDirectory)/**/*.nupkg'
+    #     nugetFeedType: 'external'
+    #     externalEndPoint: 'nuget-service-connection'
 
     # - task: NuGetCommand@2
     #   displayName: 'NuGet push'
