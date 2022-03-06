@@ -25,11 +25,12 @@ steps:
           restoreSolution: '$(solution)'
       displayName: Restore packages
 
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #       command: 'build'
-    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-    #   displayName: Build
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: 'build'
+          configurationToPackage: 'Release'
+          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+      displayName: Build
 
     - task: DotNetCoreCLI@2
       inputs:
@@ -39,18 +40,18 @@ steps:
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
 
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'push'
-        packagesToPush: '$(System.ArtifactsDirectory)/packages/*.*nupkg'
-        nugetFeedType: 'external'
-        externalEndPoint: 'nuget-service-connection'
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #     command: 'push'
+    #     packagesToPush: '$(System.ArtifactsDirectory)/packages/**/*.nupkg'
+    #     nugetFeedType: 'external'
+    #     externalEndPoint: 'nuget-service-connection'
 
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(Pipeline.Workspace)'
-        artifactType: 'pipeline'
-        artifactName: 'drop'
+    # - task: PublishPipelineArtifact@1
+    #   inputs:
+    #     targetPath: '$(Pipeline.Workspace)'
+    #     artifactType: 'pipeline'
+    #     artifactName: 'drop'
 
     # - task: NuGetCommand@2
     #   displayName: 'NuGet push'
