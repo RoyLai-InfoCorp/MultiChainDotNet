@@ -7,7 +7,7 @@ pool:
 variables:
     solution: '$(Build.SourcesDirectory)\MultiChainDotNet.sln'
     buildPlatform: 'Any CPU'
-    buildConfiguration: 'Release'
+    buildConfiguration: 'release'
 
 steps:
     - task: DotNetCoreCLI@2
@@ -37,7 +37,7 @@ steps:
           command: 'pack'
           arguments: '--configuration $(buildConfiguration)'
           # configurationToPackage: 'release'
-          # packDirectory: "$(System.ArtifactsDirectory)/packages"
+          packDirectory: "$(System.ArtifactsDirectory)/packages"
           projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
       displayName: Build and pack
 
