@@ -31,11 +31,11 @@ steps:
     #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
     #   displayName: Build
 
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #       command: 'pack'
-    #       projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
-    #   displayName: Build and pack
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: 'pack'
+          projects: '$(Build.SourcesDirectory)/src/MultiChainDotNet.Core/MultiChainDotNet.Core.csproj'
+      displayName: Build and pack
 
     - task: DotNetCoreCLI@2
       inputs:
