@@ -1,9 +1,12 @@
 {
-    "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-    "version": "2.32.14-alpha",
-    "publicReleaseRefSpec": ["^refs/heads/main", "^refs/tags/v\\d+\\.\\d+"],
-    "release": {
-        "branchName": "release/v{version}",
-        "versionIncrement": "build"
-    }
+  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+  "version": "2.32.15-alpha",
+  "publicReleaseRefSpec": [
+    "^refs/heads/main",
+    "^refs/tags/v\\d+\\.\\d+"
+  ],
+  "release": {
+    "branchName": "release/v{version}",
+    "versionIncrement": "build"
+  }
 }
