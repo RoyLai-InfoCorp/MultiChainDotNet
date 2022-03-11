@@ -15,13 +15,14 @@ COPY /scripts/params.dat params.dat
 
 # copy wallet notification script
 COPY /scripts/notify.sh /root
-RUN chmod 755 /root/notify.sh
+RUN chmod +x /root/notify.sh
 
 COPY /scripts/block-notify.sh /root
-RUN chmod 755 /root/block-notify.sh
+RUN chmod +x /root/block-notify.sh
 
 # copy init script
 COPY /scripts/mc-seednode.sh /root
+RUN chmod +x /root/mc-seednode.sh
 RUN /root/mc-seednode.sh
 
 # create explorer and startup script
