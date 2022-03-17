@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Core.Base
 {
@@ -88,8 +89,7 @@ namespace MultiChainDotNet.Core.Base
 			{
 				string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 				var cmd = ToCommand(method, args);
-				_logger.LogDebug("MultichainCommand: {MultiChainMethod} - {MultiChainCommand}",method,cmd);
-				_logger.LogTrace("multichainRequest: POST {MultiChainMethod} {MultiChainArgs}",method, JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented));
+				_logger.LogDebug("MultiChainRequest: POST {MultiChainMethod} {MultiChainArgs}", method, JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented));
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
 
 				content = await response.Content.ReadAsStringAsync();
@@ -98,17 +98,29 @@ namespace MultiChainDotNet.Core.Base
 					throw new Exception(response.ReasonPhrase);
 				if (result.IsError)
 					throw result.Exception;
-				_logger.LogTrace("MultichainResponse: {MultiChainMethod} - {MultiChainResponse}",method, JsonConvert.SerializeObject(result.Result, Formatting.Indented));
+				_logger.LogDebug("MultiChainResponse: {MultiChainMethod} - {MultiChainResponse}", method, JsonConvert.SerializeObject(result.Result, Formatting.Indented));
 				return result;
 			}
 			catch (Exception ex)
 			{
-				var exceptionMessage = $"exception: {ex.ToString()}";
+				var exceptionMessage = $"MultiChainError: {ex.ToString()}";
 				if (content is { })
-					exceptionMessage = $"multichain response {method}: {JValue.Parse(content).ToString(Formatting.Indented)} exception: {ex.ToString()}";
+					exceptionMessage = $"MultiChainError: {method} - {content.ToJson()} exception: {ex.ToString()}";
 				_logger.LogWarning(exceptionMessage);
 				return new MultiChainResult<T>(ex);
 			}
+		}
+
+
+		/// <summary>
+		/// This call is used for returning untyped response as JSON object
+		/// </summary>
+		/// <param name="method"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		public Task<MultiChainResult<JToken>> JsonRpcRequestAsync(string method, params object[] args)
+		{
+			return JsonRpcRequestAsync<JToken>(method, args);
 		}
 
 	}

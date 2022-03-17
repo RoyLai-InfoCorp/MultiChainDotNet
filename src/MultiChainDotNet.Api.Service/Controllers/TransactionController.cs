@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Api.Service.Controllers
 {
@@ -29,7 +30,7 @@ namespace MultiChainDotNet.Api.Service.Controllers
 			public int Height { get; set; }
 		}
 
-		public TransactionController(ILogger<TransactionController> logger,IHubContext<TransactionHub> transactionHub)
+		public TransactionController(ILogger<TransactionController> logger, IHubContext<TransactionHub> transactionHub)
 		{
 			_transactionHub = transactionHub;
 			_logger = logger;
@@ -38,8 +39,8 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		[HttpPost()]
 		public async Task Post(WalletNotifyResult transaction)
 		{
+			_logger.LogInformation($"McWebSocket: Received transaction {transaction.ToJson()}");
 			var json = JsonConvert.SerializeObject(transaction);
-			_logger.LogDebug($"McWebSocket: Received transaction {json}");
 			await _transactionHub.Clients.All.SendAsync("Publish", json);
 		}
 

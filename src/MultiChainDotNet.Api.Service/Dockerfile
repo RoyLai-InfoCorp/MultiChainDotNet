@@ -2,13 +2,6 @@
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
-EXPOSE 12028
-
-ENV MULTICHAINDOTNET_MultiChainConfiguration__Node__NetworkAddress=host.docker.internal
-ENV MULTICHAINDOTNET_MultiChainConfiguration__Node__NetworkPort=12021
-ENV MULTICHAINDOTNET_MultiChainConfiguration__Node__ChainName=chain1
-ENV MULTICHAINDOTNET_MultiChainConfiguration__Node__RpcUserName=multichainrpc
-ENV MULTICHAINDOTNET_MultiChainConfiguration__Node__RpcPassword=C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src

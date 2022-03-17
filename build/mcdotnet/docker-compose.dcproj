@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <DockerTargetOS>Linux</DockerTargetOS>
+    <ProjectGuid>521a69f5-6be4-4480-a311-4665aba387eb</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include=".env" />
+    <None Include="Dockerfile.mcdotnet-relaynode" />
+    <None Include="Dockerfile.mcdotnet-seednode" />
+    <None Include="sandbox\.env\.env" />
+    <None Include="docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.yml" />
+    <None Include="scripts\block-notify.sh" />
+    <None Include="scripts\config.ini" />
+    <None Include="scripts\mc-relay.sh" />
+    <None Include="scripts\mc-seednode.sh" />
+    <None Include="scripts\multichain.conf" />
+    <None Include="scripts\notify.sh" />
+    <None Include="scripts\params.dat" />
+    <None Include="testnet\.env\.env" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="sandbox\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="testnet\**" />
+  </ItemGroup>
+</Project>

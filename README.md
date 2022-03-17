@@ -39,7 +39,7 @@ The output should show `Node ready.` for all 4 nodes.
 
 If nodes doesn't start up, press CTRL-C, enter `docker-compose down` and try again.
 
-The test network will take up 12020 to 12029 on the same machine. Make sure these ports are available or change the docker-compose file.
+The test network will take up 12010 to 12019 on the same machine. Make sure these ports are available or change the docker-compose file.
 
 ### 2. Test the connection
 
@@ -53,7 +53,7 @@ sh$ docker exec -it mcdotnet-relayer2 multichain-cli chain1 getpeerinfo
 
 ### 3. Test Explorer
 
-Open browser at localhost:12029. It should show the MultiChain Explorer.
+Open browser at localhost:12019. It should show the MultiChain Explorer.
 
 ## Compile MultiChainDotNet and Test
 
@@ -106,7 +106,7 @@ Add the configuration to appSettings.json and replace the relevant configuration
             "Wif": "V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff",
             "Ptekey": "45dea220005d271b35edaf08b84e3e505ebb41886a19980fd585d137be693738",
             "NetworkAddress": "localhost",
-            "NetworkPort": 12021,
+            "NetworkPort": 12011,
             "ChainName": "chain1",
             "RpcUserName": "multichainrpc",
             "RpcPassword": "C6n97oxTJrEqmwvVrWGP5TgHpyewRjz2x3soDQKLFkWq"
@@ -383,21 +383,21 @@ The MultiChainDotNet Web Socket Server is designed to broadcast transaction to w
 
 The multichain.conf file on the seednode contains the runtime parameter `walletnotifynew=/root/notify.sh %j %n` for the daemon to send notification to the notify.sh script.
 
-The notification will transmit the decoded raw transaction and blockheight to port `12028`
+The notification will transmit the decoded raw transaction and blockheight to port `12018`
 
 ```sh
 #!/bin/bash
 echo $1
 echo Block Height: $2
 if [ -z $ReceivingHost ]; then
-    ReceivingHost="http://localhost:12028/transaction"
+    ReceivingHost="http://localhost:12018/transaction"
 fi
 curl -s -X POST $ReceivingHost -H 'Content-Type:application/json' -d ''"$1"''
 ```
 
 ### Web Socket Server
 
-The web socket server project is located in the MultiChainDotNet.Api.Service folder. It will run at port `12028` accepting POST request from the seednode at the transaction endpoint. Upon receiving the request, the web socket server will broadcast via the Publish endpoint to the web socket client.
+The web socket server project is located in the MultiChainDotNet.Api.Service folder. It will run at port `12018` accepting POST request from the seednode at the transaction endpoint. Upon receiving the request, the web socket server will broadcast via the Publish endpoint to the web socket client.
 
 ### Web Socket Client using Javascript
 
@@ -405,7 +405,7 @@ The web socket server project is located in the MultiChainDotNet.Api.Service fol
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script>
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:12028/transaction")
+            .withUrl("http://localhost:12018/transaction")
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
@@ -427,7 +427,7 @@ The web socket server project is located in the MultiChainDotNet.Api.Service fol
 using Microsoft.AspNetCore.SignalR.Client;
 
 var connection = new HubConnectionBuilder()
-    .WithUrl("http://localhost:12028/transaction")
+    .WithUrl("http://localhost:12018/transaction")
     .WithAutomaticReconnect()
     .Build();
 ...

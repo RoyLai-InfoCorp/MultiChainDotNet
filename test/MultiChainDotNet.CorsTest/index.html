@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cors Test</title>
+    </head>
+    <body>
+        <div id="result"></div>
+    </body>
+    <script>
+        let headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Accept", "application/json");
+        headers.append("Access-Control-Allow-Origin", "http://127.0.0.1:3000");
+        headers.append("GET", "POST");
+        fetch("http://localhost:12018/jsonrpc", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({ method: "getinfo" }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const el = document.getElementById("result");
+                const result = document.createTextNode(JSON.stringify(data));
+                el.appendChild(result);
+            })
+            .catch((e) => console.error(e));
+    </script>
+</html>

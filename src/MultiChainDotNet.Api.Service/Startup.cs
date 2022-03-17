@@ -9,6 +9,7 @@ using MultiChainDotNet.Core;
 using System;
 using System.Net;
 using System.Net.Http;
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Api.Service
 {
@@ -25,9 +26,7 @@ namespace MultiChainDotNet.Api.Service
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var container = services.BuildServiceProvider();
-			var configRoot = container.GetRequiredService<IConfiguration>();
-			var allowedOrigins = configRoot.GetSection("AllowedOrigins").Get<string>();
+			var allowedOrigins = Configuration.GetSection("AllowedOrigins").Get<string>();
 
 			services.AddSignalR();
 
@@ -53,7 +52,7 @@ namespace MultiChainDotNet.Api.Service
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "MultiChainDotNet Api", Version = "v1" });
 			});
 
-			var mcConfig = configRoot.GetSection("MultiChainConfiguration").Get<MultiChainConfiguration>();
+			var mcConfig = Configuration.GetSection("MultiChainConfiguration").Get<MultiChainConfiguration>();
 			services.AddSingleton(mcConfig);
 			services
 				.AddScoped<JsonRpcCommand>()
@@ -70,7 +69,7 @@ namespace MultiChainDotNet.Api.Service
 						});
 		}
 
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MultiChainConfiguration mcConfig)
 		{
 			if (env.IsDevelopment())
 			{

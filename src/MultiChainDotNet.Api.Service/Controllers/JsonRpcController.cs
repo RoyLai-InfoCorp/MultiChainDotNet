@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MultiChainDotNet.Api.Abstractions;
+using MultiChainDotNet.Core;
+using MultiChainDotNet.Core.Base;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
-
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Api.Service.Controllers
 {
@@ -15,16 +18,23 @@ namespace MultiChainDotNet.Api.Service.Controllers
 	public class JsonRpcController : ControllerBase
 	{
 		private JsonRpcCommand _rpc;
+		ILogger _logger;
 
-		public JsonRpcController(JsonRpcCommand rpc)
+		public JsonRpcController(ILogger<JsonRpcController> logger, JsonRpcCommand rpc)
 		{
+			_logger = logger;
 			_rpc = rpc;
 		}
 
 		[HttpPost()]
 		public async Task<ActionResult<JToken>> Execute(JsonRpcRequest request)
 		{
-			var result = await _rpc.JsonRpcRequestAsync(request.Method, request.Params);
+			_logger.LogInformation($"JsonRpcRequest - {request.ToJson()}");
+			MultiChainResult<JToken> result;
+			if (request.Params.Length == 1 && request.Params[0] is null)
+				result = await _rpc.JsonRpcRequestAsync(request.Method);
+			else
+				result = await _rpc.JsonRpcRequestAsync(request.Method, request.Params);
 			if (result.IsError)
 				return BadRequest(result.ExceptionMessage);
 			return Ok(result.Result);
