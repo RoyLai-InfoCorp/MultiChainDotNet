@@ -27,25 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiChainDotNet.Api.Abstractions", "src\MultiChainDotNet.Api.Abstractions\MultiChainDotNet.Api.Abstractions.csproj", "{81888DD1-3E48-476D-8CF4-DE6F705522A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mcdotnet", "mcdotnet", "{A3BFA756-E6C6-454C-8637-7E5BF2BBF3DB}"
-	ProjectSection(SolutionItems) = preProject
-		build\mcdotnet\.env = build\mcdotnet\.env
-		build\mcdotnet\docker-compose.yml = build\mcdotnet\docker-compose.yml
-		build\mcdotnet\Dockerfile.mcdotnet-relaynode = build\mcdotnet\Dockerfile.mcdotnet-relaynode
-		build\mcdotnet\Dockerfile.mcdotnet-seednode = build\mcdotnet\Dockerfile.mcdotnet-seednode
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{5798A928-70E4-4076-BD12-3C74DB55BB1C}"
-	ProjectSection(SolutionItems) = preProject
-		build\mcdotnet\scripts\block-notify.sh = build\mcdotnet\scripts\block-notify.sh
-		build\mcdotnet\scripts\config.ini = build\mcdotnet\scripts\config.ini
-		build\mcdotnet\scripts\mc-relay.sh = build\mcdotnet\scripts\mc-relay.sh
-		build\mcdotnet\scripts\mc-seednode.sh = build\mcdotnet\scripts\mc-seednode.sh
-		build\mcdotnet\scripts\multichain.conf = build\mcdotnet\scripts\multichain.conf
-		build\mcdotnet\scripts\notify.sh = build\mcdotnet\scripts\notify.sh
-		build\mcdotnet\scripts\params.dat = build\mcdotnet\scripts\params.dat
-	EndProjectSection
-EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "build\mcdotnet\docker-compose.dcproj", "{521A69F5-6BE4-4480-A311-4665ABA387EB}"
 EndProject
 Global
@@ -93,8 +74,6 @@ Global
 		{3E61CFB2-A687-4B89-8FC9-B13E94FD5E79} = {BFC1B820-C7EB-42FD-B409-E1CC5F15F38C}
 		{7CAAB5E5-91AE-4EC2-A501-95286A9AC67F} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
 		{81888DD1-3E48-476D-8CF4-DE6F705522A2} = {E7C0BBB9-534B-4C6F-BCCD-203B4F56727D}
-		{A3BFA756-E6C6-454C-8637-7E5BF2BBF3DB} = {CFF4CD03-F4A1-4B46-9116-2F23372BBABB}
-		{5798A928-70E4-4076-BD12-3C74DB55BB1C} = {A3BFA756-E6C6-454C-8637-7E5BF2BBF3DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EFC47B3-88A4-4AA8-944E-200D97EC87C1}

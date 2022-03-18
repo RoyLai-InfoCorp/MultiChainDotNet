@@ -30,11 +30,15 @@ namespace MultiChainDotNet.Api.Service.Controllers
 		public async Task<ActionResult<JToken>> Execute(JsonRpcRequest request)
 		{
 			_logger.LogInformation($"JsonRpcRequest - {request.ToJson()}");
-			MultiChainResult<JToken> result;
-			if (request.Params.Length == 1 && request.Params[0] is null)
+			if (request.Method is null)
+				return BadRequest("MultiChain API method cannot be missing.");
+			
+			MultiChainResult<JToken> result=null;
+			if (request.Params is null || ( (request.Params.Length == 1) && (request.Params[0] is null)))
 				result = await _rpc.JsonRpcRequestAsync(request.Method);
 			else
 				result = await _rpc.JsonRpcRequestAsync(request.Method, request.Params);
+
 			if (result.IsError)
 				return BadRequest(result.ExceptionMessage);
 			return Ok(result.Result);
