@@ -113,7 +113,7 @@ namespace MultiChainDotNet.Core.Base
 					if (json.result is { })
 						return ParseResult<T>(json.result);
 
-					return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, "Result is JSON but schema is invalid."));
+					return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.PARSE_JSON_RESULT_ERROR, "Result is JSON but schema is invalid."));
 				}
 
 				// If expecting string
@@ -124,12 +124,12 @@ namespace MultiChainDotNet.Core.Base
 				if (typeof(T) == typeof(VoidType))
 					return new MultiChainResult<T>();
 
-				return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, "Expected result type returned."));
+				return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.PARSE_JSON_RESULT_ERROR, "Expected result type returned."));
 
 			}
 			catch (Exception ex)
 			{
-				return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.UNKNOWN_ERROR_CODE, ex.Message));
+				return new MultiChainResult<T>(new MultiChainException(MultiChainErrorCode.PARSE_JSON_RESULT_ERROR, ex.Message));
 			}
 
 		}

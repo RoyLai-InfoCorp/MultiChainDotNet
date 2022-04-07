@@ -2,20 +2,20 @@ version: "3.4"
 
 services:
     mcdotnet-seednode:
-        image: mcdotnet-seednode:2.2
+        image: mcdotnet-seednode:2.3
         build:
             context: .
             dockerfile: Dockerfile.mcdotnet-seednode
-            args:
-                - MC_CHAIN_NAME=${MC_CHAIN_NAME}
-                - MC_RPC_USER=${MC_RPC_USER}
-                - MC_RPC_PASSWORD=${MC_RPC_PASSWORD}
-                - MC_RPC_ALLOWIP=${MC_RPC_ALLOWIP}
-                - MC_RPC_PORT=${MC_RPC_PORT}
-                - MC_NETWORK_PORT=${MC_NETWORK_PORT}
-                - MC_EXPLORER_PORT=${MC_EXPLORER_PORT}
         container_name: mcdotnet-seednode
         environment:
+            - MC_CHAIN_NAME=${MC_CHAIN_NAME}
+            - MC_RPC_USER=${MC_RPC_USER}
+            - MC_RPC_PASSWORD=${MC_RPC_PASSWORD}
+            - MC_RPC_ALLOWIP=${MC_RPC_ALLOWIP}
+            - MC_RPC_PORT=${MC_RPC_PORT}
+            - MC_NETWORK_PORT=${MC_NETWORK_PORT}
+            - MC_PTEKEY=V8dbxQ8s7yDSmLzXuKiR5Zs7Jrqz6tooxv6qYvmptRy83RXFV4BBBiff
+            - MC_EXPLORER_PORT=${MC_EXPLORER_PORT}
             - ReceivingBlockNotify=http://mcdotnet-api:${MC_API_PORT}/block
             - ReceivingHost=http://mcdotnet-api:${MC_API_PORT}/transaction
         ports:
@@ -24,7 +24,7 @@ services:
             - "12019:${MC_EXPLORER_PORT}"
 
     mcdotnet-relayer1:
-        image: mcdotnet-relaynode:2.2
+        image: mcdotnet-relaynode:2.3
         build:
             context: .
             dockerfile: Dockerfile.mcdotnet-relaynode
@@ -44,7 +44,7 @@ services:
             - mcdotnet-seednode
 
     mcdotnet-relayer2:
-        image: mcdotnet-relaynode:2.2
+        image: mcdotnet-relaynode:2.3
         build:
             context: .
             dockerfile: Dockerfile.mcdotnet-relaynode
@@ -63,27 +63,8 @@ services:
         depends_on:
             - mcdotnet-seednode
 
-    mcdotnet-relayer3:
-        image: mcdotnet-relaynode:2.2
-        build:
-            context: .
-            dockerfile: Dockerfile.mcdotnet-relaynode
-        container_name: mcdotnet-relayer3
-        ports:
-            - "12016:${MC_NETWORK_PORT}"
-            - "12017:${MC_RPC_PORT}"
-        environment:
-            - MC_CHAIN_NAME=${MC_CHAIN_NAME}
-            - MC_NETWORK_PORT=${MC_NETWORK_PORT}
-            - MC_RPC_USER=${MC_RPC_USER}
-            - MC_RPC_PASSWORD=${MC_RPC_PASSWORD}
-            - MC_RPC_ALLOWIP=${MC_RPC_ALLOWIP}
-            - MC_SEED_IP=${MC_SEED_IP}
-        depends_on:
-            - mcdotnet-seednode
-
     mcdotnet-api:
-        image: mcdotnet-api:2.2
+        image: mcdotnet-api:2.3
         build:
             context: ../../
             dockerfile: src/MultiChainDotNet.Api.Service/Dockerfile

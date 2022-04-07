@@ -1,30 +1,11 @@
 FROM roylai/multichain-base:2.2 AS base
 
-ARG MC_CHAIN_NAME
-ARG MC_RPC_PORT
-ARG MC_NETWORK_PORT
-ARG MC_RPC_USER
-ARG MC_RPC_PASSWORD
-ARG MC_RPC_ALLOWIP
-ARG MC_EXPLORER_PORT
-
-# create chain
-RUN multichain-util create ${MC_CHAIN_NAME}
-WORKDIR /root/.multichain/${MC_CHAIN_NAME}
-
 # copy chain configuration files
-COPY /scripts/multichain.conf multichain.conf
-COPY /scripts/params.dat params.dat
+COPY /scripts/multichain.conf /root/multichain.conf
+COPY /scripts/params.dat /root/params.dat
 
-RUN sed -i "s/chain-name = .*$/chain-name = ${MC_CHAIN_NAME}/" params.dat
-RUN sed -i "s/chain-description = .*$/chain-description = ${MC_CHAIN_NAME}/" params.dat
-RUN sed -i "s/default-network-port = .*$/default-network-port = ${MC_NETWORK_PORT}/" params.dat
-RUN sed -i "s/default-rpc-port = .*$/default-rpc-port = ${MC_RPC_PORT}/" params.dat
-RUN sed -i "s/rpcuser=.*$/rpcuser=${MC_RPC_USER}/" multichain.conf
-RUN sed -i "s/rpcpassword=.*$/rpcpassword=${MC_RPC_PASSWORD}/" multichain.conf
-RUN sed -i "/rpcallowip=.*$/d" multichain.conf
-RUN echo "" >> multichain.conf
-RUN echo "rpcallowip=${MC_RPC_ALLOWIP}" >> multichain.conf
+# copy explorer config
+COPY ./scripts/config.ini /root/multichain-explorer-2/config.ini
 
 # copy wallet notification script
 COPY /scripts/notify.sh /root
@@ -33,18 +14,7 @@ COPY /scripts/block-notify.sh /root
 RUN chmod +x /root/block-notify.sh
 
 # copy init script
-COPY /scripts/mc-seednode.sh /root
+COPY /scripts/mc-seednode.sh /root/mc-seednode.sh
 RUN chmod +x /root/mc-seednode.sh
-RUN /root/mc-seednode.sh
 
-# create explorer
-COPY ./scripts/config.ini /root/multichain-explorer-2/config.ini
-RUN sed -i "s/chain1/${MC_CHAIN_NAME}/" /root/multichain-explorer-2/config.ini
-RUN sed -i "s/port=.*$/port=${MC_EXPLORER_PORT}/" /root/multichain-explorer-2/config.ini
-
-# create startup script
-RUN echo cd /root/multichain-explorer-2 > /root/startup.sh
-RUN echo python3 -m explorer config.ini daemon >> /root/startup.sh
-RUN echo "multichaind ${MC_CHAIN_NAME}" >> /root/startup.sh
-
-ENTRYPOINT ["bash","/root/startup.sh"]
+CMD ["/root/mc-seednode.sh"]

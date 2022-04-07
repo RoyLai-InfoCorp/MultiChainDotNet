@@ -73,7 +73,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			_stateDb.SaveState(new TestState { StreamName = randomName, Txid = txid.Result });
 		}
 
-		[Test, Order(20),Ignore("")]
+		[Test, Order(20), Ignore("")]
 		public async Task T0620_should_throw_error_if_not_subscribed_to_stream()
 		{
 			var state = _stateDb.GetState<TestState>();
@@ -210,7 +210,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var key1 = RandomName();
 
 			// ACT
-			var result = await _streamCmd.PublishJsonStreamItemAsync(randomName, new string[] { key1 }, new { Id = Guid.NewGuid(), Greetings = "Hello World" },"offchain");
+			var result = await _streamCmd.PublishJsonStreamItemAsync(randomName, new string[] { key1 }, new { Id = Guid.NewGuid(), Greetings = "Hello World" }, "offchain");
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
 			// ASSERT: seed node
@@ -234,7 +234,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test, Order(90)]
-		public async Task T0694_publish_Json_BinaryCache_offchain()
+		public async Task T0694_publish_json_binary_cache_offchain()
 		{
 			var randomName = RandomName();
 
@@ -242,13 +242,13 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			await _streamCmd.CreateStreamAsync(randomName);
 			await _streamCmd.WaitUntilStreamExists(randomName);
 			var binId = (await _mcBinCmd.CreateBinaryCacheAsync()).Result;
-			Console.WriteLine("bin-cache:"+binId);
+			Console.WriteLine("bin-cache:" + binId);
 			var data = File.ReadAllText("image.dat");
 			await _mcBinCmd.AppendBinaryCacheAsync(binId, data);
 
 			// ACT
 			var key1 = RandomName();
-			var result = await _streamCmd.PublishBinaryCacheStreamItemAsync(randomName, new string[] { key1 },binId,"offchain");
+			var result = await _streamCmd.PublishBinaryCacheStreamItemAsync(randomName, new string[] { key1 }, binId, "offchain");
 			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
 
 			// ASSERT: on node1
@@ -272,6 +272,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var relayer1Cmd = new MultiChainStreamCommand(NullLogger<MultiChainStreamCommand>.Instance, _mcConfig, http);
 
 			// Get result from blockchain
+			await relayer1Cmd.SubscribeAsync(randomName);
 			var txoutResult2 = await relayer1Cmd.GetTxOutDataAsync(txid, vout);
 			if (txoutResult2.IsError) throw txoutResult2.Exception;
 			txoutResult2.Result.Hex2Bytes().Length.Should().Be(2354570);

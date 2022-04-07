@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.Base;
+using MultiChainDotNet.Core.MultiChainStream;
 using MultiChainDotNet.Managers;
 using NUnit.Framework;
 using System;
@@ -68,8 +69,11 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);
 			var result = await _streamManager.CreateStreamAsync(streamName);
 
-			Action action = ()=>_streamManager.CreateStreamAsync(streamName);
-			action.Should().Throw<MultiChainException>().WithMessage($"*RPC DUPLICATE NAME*");
+			var streamCmd = _container.GetRequiredService<MultiChainStreamCommand>();
+			await streamCmd.WaitUntilStreamExists(streamName);
+
+			Func<Task> action = () => _streamManager.CreateStreamAsync(streamName);
+			action.Should().ThrowAsync<MultiChainException>().WithMessage($"*RPC DUPLICATE NAME*");
 		}
 
 		private async Task<string> CreateNewStream()

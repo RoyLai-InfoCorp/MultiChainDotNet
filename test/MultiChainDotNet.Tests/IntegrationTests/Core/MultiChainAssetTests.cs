@@ -130,10 +130,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test]
-		public async Task Should_have_permission_to_send_asset_by_default()
+		public async Task Should_not_have_permission_to_send()
 		{
 			var newSender = await _addrCmd.GetNewAddressAsync();
-			var assetName = RandomName(); 
+			var assetName = RandomName();
 
 			await _assetCmd.IssueAssetAsync(newSender.Result, assetName, 10, 0.001, true);
 
@@ -225,10 +225,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			Console.WriteLine("sender:" + newSender);
 			await _permCmd.GrantPermissionAsync(newSender, "send");
 			var assetName = RandomName();
-			Console.WriteLine("assetName:"+assetName);
+			Console.WriteLine("assetName:" + assetName);
 			await _assetCmd.IssueAssetAsync(newSender, assetName, 10, 0.001, true);
 			var balances = await _assetCmd.GetAddressBalancesAsync(newSender);
-			Console.WriteLine("balance:"+JsonConvert.SerializeObject(balances));
+			Console.WriteLine("balance:" + JsonConvert.SerializeObject(balances));
 
 			// ACT			
 			var result = await _assetCmd.SendAssetFromAsync(newSender, _testUser1.NodeWallet, assetName, 11);

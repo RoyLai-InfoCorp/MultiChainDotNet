@@ -117,7 +117,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						multiple = 1,
 						open = true
 					}
-				}, 
+				},
 				"send");
 			Assert.That(raw.IsError, Is.False, raw.ExceptionMessage);
 			//var signed = await _txnCmd.SignRawTransactionAsync(raw.Result);
@@ -291,7 +291,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				{
 					{
 						_admin.NodeWallet,
-						new Dictionary<string, object>{ 
+						new Dictionary<string, object>{
 							{ "", 6000 },
 							{ "issue", new { raw = 0} }
 						}
@@ -328,7 +328,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		{
 			var nfaName = RandomName();
 			Console.WriteLine(nfaName);
-			var result = await _tokenCmd.IssueNfaAsync(_admin.NodeWallet,nfaName);
+			var result = await _tokenCmd.IssueNfaAsync(_admin.NodeWallet, nfaName);
 			if (result.IsError) throw result.Exception;
 			var issued = await _tokenCmd.WaitUntilNfaIssuedAsync(_admin.NodeWallet, nfaName);
 			issued.Should().BeTrue();
@@ -343,7 +343,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 				new Dictionary<string, object>
 				{
 					{
-						_admin.NodeWallet, 
+						_admin.NodeWallet,
 						new Dictionary<string,object>
 						{
 							{ "", 6000 },
@@ -363,7 +363,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			if (raw.IsError) throw raw.Exception;
 
 			// WAIT
-			var wait = await TaskHelper.WaitUntilTrueAsync(async () => {
+			var wait = await TaskHelper.WaitUntilTrueAsync(async () =>
+			{
 				var bal = await _tokenCmd.GetTokenBalancesAsync(_admin.NodeWallet);
 				if (bal.IsError)
 					throw bal.Exception;
@@ -528,10 +529,10 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						new Dictionary<string, object>{ { "", 0} }
 					}
 				},
-				new object[] 
+				new object[]
 				{
 					new Dictionary<string, object>
-					{ 
+					{
 						{ "for", streamName },
 						{ "key", "11111"},
 						{ "data", new { json = new { name = "test", description = "hello world" } } }
@@ -712,6 +713,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		public async Task Should_throw_insufficient_priority_when_using_unspent_with_sufficient_balance()
 		{
 			var unspents = await _txnCmd.ListUnspentAsync(_admin.NodeWallet);
+			if (unspents.IsError) throw unspents.Exception;
 			var unspent = unspents.Result.FirstOrDefault(x => x.Amount == 0);
 			var raw = await _txnCmd.CreateRawTransactionAsync(unspent.TxId, unspent.Vout,
 				new Dictionary<string, object>
@@ -771,7 +773,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 
 
 
-		[Test, Order(160),Ignore("")]
+		[Test, Order(160), Ignore("")]
 		public async Task Should_throw_insane_fees_when_pay_without_change()
 		{
 			//var lockUnspent = await _txnCmd.PrepareLockUnspentFromAsync(_admin.NodeWallet, "", 3000);

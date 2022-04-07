@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Polly.Timeout;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -85,27 +86,44 @@ namespace MultiChainDotNet.Core.Base
 				{ "params", args }
 			};
 			string content = null;
+			string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+			string jsonRpcRequestFormatted = mcArgs.ToJson();
 			try
 			{
-				string jsonRpcRequest = JsonConvert.SerializeObject(mcArgs, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 				var cmd = ToCommand(method, args);
-				_logger.LogDebug("MultiChainRequest: POST {MultiChainMethod} {MultiChainArgs}", method, JValue.Parse(jsonRpcRequest).ToString(Formatting.Indented));
+				_logger.LogDebug("MultiChainRequest: POST {MultiChainMethod} {MultiChainArgs}", method, jsonRpcRequestFormatted);
 				var response = await _httpClient.PostAsync("", new StringContent(jsonRpcRequest, Encoding.UTF8, "text/plain"));
 
+				// handle non status-500 errors
+				if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.InternalServerError)
+					throw new Exception(response.ReasonPhrase);
+
+				// Parse content to get result or error
 				content = await response.Content.ReadAsStringAsync();
 				var result = MultiChainResultParser.ParseMultiChainResult<T>(content);
-				if (!response.IsSuccessStatusCode && !String.IsNullOrEmpty(response.ReasonPhrase))
+
+				// handle status-500 but is non-multichain errors
+				if (!response.IsSuccessStatusCode && !result.IsError)
 					throw new Exception(response.ReasonPhrase);
+
+				// handle multichain errors
 				if (result.IsError)
 					throw result.Exception;
+
 				_logger.LogDebug("MultiChainResponse: {MultiChainMethod} - {MultiChainResponse}", method, JsonConvert.SerializeObject(result.Result, Formatting.Indented));
 				return result;
 			}
+			catch (TimeoutRejectedException trex)
+			{
+				var exceptionMessage = $"MultiChainError: Polly timeout. Call: {method} - {jsonRpcRequestFormatted}";
+				_logger.LogWarning(exceptionMessage);
+				return new MultiChainResult<T>(new Exception(exceptionMessage, trex));
+			}
 			catch (Exception ex)
 			{
-				var exceptionMessage = $"MultiChainError: {ex.ToString()}";
+				var exceptionMessage = $"MultiChainError: {ex.Message}. Call: {method} - {jsonRpcRequestFormatted}";
 				if (content is { })
-					exceptionMessage = $"MultiChainError: {method} - {content.ToJson()} exception: {ex.ToString()}";
+					exceptionMessage = $"{exceptionMessage} {content.ToJson()}";
 				_logger.LogWarning(exceptionMessage);
 				return new MultiChainResult<T>(ex);
 			}

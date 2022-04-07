@@ -17,6 +17,7 @@ namespace MultiChainDotNet.Fluent.Builders
 		IMultiSigTransactionBuilder MultiSign(string redeemScript);
 		string[] MultiSignPartial(string raw, string redeemScript, BitCoinConstants.HashTypeEnum hashType = BitCoinConstants.HashTypeEnum.SIGHASH_ALL);
 		string RawSigned();
+		string Raw();
 		string Send();
 
 		#endregion

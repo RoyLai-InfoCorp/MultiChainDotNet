@@ -857,6 +857,11 @@ namespace MultiChainDotNet.Fluent
 
 		#region Create, Describe and Send Raw Transaction
 
+		public string Raw()
+		{
+			return _rawSendFrom.Bytes2Hex();
+		}
+
 		public string RawSigned()
 		{
 			return _signed;

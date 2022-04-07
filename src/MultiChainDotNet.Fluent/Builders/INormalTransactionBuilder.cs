@@ -12,6 +12,8 @@ namespace MultiChainDotNet.Fluent.Builders
 		INormalTransactionBuilder AddSigner(SignerBase signer);
 		INormalTransactionBuilder Sign();
 		string RawSigned();
+		string Raw();
+
 		string Send();
 
 		#endregion

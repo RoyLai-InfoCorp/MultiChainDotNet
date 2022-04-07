@@ -67,11 +67,12 @@ namespace MultiChainDotNet.Core.Base
 
 		// UNDOCUMENTED
 		NO_ERROR = 0,
-		NFA_NAME_IS_MISSING = -9850,			// NFA name must be provided when querying tokens
+		NFA_NAME_IS_MISSING = -9850,            // NFA name must be provided when querying tokens
 		RPC_WALLET_INSUFFICIENT_ASSET = -9860,  // The wallet or address has insufficient assets for this transaction.
 		TXOUT_IS_NULL = -9870,                  // gettxout returns null.
 		ASSET_BALANCE_NOT_FOUND = -9880,        // Asset balance not found.
 		CONFIG_NODE_MISSING = -9897,            // Node configuration is missing
+		PARSE_JSON_RESULT_ERROR = -9997,        // Result cannot be parsed as json
 		INTERNAL_ERROR = -9998,
 		UNKNOWN_ERROR_CODE = -9999,             // Unclassified
 		NON_MULTICHAIN_ERROR_CODE = -99999,     // Unclassified

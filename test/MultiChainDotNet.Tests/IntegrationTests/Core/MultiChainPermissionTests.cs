@@ -9,14 +9,16 @@ using MultiChainDotNet.Core;
 using MultiChainDotNet.Core.MultiChainAddress;
 using MultiChainDotNet.Core.MultiChainAsset;
 using MultiChainDotNet.Core.MultiChainPermission;
+using MultiChainDotNet.Core.MultiChainTransaction;
 using MultiChainDotNet.Core.Utils;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using UtilsDotNet.Extensions;
 
 namespace MultiChainDotNet.Tests.IntegrationTests.Core
 {
@@ -111,7 +113,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
 
 			// ACT: Relayer1 grant permission
-			await GrantPermissionFromNode(_relayer1,newAddr,"issue");
+			await GrantPermissionFromNode(_relayer1, newAddr, "issue");
 
 			// ACT: Relayer2 grant permission
 			await GrantPermissionFromNode(_relayer2, newAddr, "issue");
@@ -163,6 +165,90 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 			var checkPermission = await _permCmd.CheckPermissionGrantedAsync(newAddr, "issue");
 			Assert.That(checkPermission.Result, Is.False);
 		}
+
+		[Test, Order(60)]
+		public async Task Should_not_have_send_permission()
+		{
+			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
+			var perm = await _permCmd.ListPermissionsAsync(newAddr, "send");
+			perm.Result.Count.Should().Be(0);
+		}
+
+		[Test, Order(62)]
+		public async Task Should_grant_send_permission()
+		{
+			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
+
+			await _permCmd.GrantPermissionAsync(newAddr, "send");
+			var result = await _permCmd.WaitUntilPermissionGranted(newAddr, "send");
+			result.Should().BeTrue();
+
+			var perm = await _permCmd.ListPermissionsAsync(newAddr, "send");
+			perm.Result.Count.Should().Be(1);
+
+			// Send to newAddr to test sending back
+			var r1 = await _mcAssetCmd.SendAsync(newAddr, 1000);
+			r1.IsError.Should().BeFalse();
+
+			await Task.Delay(2000);
+			var bal = await _mcAssetCmd.GetAddressBalancesAsync(newAddr);
+			Console.WriteLine($"Balance before: {bal.ToJson()}");
+
+			var r2 = await _mcAssetCmd.SendFromAsync(newAddr, _relayer1.NodeWallet, 100);
+			r2.IsError.Should().BeFalse();
+
+			// ASSERT
+			await Task.Delay(2000);
+			bal = await _mcAssetCmd.GetAddressBalancesAsync(newAddr);
+			Console.WriteLine($"Balance after: {bal.ToJson()}");
+
+		}
+
+		[Test, Order(62)]
+		public async Task Should_send_with_metadata_when_granted_send_permission()
+		{
+			var newAddr = (await _addrCmd.GetNewAddressAsync()).Result;
+
+			await _permCmd.GrantPermissionAsync(newAddr, "send");
+			var result = await _permCmd.WaitUntilPermissionGranted(newAddr, "send");
+			result.Should().BeTrue();
+
+			// Send to newAddr to test sending back
+			var r1 = await _mcAssetCmd.SendAsync(newAddr, 1000);
+			r1.IsError.Should().BeFalse();
+
+			await Task.Delay(2000);
+			var bal = await _mcAssetCmd.GetAddressBalancesAsync(newAddr);
+			Console.WriteLine($"Balance before: {bal.ToJson()}");
+
+			// Send with metadata
+			var txnCmd = _container.GetRequiredService<MultiChainTransactionCommand>();
+			var txid = await txnCmd.CreateRawSendFromAsync(
+				newAddr,
+				new Dictionary<string, object>
+				{
+					{
+					_relayer1.NodeWallet,
+						new Dictionary<string, object>{
+							{ "", 1000 },
+							{ "data", new { json = new { Annotation = "This is a test" } } }
+						}
+					}
+				},
+				new object[] { },
+				"send");
+
+			if (txid.IsError) throw txid.Exception;
+			txid.Result.Should().NotBeNullOrEmpty();
+
+			// ASSERT
+			await Task.Delay(2000);
+			bal = await _mcAssetCmd.GetAddressBalancesAsync(newAddr);
+			Console.WriteLine($"Balance after: {bal.ToJson()}");
+
+		}
+
+
 
 	}
 }
