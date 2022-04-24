@@ -30,6 +30,15 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 		}
 
 		[Test]
+		public async Task Should_get_peerinfo()
+		{
+			var result = await _bcCmd.GetPeerInfoAsync();
+			Assert.That(result.IsError, Is.False, result.ExceptionMessage);
+			_logger.LogInformation(JsonConvert.SerializeObject(result));
+		}
+
+
+		[Test]
 		public async Task Should_get_latest_block_details()
 		{
 			var chain = await _bcCmd.GetInfoAsync();

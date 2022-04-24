@@ -27,6 +27,11 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 			return await JsonRpcRequestAsync<GetInfoResult>("getinfo");
 		}
 
+		public async Task<MultiChainResult<IList<GetPeerInfoResult>>> GetPeerInfoAsync()
+		{
+			return await JsonRpcRequestAsync<IList<GetPeerInfoResult>>("getpeerinfo");
+		}
+
 		public async Task<MultiChainResult<GetBlockResult>> GetBlockAsync(string blockHash)
 		{
 			return await JsonRpcRequestAsync<GetBlockResult>("getblock", blockHash);
@@ -37,9 +42,9 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 			return await JsonRpcRequestAsync<GetBlockResult>("getblock", height);
 		}
 
-		public async Task<MultiChainResult<GetBlockResult>> GetLastBlockInfoAsync(UInt64 skip=0)
+		public async Task<MultiChainResult<GetBlockResult>> GetLastBlockInfoAsync(UInt64 skip = 0)
 		{
-			if (skip==0)
+			if (skip == 0)
 				return await JsonRpcRequestAsync<GetBlockResult>("getlastblockinfo");
 			return await JsonRpcRequestAsync<GetBlockResult>("getlastblockinfo", skip);
 		}
@@ -47,8 +52,8 @@ namespace MultiChainDotNet.Core.MultiChainBlockchain
 		public async Task<MultiChainResult<IList<GetBlockResult>>> ListBlocksAsync(UInt64 blockFrom, UInt64 blockTo, bool verbose = false)
 		{
 			if (verbose)
-				return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks",$"{blockFrom}-{blockTo}");
-			return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks", $"{blockFrom}-{blockTo}",verbose);
+				return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks", $"{blockFrom}-{blockTo}");
+			return await JsonRpcRequestAsync<IList<GetBlockResult>>("listblocks", $"{blockFrom}-{blockTo}", verbose);
 		}
 
 	}
