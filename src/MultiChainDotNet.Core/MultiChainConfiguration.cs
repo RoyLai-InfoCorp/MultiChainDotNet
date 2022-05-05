@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 
 namespace MultiChainDotNet.Core
 {
@@ -16,6 +17,7 @@ namespace MultiChainDotNet.Core
 		public UInt32 Multiple { get; set; }
 		public double MinimumTxnFee { get; set; }
 		public double MinimumStorageFee { get; set; }
+		public IList<string> ExcludeLogError { get; set; }
 		public MultiChainNode Node { get; set; }
 
 		public static MultiChainConfiguration BuildConfig(string chainConfigPath, string nodeConfigPath)

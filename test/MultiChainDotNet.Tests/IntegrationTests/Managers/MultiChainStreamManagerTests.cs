@@ -34,6 +34,19 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		}
 
 		[Test]
+		public async Task Should_not_log_error_for_stream_not_found()
+		{
+			string streamName = "missing";
+			// ASSERT
+			var found = await _streamManager.GetStreamInfoAsync(streamName);
+
+			// Check log file to confirm.
+
+			Assert.That(found, Is.Null);
+		}
+
+
+		[Test]
 		public async Task Should_be_able_to_create_new_stream()
 		{
 			var streamName = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 20);

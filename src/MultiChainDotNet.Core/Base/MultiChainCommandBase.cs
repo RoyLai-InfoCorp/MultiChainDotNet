@@ -124,8 +124,11 @@ namespace MultiChainDotNet.Core.Base
 				var exceptionMessage = $"MultiChainError: {ex.Message}. Call: {method} - {jsonRpcRequestFormatted}";
 				if (content is { })
 					exceptionMessage = $"{exceptionMessage} {content.ToJson()}";
-				_logger.LogWarning(exceptionMessage);
-				return new MultiChainResult<T>(ex);
+				var mcException = new MultiChainResult<T>(ex);
+				var shouldLogError = _mcConfig.ExcludeLogError?.Contains(((int)mcException.ErrorCode).ToString()) ?? false ? false : true;
+				if (shouldLogError)
+					_logger.LogWarning(exceptionMessage);
+				return mcException;
 			}
 		}
 
