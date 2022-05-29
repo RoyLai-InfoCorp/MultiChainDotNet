@@ -58,7 +58,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_not_be_able_to_create_transaction_when_multisig_address_has_no_fund()
 		{
 			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
-			var multisigResult = addressMgr.CreateMultiSig(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
+			var multisigResult = await addressMgr.CreateMultiSigAsync(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var multisig = multisigResult.Address;
 			var redeemScript = multisigResult.RedeemScript;
 			var balanceResult = await _assetManager.GetAssetBalanceByAddressAsync(multisig, "");
@@ -68,7 +68,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 				var issueResult = _assetManager.Issue(multisig, assetName, 10, true);
 
 				// ACT
-				Action action = ()=> _multisSigManager.CreateSendAssetSignatureSlip(multisig, _testUser2.NodeWallet, assetName, 1);
+				Action action = () => _multisSigManager.CreateSendAssetSignatureSlip(multisig, _testUser2.NodeWallet, assetName, 1);
 				action.Should().Throw<MultiChainException>().WithMessage($"*{MultiChainErrorCode.RPC_WALLET_INSUFFICIENT_FUNDS.ToString()}*");
 			}
 		}
@@ -78,7 +78,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Managers
 		public async Task Should_be_able_to_multisign_send_asset_transaction()
 		{
 			var addressMgr = _container.GetRequiredService<IMultiChainAddressManager>();
-			var multisigResult = addressMgr.CreateMultiSig(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
+			var multisigResult = await addressMgr.CreateMultiSigAsync(2, new string[] { _relayer1.Pubkey, _relayer2.Pubkey, _relayer3.Pubkey });
 			var multisig = multisigResult.Address;
 			var redeemScript = multisigResult.RedeemScript;
 			var assetName = RandomName();

@@ -48,19 +48,33 @@ namespace MultiChainDotNet.Managers
 
 		}
 
-		public CreateMultiSigResult CreateMultiSig(int nRequired, string[] pubkeys)
+		//public CreateMultiSigResult CreateMultiSig(int nRequired, string[] pubkeys)
+		//{
+		//	using (var scope = _container.CreateScope())
+		//	{
+		//		var addressCmd = scope.ServiceProvider.GetRequiredService<MultiChainAddressCommand>();
+		//		var result = Task.Run(async () =>
+		//		{
+		//			var addr = await addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
+		//			await ImportAddressAsync(addr.Result.Address);
+		//			return addr;
+		//		}).GetAwaiter().GetResult();
+		//		if (result.IsError)
+		//			throw result.Exception;
+		//		return result.Result;
+		//	}
+
+		//}
+
+		public async Task<CreateMultiSigResult> CreateMultiSigAsync(int nRequired, string[] pubkeys)
 		{
 			using (var scope = _container.CreateScope())
 			{
 				var addressCmd = scope.ServiceProvider.GetRequiredService<MultiChainAddressCommand>();
-				var result = Task.Run(async () =>
-				{
-					var addr = await addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
-					await ImportAddressAsync(addr.Result.Address);
-					return addr;
-				}).GetAwaiter().GetResult();
+				var result = await addressCmd.CreateMultiSigAsync(nRequired, pubkeys);
 				if (result.IsError)
 					throw result.Exception;
+				await ImportAddressAsync(result.Result.Address);
 				return result.Result;
 			}
 
@@ -76,7 +90,6 @@ namespace MultiChainDotNet.Managers
 					throw result.Exception;
 				return result.Result;
 			}
-
 		}
 
 	}
