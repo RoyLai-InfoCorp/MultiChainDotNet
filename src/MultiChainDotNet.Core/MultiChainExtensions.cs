@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Collections.Generic;
+using MultiChainDotNet.Core.MultiChainFilter;
 
 namespace MultiChainDotNet.Core
 {
@@ -73,6 +74,7 @@ namespace MultiChainDotNet.Core
 				.ConfigureHttpClient<MultiChainPermissionCommand>()
 				.ConfigureHttpClient<MultiChainBlockchainCommand>()
 				.ConfigureHttpClient<MultiChainVariableCommand>()
+				.ConfigureHttpClient<MultiChainFilterCommand>()
 				;
 			return services;
 		}

@@ -46,7 +46,8 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		private IServiceCollection AddNamedHttpClient(IServiceCollection services, MultiChainNode node)
 		{
 			services
-				.AddHttpClient(node.NodeName, c => {
+				.AddHttpClient(node.NodeName, c =>
+				{
 					c.BaseAddress = new Uri($"http://{node.NetworkAddress}:{node.NetworkPort}/");
 				})
 				.SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
@@ -117,7 +118,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 		protected async Task GrantPermissionFromNode(MultiChainNode node, string newAddr, string permission)
 		{
 			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(node.NodeName);
-			var addr = new MultiChainAddressCommand( _loggerFactory.CreateLogger<MultiChainAddressCommand>(), _mcConfig, http);
+			var addr = new MultiChainAddressCommand(_loggerFactory.CreateLogger<MultiChainAddressCommand>(), _mcConfig, http);
 			await addr.ImportAddressAsync(newAddr);
 			var perm1 = new MultiChainPermissionCommand(_loggerFactory.CreateLogger<MultiChainPermissionCommand>(), _mcConfig, http);
 			var grant = await perm1.GrantPermissionFromAsync(node.NodeWallet, newAddr, permission);
@@ -134,6 +135,18 @@ namespace MultiChainDotNet.Tests.IntegrationTests
 			var grant = await perm1.RevokePermissionFromAsync(node.NodeWallet, newAddr, permission);
 			await Task.Delay(1000);
 			if (grant.IsError) throw grant.Exception;
+		}
+
+		protected async Task ImportAddressFromNode(MultiChainNode node, string address)
+		{
+			var http = _container.GetRequiredService<IHttpClientFactory>().CreateClient(node.NodeName);
+			var addr = new MultiChainAddressCommand(_loggerFactory.CreateLogger<MultiChainAddressCommand>(), _mcConfig, http);
+			await addr.ImportAddressAsync(address);
+		}
+
+		protected HttpClient CreateHttpClient(MultiChainNode node)
+		{
+			return _container.GetRequiredService<IHttpClientFactory>().CreateClient(node.NodeName);
 		}
 
 		public TestBase()
