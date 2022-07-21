@@ -35,11 +35,16 @@ namespace MultiChainDotNet.Core.MultiChainStream
 
 		public Task<bool> WaitUntilStreamExists(string streamName)
 		{
-			return TaskHelper.WaitUntilTrueAsync(async () => (await ListStreamsAsync()).Result.Any(x => x.Name == streamName), 
-			5, 
+			return TaskHelper.WaitUntilTrueAsync(async () =>
+			{
+				var streams = await ListStreamsAsync();
+				if (streams.Result == null)
+					return false;
+				return streams.Result.Any(x => x.Name == streamName);
+			},
+			5,
 			500);
 		}
-
 
 		#region streams
 		public async Task<MultiChainResult<string>> CreateStreamAsync(string streamName, bool isOpen = true)
@@ -135,13 +140,13 @@ namespace MultiChainDotNet.Core.MultiChainStream
 		}
 
 
-		public async Task<MultiChainResult<string>> PublishJsonStreamItemAsync(string streamName, string[] key, object payload, string options=null)
+		public async Task<MultiChainResult<string>> PublishJsonStreamItemAsync(string streamName, string[] key, object payload, string options = null)
 		{
 			if (streamName is null)
 				throw new ArgumentNullException(nameof(streamName));
 			if (string.IsNullOrEmpty(options))
 				return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload });
-			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload },options);
+			return await JsonRpcRequestAsync<string>("publish", streamName, key, new { json = payload }, options);
 		}
 
 		public async Task<MultiChainResult<StreamItemsResult>> GetStreamItemByTxidAsync(string streamName, string txId)

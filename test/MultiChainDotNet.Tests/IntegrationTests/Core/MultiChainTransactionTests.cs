@@ -346,7 +346,7 @@ namespace MultiChainDotNet.Tests.IntegrationTests.Core
 						_admin.NodeWallet,
 						new Dictionary<string,object>
 						{
-							{ "", 6000 },
+							//{ "", 6000 },
 							{ "issuetoken",new
 								{
 									asset = nfaName,

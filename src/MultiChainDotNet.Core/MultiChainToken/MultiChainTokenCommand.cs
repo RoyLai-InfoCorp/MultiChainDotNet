@@ -86,7 +86,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 				return new MultiChainResult<IList<GetAssetInfoIssuesResult>>(assetInfo.Exception);
 
 			IList<GetAssetInfoIssuesResult> nfts = assetInfo.Result.Issues?.Where(x => x.Token is { })?.ToList();
-			if (nfts is { } && nfts.Count>0)
+			if (nfts is { } && nfts.Count > 0)
 				return new MultiChainResult<IList<GetAssetInfoIssuesResult>>(nfts);
 
 			return new MultiChainResult<IList<GetAssetInfoIssuesResult>>();
@@ -95,14 +95,21 @@ namespace MultiChainDotNet.Core.MultiChainToken
 		public Task<bool> WaitUntilNfaIssuedAsync(string issuer, string nfaName)
 		{
 			return TaskHelper.WaitUntilTrueAsync(async () =>
-				(await ListNfaAsync(issuer)).Result.Any(x => x.Name == nfaName)
-			, 5, 500);
+			{
+				var nfas = await ListNfaAsync(issuer);
+				if (nfas.Result == null)
+					return false;
+				return nfas.Result.Any(x => x.Name == nfaName);
+			},
+			5,
+			500);
+
 		}
 
 		public Task<bool> WaitUntilNftIssuedAsync(string issuer, string nfaName, string tokenId)
 		{
 			return TaskHelper.WaitUntilTrueAsync(async () =>
-				(await ListNftByAddressAsync(issuer, nfaName, tokenId)).Result.Count > 0
+				(await ListNftByAddressAsync(issuer, nfaName, tokenId)).Result?.Count > 0
 			, 5, 500);
 		}
 
@@ -174,7 +181,7 @@ namespace MultiChainDotNet.Core.MultiChainToken
 			return await JsonRpcRequestAsync<string>("send", to, new Dictionary<string, object> { { nfaName, new {
 				token = tokenId,
 				qty = qty
-			} } } );
+			} } });
 		}
 
 		public async Task<MultiChainResult<string>> SendNftFromAsync(string from, string to, string nfaName, string tokenId, int qty = 1)
